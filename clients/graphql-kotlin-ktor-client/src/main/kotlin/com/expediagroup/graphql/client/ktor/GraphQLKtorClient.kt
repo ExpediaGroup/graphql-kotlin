@@ -25,7 +25,6 @@ import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesExtension
 import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.expediagroup.graphql.client.types.defaultAutomaticPersistedQueriesSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -49,14 +48,14 @@ open class GraphQLKtorClient(
     private val url: URL,
     private val httpClient: HttpClient = HttpClient(engineFactory = CIO),
     private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
-    override val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings = defaultAutomaticPersistedQueriesSettings
+    override val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings()
 ) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
         return if (automaticPersistedQueriesSettings.enabled) {
             val queryId = request.getQueryId()
             val automaticPersistedQueriesExtension = AutomaticPersistedQueriesExtension(
-                version = automaticPersistedQueriesSettings.version,
+                version = AutomaticPersistedQueriesSettings.VERSION,
                 sha256Hash = queryId
             )
 

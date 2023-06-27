@@ -266,10 +266,7 @@ class GraphQLWebClientTest {
         val client = GraphQLWebClient(
             url = "${wireMockServer.baseUrl()}/graphql",
             serializer = GraphQLClientJacksonSerializer(),
-            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
-                enabled = true,
-                version = 1
-            )
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true)
         )
 
         runBlocking {
@@ -327,10 +324,7 @@ class GraphQLWebClientTest {
         val client = GraphQLWebClient(
             url = "${wireMockServer.baseUrl()}/graphql",
             serializer = GraphQLClientJacksonSerializer(),
-            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
-                enabled = true,
-                version = 1
-            )
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true)
         )
 
         runBlocking {

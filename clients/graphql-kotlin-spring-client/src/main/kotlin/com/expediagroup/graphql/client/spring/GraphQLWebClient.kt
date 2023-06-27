@@ -25,7 +25,6 @@ import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesExtension
 import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.expediagroup.graphql.client.types.defaultAutomaticPersistedQueriesSettings
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -41,7 +40,7 @@ open class GraphQLWebClient(
     url: String,
     private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
     builder: WebClient.Builder = WebClient.builder(),
-    override val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings = defaultAutomaticPersistedQueriesSettings
+    override val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings()
 ) : GraphQLClient<WebClient.RequestBodyUriSpec> {
 
     private val client: WebClient = builder
@@ -59,7 +58,7 @@ open class GraphQLWebClient(
         return if (automaticPersistedQueriesSettings.enabled) {
             val queryId = request.getQueryId()
             val automaticPersistedQueriesExtension = AutomaticPersistedQueriesExtension(
-                version = automaticPersistedQueriesSettings.version,
+                version = AutomaticPersistedQueriesSettings.VERSION,
                 sha256Hash = queryId
             )
 

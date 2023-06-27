@@ -17,11 +17,9 @@
 package com.expediagroup.graphql.client.types
 
 data class AutomaticPersistedQueriesSettings(
-    val enabled: Boolean,
-    val version: Int
-)
-
-val defaultAutomaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
-    enabled = false,
-    version = 1
-)
+    val enabled: Boolean = false
+) {
+    companion object {
+        const val VERSION: Int = 1
+    }
+}
