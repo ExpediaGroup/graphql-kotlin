@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.generator.extensions.print
-import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
+import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.jackson
@@ -30,7 +30,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.application
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.websocket.application
 import io.ktor.server.websocket.webSocket
+import kotlinx.coroutines.flow.collect
 
 /**
  * Configures GraphQL GET route
@@ -76,20 +78,15 @@ fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Bool
  * Configures GraphQL subscriptions route
  *
  * @param endpoint GraphQL server subscriptions endpoint, defaults to 'subscriptions'
- * @param handlerOverride Alternative KtorGraphQLSubscriptionHandler to handle subscriptions logic
  */
 fun Route.graphQLSubscriptionsRoute(
-    endpoint: String = "subscriptions",
-    protocol: String? = "graphql-transport-ws",
-    handlerOverride: KtorGraphQLSubscriptionHandler? = null,
+    endpoint: String = "subscriptions"
 ) {
-    val handler = handlerOverride ?: run {
-        val graphQLPlugin = this.application.plugin(GraphQL)
-        graphQLPlugin.subscriptionsHandler
-    }
-
-    webSocket(path = endpoint, protocol = protocol) {
-        handler.handle(this)
+    webSocket(path = endpoint, protocol = GRAPHQL_WS_PROTOCOL) {
+        this.application.plugin(GraphQL)
+            .subscriptionServer
+            .handleSubscription(this)
+            .collect()
     }
 }
 

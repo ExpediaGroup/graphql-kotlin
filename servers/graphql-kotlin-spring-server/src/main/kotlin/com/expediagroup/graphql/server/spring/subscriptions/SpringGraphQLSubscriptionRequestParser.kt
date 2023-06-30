@@ -16,17 +16,18 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-/**
- * This is the best cast saftey we can get with the generics
- */
-@Suppress("UNCHECKED_CAST")
-@Deprecated(message = "used by deprecated subscriptions-transport-ws protocol")
-internal fun castToMapOfStringString(payload: Any?): Map<String, String> {
-    if (payload != null && payload is Map<*, *> && payload.isNotEmpty()) {
-        if (payload.keys.first() is String && payload.values.first() is String) {
-            return payload as Map<String, String>
-        }
-    }
+import com.expediagroup.graphql.server.execution.subscription.GraphQLSubscriptionRequestParser
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
+import org.springframework.web.reactive.socket.WebSocketSession
 
-    return emptyMap()
+/**
+ * Spring specific version of WebSocket subscription request parser.
+ */
+interface SpringGraphQLSubscriptionRequestParser : GraphQLSubscriptionRequestParser<WebSocketSession>
+
+class DefaultWebSocketGraphQLRequestParser : SpringGraphQLSubscriptionRequestParser {
+    override suspend fun parseRequestFlow(session: WebSocketSession): Flow<String> = session.receive()
+        .map { it.payloadAsText }
+        .asFlow()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * Implementation of Apollo Subscription Server Lifecycle Events
  * https://www.apollographql.com/docs/graphql-subscriptions/lifecycle-events/
  */
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 interface ApolloSubscriptionHooks {
     /**
      * Allows validation of connectionParams prior to starting the connection.
@@ -39,7 +40,7 @@ interface ApolloSubscriptionHooks {
      * The context can not be updated here, it is read only.
      */
     fun onOperationWithContext(
-        operationMessage: SubscriptionOperationMessage,
+        operationMessage: ApolloSubscriptionOperationMessage,
         session: WebSocketSession,
         graphQLContext: GraphQLContext
     ): Unit = Unit
@@ -58,4 +59,5 @@ interface ApolloSubscriptionHooks {
 /**
  * Default implementation of Apollo Subscription Lifecycle Events.
  */
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 open class SimpleSubscriptionHooks : ApolloSubscriptionHooks

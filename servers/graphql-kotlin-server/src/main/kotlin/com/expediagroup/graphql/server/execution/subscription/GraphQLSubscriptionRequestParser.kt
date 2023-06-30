@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions
+package com.expediagroup.graphql.server.execution.subscription
 
-import io.ktor.server.websocket.WebSocketServerSession
+import kotlinx.coroutines.flow.Flow
 
-interface KtorGraphQLSubscriptionHandler {
-    suspend fun handle(session: WebSocketServerSession)
+/**
+ * A generic server interface that handles reading WebSocket text messages from the specific
+ * WebSocket session implementation.
+ */
+interface GraphQLSubscriptionRequestParser<Session> {
+    suspend fun parseRequestFlow(session: Session): Flow<String>
 }

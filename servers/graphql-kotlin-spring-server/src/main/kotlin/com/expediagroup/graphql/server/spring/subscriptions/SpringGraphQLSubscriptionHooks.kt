@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import io.mockk.mockk
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
+import com.expediagroup.graphql.server.execution.subscription.GraphQLSubscriptionHooks
+import org.springframework.web.reactive.socket.WebSocketSession
 
-class SubscriptionWebSocketHandlerTest {
+/**
+ * Spring specific version of WebSocket subscription hooks.
+ */
+interface SpringGraphQLSubscriptionHooks : GraphQLSubscriptionHooks<WebSocketSession>
 
-    @Test
-    fun getSubProtocols() {
-        val handler = SubscriptionWebSocketHandler(mockk(), mockk())
-        assertEquals(expected = listOf("graphql-ws"), actual = handler.subProtocols)
-    }
-}
+/**
+ * Default implementation of lifecycle event hooks (No-op).
+ */
+open class DefaultSpringGraphQLSubscriptionHooks : SpringGraphQLSubscriptionHooks

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,9 +90,17 @@ data class GraphQLConfigurationProperties(
     data class SubscriptionConfigurationProperties(
         /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
         val endpoint: String = "subscriptions",
-        /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
-        val keepAliveInterval: Long? = null
+        /** **Deprecated** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
+        val keepAliveInterval: Long? = null,
+        /** Server timeout between establishing web socket connection and receiving connection-init message. */
+        val connectionInitTimeout: Long = 60_000,
+        val protocol: SubscriptionProtocol = SubscriptionProtocol.APOLLO_SUBSCRIPTIONS_WS
     )
+
+    enum class SubscriptionProtocol {
+        APOLLO_SUBSCRIPTIONS_WS,
+        GRAPHQL_WS
+    }
 
     /**
      * Playground configuration properties.

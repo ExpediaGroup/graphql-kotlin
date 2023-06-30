@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
  *
  * https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
  */
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SubscriptionOperationMessage(
+data class ApolloSubscriptionOperationMessage(
     val type: String,
     val id: String? = null,
     val payload: Any? = null

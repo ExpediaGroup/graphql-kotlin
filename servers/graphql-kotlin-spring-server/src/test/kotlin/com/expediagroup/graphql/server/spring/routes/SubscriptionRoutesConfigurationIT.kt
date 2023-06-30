@@ -19,9 +19,9 @@ package com.expediagroup.graphql.server.spring.routes
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -110,9 +110,9 @@ class SubscriptionRoutesConfigurationIT(
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { getNumber }")
         val messageId = "1"
-        val initMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id = messageId).toJson()
-        val startMessage = SubscriptionOperationMessage(ClientMessages.GQL_START.type, id = messageId, payload = request).toJson()
-        val terminateMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_TERMINATE.type, id = messageId).toJson()
+        val initMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id = messageId).toJson()
+        val startMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_START.type, id = messageId, payload = request).toJson()
+        val terminateMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_TERMINATE.type, id = messageId).toJson()
         val dataOutput = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
@@ -125,7 +125,7 @@ class SubscriptionRoutesConfigurationIT(
             session.send(firstMessage)
                 .thenMany(
                     session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                        .map { objectMapper.readValue<ApolloSubscriptionOperationMessage>(it.payloadAsText) }
                         .doOnNext {
                             if (it.type == ServerMessages.GQL_DATA.type) {
                                 val data = objectMapper.writeValueAsString(it.payload)
@@ -150,5 +150,5 @@ class SubscriptionRoutesConfigurationIT(
         .jsonPath("$.errors").doesNotExist()
         .jsonPath("$.extensions").doesNotExist()
 
-    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
+    private fun ApolloSubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 }

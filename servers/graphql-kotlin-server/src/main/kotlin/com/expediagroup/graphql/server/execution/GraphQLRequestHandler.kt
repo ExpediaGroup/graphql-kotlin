@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,16 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
+import graphql.ExecutionResult
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.supervisorScope
 
@@ -147,5 +151,24 @@ open class GraphQLRequestHandler(
             else -> emptyMap<Any, Any>()
         }
         return batchContext
+    }
+
+    /**
+     * Execute a GraphQL subscription operation in a non-blocking fashion.
+     */
+    open fun executeSubscription(
+        graphQLRequest: GraphQLRequest,
+        graphQLContext: GraphQLContext,
+    ): Flow<GraphQLResponse<*>> {
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
+        val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
+
+        return graphQL.execute(input)
+            .getData<Flow<ExecutionResult>>()
+            .map { result -> result.toGraphQLResponse() }
+            .catch { throwable ->
+                val error = throwable.toGraphQLError()
+                emit(GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType())))
+            }
     }
 }

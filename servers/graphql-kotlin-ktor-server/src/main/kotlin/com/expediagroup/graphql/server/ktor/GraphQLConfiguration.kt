@@ -26,6 +26,12 @@ import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorH
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.Schema
+import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionContextFactory
+import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionHooks
+import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionRequestParser
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionContextFactory
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHooks
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionRequestParser
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
@@ -85,6 +91,12 @@ import kotlin.reflect.KClass
  *   contextFactory = DefaultKtorGraphQLContextFactory()
  *   jacksonConfiguration = { }
  *   requestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
+ *   subscriptions {
+ *     requestParser = DefaultKtorGraphQLSubscriptionRequestParser()
+ *     contextFactory = DefaultKtorGraphQLSubscriptionContextFactory()
+ *     hooks = DefaultKtorGraphQLSubscriptionHooks()
+ *     connectionInitTimeout = 60_000
+ *   }
  * }
  * ```
  */
@@ -255,6 +267,23 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var jacksonConfiguration: ObjectMapper.() -> Unit = {}
         /** Custom request parser */
         var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
+        /** GraphQL WS subscription configuration */
+        val subscriptions: KtorSubscriptionConfiguration = KtorSubscriptionConfiguration(config)
+        fun subscriptions(subscriptionConfig: KtorSubscriptionConfiguration.() -> Unit) {
+            subscriptions.apply(subscriptionConfig)
+        }
+    }
+
+    /** Configuration for configuring GraphQL Web Socket subscription server */
+    class KtorSubscriptionConfiguration(config: ApplicationConfig) {
+        /** Custom WebSocket subscription parser */
+        var requestParser: KtorGraphQLSubscriptionRequestParser = DefaultKtorGraphQLSubscriptionRequestParser()
+        /** Custom WebSocket subscription context factory */
+        var contextFactory: KtorGraphQLSubscriptionContextFactory = DefaultKtorGraphQLSubscriptionContextFactory()
+        /** Custom WebSocket subscription hooks */
+        var hooks: KtorGraphQLSubscriptionHooks = DefaultKtorGraphQLSubscriptionHooks()
+        /** Server timeout between establishing web socket connection and receiving connection-init message */
+        var connectionInitTimeout: Long = config.tryGetString("graphql.server.subscription.connectionInitTimeout")?.toLongOrNull() ?: 60_000
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
@@ -71,7 +70,7 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(SpringGraphQLSubscriptionHandler::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
                 assertThat(ctx).hasSingleBean(HandlerMapping::class.java)
             }
@@ -93,8 +92,8 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(SpringGraphQLSubscriptionHandler::class.java)
-                assertThat(ctx).getBean(SpringGraphQLSubscriptionHandler::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
+                assertThat(ctx).getBean(GraphQLRequestHandler::class.java)
                     .isSameAs(customConfiguration.subscriptionHandler())
 
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
@@ -137,7 +136,7 @@ class SubscriptionConfigurationTest {
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun subscriptionHandler(): SpringGraphQLSubscriptionHandler = mockk {
+        fun subscriptionHandler(): GraphQLRequestHandler = mockk {
             every { executeSubscription(any(), any()) } returns flowOf()
         }
 

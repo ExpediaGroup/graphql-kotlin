@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
+package com.expediagroup.graphql.server.spring.subscriptions
 
-object MessageTypes {
-    const val GQL_CONNECTION_INIT = "connection_init"
-    const val GQL_CONNECTION_ACK = "connection_ack"
-    const val GQL_PING = "ping"
-    const val GQL_PONG = "pong"
-    const val GQL_SUBSCRIBE = "subscribe"
-    const val GQL_NEXT = "next"
-    const val GQL_ERROR = "error"
-    const val GQL_COMPLETE = "complete"
+import io.mockk.mockk
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, this class will be removed in next major release")
+class ApolloSubscriptionWebSocketHandlerTest {
+
+    @Test
+    fun getSubProtocols() {
+        val handler = SubscriptionWebSocketHandler(mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
+        assertEquals(expected = listOf("graphql-ws"), actual = handler.subProtocols)
+    }
 }

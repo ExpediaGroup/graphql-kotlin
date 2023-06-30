@@ -209,10 +209,10 @@ class GraphQLPluginTest {
 
                 outgoing.send(Frame.Text("""{"type": "subscribe", "id": "unique-id", "payload": { "query": "subscription { flow }" }}"""))
 
-                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":1}}}""", (incoming.receive() as? Frame.Text)?.readText())
-                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":2}}}""", (incoming.receive() as? Frame.Text)?.readText())
-                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":3}}}""", (incoming.receive() as? Frame.Text)?.readText())
-                assertEquals("""{"type":"complete","id":"unique-id"}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"id":"unique-id","payload":{"data":{"flow":1}},"type":"next"}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"id":"unique-id","payload":{"data":{"flow":2}},"type":"next"}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"id":"unique-id","payload":{"data":{"flow":3}},"type":"next"}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"id":"unique-id","type":"complete"}""", (incoming.receive() as? Frame.Text)?.readText())
             }
         }
     }

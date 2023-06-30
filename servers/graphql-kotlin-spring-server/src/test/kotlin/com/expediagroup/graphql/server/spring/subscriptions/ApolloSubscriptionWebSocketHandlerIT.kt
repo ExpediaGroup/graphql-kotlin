@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.expediagroup.graphql.server.spring.subscriptions
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -51,7 +51,8 @@ import kotlin.random.Random
     ]
 )
 @EnableAutoConfiguration
-class SubscriptionWebSocketHandlerIT(
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, this class will be removed in next major release")
+class ApolloSubscriptionWebSocketHandlerIT(
     @LocalServerPort private var port: Int
 ) {
 
@@ -139,7 +140,7 @@ class SubscriptionWebSocketHandlerIT(
         return session.send(firstMessage)
             .thenMany(
                 session.receive()
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                    .map { objectMapper.readValue<ApolloSubscriptionOperationMessage>(it.payloadAsText) }
                     .doOnNext {
                         if (it.type == ServerMessages.GQL_DATA.type) {
                             val data = objectMapper.writeValueAsString(it.payload)
@@ -187,13 +188,13 @@ class SubscriptionWebSocketHandlerIT(
     }
 
     class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
-        override suspend fun generateContext(request: WebSocketSession): GraphQLContext =
+        override suspend fun generateContext(session: WebSocketSession, params: Any?): GraphQLContext =
             mapOf(
-                "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
+                "value" to (session.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
             ).toGraphQLContext()
     }
 
-    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
-    private val basicInitMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type).toJson()
-    private fun getStartMessage(id: String, payload: Any) = SubscriptionOperationMessage(ClientMessages.GQL_START.type, id, payload).toJson()
+    private fun ApolloSubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
+    private val basicInitMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type).toJson()
+    private fun getStartMessage(id: String, payload: Any) = ApolloSubscriptionOperationMessage(ClientMessages.GQL_START.type, id, payload).toJson()
 }
