@@ -150,7 +150,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     }
 
     private fun locateQueryFiles(files: List<File>?, directory: File): List<File> {
-        val targetQueryFiles: List<File> = files ?: directory.listFiles { file -> file.extension == "graphql" }?.toList() ?: throw RuntimeException("exception while looking up the query files")
+        val targetQueryFiles: List<File> = files ?: directory.walkBottomUp().filter { file -> file.extension == "graphql" }.toList()
         if (targetQueryFiles.isEmpty()) {
             throw RuntimeException("no query files specified")
         }
