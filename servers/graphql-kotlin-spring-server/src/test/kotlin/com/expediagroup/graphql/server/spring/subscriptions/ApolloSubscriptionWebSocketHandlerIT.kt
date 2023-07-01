@@ -187,7 +187,7 @@ class ApolloSubscriptionWebSocketHandlerIT(
         fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
-    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
+    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory {
         override suspend fun generateContext(session: WebSocketSession, params: Any?): GraphQLContext =
             mapOf(
                 "value" to (session.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")

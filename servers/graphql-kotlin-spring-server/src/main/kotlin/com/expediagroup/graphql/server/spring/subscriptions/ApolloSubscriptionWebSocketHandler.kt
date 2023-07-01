@@ -28,8 +28,8 @@ private const val APOLLO_GRAPHQL_WS_PROTOCOL = "graphql-ws"
  */
 @Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 class ApolloSubscriptionWebSocketHandler(
-        private val apolloSubscriptionProtocolHandler: ApolloSubscriptionProtocolHandler,
-        private val objectMapper: ObjectMapper
+    private val apolloSubscriptionProtocolHandler: ApolloSubscriptionProtocolHandler,
+    private val objectMapper: ObjectMapper
 ) : WebSocketHandler {
 
     @Suppress("ForbiddenVoid")

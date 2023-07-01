@@ -44,11 +44,13 @@ class SubscriptionWebSocketHandler(
 ) : WebSocketHandler, GraphQLWebSocketServer<WebSocketSession, WebSocketMessage>(
     requestParser, contextFactory, subscriptionHooks, graphqlHandler, initTimeoutMillis, objectMapper
 ) {
-    override fun handle(session: WebSocketSession): Mono<Void> = session.send(flux {
-        handleSubscription(session).collect {
-            send(it)
+    override fun handle(session: WebSocketSession): Mono<Void> = session.send(
+        flux {
+            handleSubscription(session).collect {
+                send(it)
+            }
         }
-    })
+    )
 
     override suspend fun closeSession(session: WebSocketSession, reason: GraphQLSubscriptionStatus) {
         session.close(CloseStatus(reason.code, reason.reason)).awaitFirst()
