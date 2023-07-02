@@ -24,12 +24,13 @@ import kotlin.reflect.KClass
  * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
  */
 interface GraphQLClientRequest<T : Any> {
-    val query: String
+    val query: String?
+        get() = null
     val operationName: String?
         get() = null
     val variables: Any?
         get() = null
-    val extensions: Any?
+    val extensions: Map<String, Any>?
         get() = null
 
     /**

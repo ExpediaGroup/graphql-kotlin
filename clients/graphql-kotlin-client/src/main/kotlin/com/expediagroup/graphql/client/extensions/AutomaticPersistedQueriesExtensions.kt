@@ -11,9 +11,15 @@ internal val MESSAGE_DIGEST: MessageDigest = MessageDigest.getInstance("SHA-256"
 fun GraphQLClientRequest<*>.getQueryId(): String =
     String.format(
         "%064x",
-        BigInteger(1, MESSAGE_DIGEST.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
+        BigInteger(1, MESSAGE_DIGEST.digest(this.query?.toByteArray(StandardCharsets.UTF_8)))
     ).also {
         MESSAGE_DIGEST.reset()
     }
 
 fun AutomaticPersistedQueriesExtension.toQueryParamString() = """{"persistedQuery":{"version":$version,"sha256Hash":"$sha256Hash"}}"""
+fun AutomaticPersistedQueriesExtension.toExtentionsBodyMap() = mapOf(
+    "persistedQuery" to mapOf(
+        "version" to version,
+        "sha256Hash" to sha256Hash
+    )
+)

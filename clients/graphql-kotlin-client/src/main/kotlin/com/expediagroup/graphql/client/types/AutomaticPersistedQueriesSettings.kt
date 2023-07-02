@@ -17,9 +17,14 @@
 package com.expediagroup.graphql.client.types
 
 data class AutomaticPersistedQueriesSettings(
-    val enabled: Boolean = false
+    val enabled: Boolean = false,
+    val httpMethod: HttpMethod = HttpMethod.GET
 ) {
     companion object {
         const val VERSION: Int = 1
+    }
+    sealed class HttpMethod {
+        object GET : HttpMethod()
+        object POST : HttpMethod()
     }
 }

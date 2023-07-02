@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.spring
 
 import com.expediagroup.graphql.client.GraphQLClient
 import com.expediagroup.graphql.client.extensions.getQueryId
+import com.expediagroup.graphql.client.extensions.toExtentionsBodyMap
 import com.expediagroup.graphql.client.extensions.toQueryParamString
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
@@ -61,33 +62,73 @@ open class GraphQLWebClient(
                 version = AutomaticPersistedQueriesSettings.VERSION,
                 sha256Hash = queryId
             )
+            val extensions = request.extensions?.let {
+                automaticPersistedQueriesExtension.toExtentionsBodyMap().plus(it)
+            } ?: automaticPersistedQueriesExtension.toExtentionsBodyMap()
 
-            val apqRawResultWithoutQuery = client
-                .get()
-                .uri {
-                    it.queryParam("extension", "{extension}").build(automaticPersistedQueriesExtension.toQueryParamString())
+            val apqRawResultWithoutQuery: String = when (automaticPersistedQueriesSettings.httpMethod) {
+                is AutomaticPersistedQueriesSettings.HttpMethod.GET -> {
+                    client
+                        .get()
+                        .uri {
+                            it.queryParam("extension", "{extension}").build(automaticPersistedQueriesExtension.toQueryParamString())
+                        }
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .awaitBody()
                 }
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .awaitBody<String>()
+
+                is AutomaticPersistedQueriesSettings.HttpMethod.POST -> {
+                    val requestWithoutQuery = object : GraphQLClientRequest<T> by request {
+                        override val query = null
+                        override val extensions = extensions
+                    }
+                    client
+                        .post()
+                        .apply(requestCustomizer)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(serializer.serialize(requestWithoutQuery))
+                        .retrieve()
+                        .awaitBody()
+                }
+            }
 
             serializer.deserialize(apqRawResultWithoutQuery, request.responseType()).let {
                 if (it.errors.isNullOrEmpty() && it.data != null) return it
             }
 
-            val apqRawResultWithQuery = client
-                .get()
-                .uri {
-                    it
-                        .queryParam("query", "{query}")
-                        .queryParam("extension", "{extension}")
-                        .build(serializer.serialize(request), automaticPersistedQueriesExtension.toQueryParamString())
+            val apqRawResultWithQuery: String = when (automaticPersistedQueriesSettings.httpMethod) {
+                is AutomaticPersistedQueriesSettings.HttpMethod.GET -> {
+                    client
+                        .get()
+                        .uri {
+                            it
+                                .queryParam("query", "{query}")
+                                .queryParam("extension", "{extension}")
+                                .build(serializer.serialize(request), automaticPersistedQueriesExtension.toQueryParamString())
+                        }
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .awaitBody()
                 }
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .awaitBody<String>()
+
+                is AutomaticPersistedQueriesSettings.HttpMethod.POST -> {
+                    val requestWithQuery = object : GraphQLClientRequest<T> by request {
+                        override val extensions = extensions
+                    }
+                    client
+                        .post()
+                        .apply(requestCustomizer)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(serializer.serialize(requestWithQuery))
+                        .retrieve()
+                        .awaitBody()
+                }
+            }
 
             serializer.deserialize(apqRawResultWithQuery, request.responseType())
         } else {
