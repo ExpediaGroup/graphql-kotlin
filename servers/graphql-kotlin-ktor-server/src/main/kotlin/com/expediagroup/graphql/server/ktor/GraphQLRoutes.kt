@@ -80,7 +80,7 @@ fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Bool
  */
 fun Route.graphQLSubscriptionsRoute(
     endpoint: String = "subscriptions",
-    protocol: String? = null,
+    protocol: String? = "graphql-transport-ws",
     handlerOverride: KtorGraphQLSubscriptionHandler? = null,
 ) {
     val handler = handlerOverride ?: run {

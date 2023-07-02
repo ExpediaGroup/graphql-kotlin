@@ -43,6 +43,9 @@ tasks {
     jacoco {
         toolVersion = libs.versions.jacoco.get()
     }
+    jacocoTestReport {
+        dependsOn(test)
+    }
     jar {
         manifest {
             attributes["Built-By"] = "Expedia Group"
@@ -129,7 +132,6 @@ tasks {
 
     test {
         useJUnitPlatform()
-        finalizedBy(jacocoTestReport)
     }
 }
 
