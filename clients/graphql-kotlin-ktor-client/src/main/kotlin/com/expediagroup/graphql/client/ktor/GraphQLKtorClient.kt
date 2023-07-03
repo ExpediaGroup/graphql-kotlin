@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@
 package com.expediagroup.graphql.client.ktor
 
 import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.extensions.getQueryId
+import com.expediagroup.graphql.client.extensions.toExtentionsBodyMap
+import com.expediagroup.graphql.client.extensions.toQueryParamString
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
+import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesExtension
+import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
@@ -26,9 +31,13 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.content.TextContent
 import java.io.Closeable
 import java.net.URL
@@ -39,16 +48,90 @@ import java.net.URL
 open class GraphQLKtorClient(
     private val url: URL,
     private val httpClient: HttpClient = HttpClient(engineFactory = CIO),
-    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer()
+    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
+    override val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings()
 ) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
-        val rawResult: String = httpClient.post(url) {
-            expectSuccess = true
-            apply(requestCustomizer)
-            setBody(TextContent(serializer.serialize(request), ContentType.Application.Json))
-        }.body()
-        return serializer.deserialize(rawResult, request.responseType())
+        return if (automaticPersistedQueriesSettings.enabled) {
+            val queryId = request.getQueryId()
+            val automaticPersistedQueriesExtension = AutomaticPersistedQueriesExtension(
+                version = AutomaticPersistedQueriesSettings.VERSION,
+                sha256Hash = queryId
+            )
+            val extensions = request.extensions?.let {
+                automaticPersistedQueriesExtension.toExtentionsBodyMap().plus(it)
+            } ?: automaticPersistedQueriesExtension.toExtentionsBodyMap()
+
+            val apqRawResultWithoutQuery: String = when (automaticPersistedQueriesSettings.httpMethod) {
+                is AutomaticPersistedQueriesSettings.HttpMethod.GET -> {
+                    httpClient
+                        .get(url) {
+                            expectSuccess = true
+                            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded)
+                            accept(ContentType.Application.Json)
+                            url {
+                                parameters.append("extension", automaticPersistedQueriesExtension.toQueryParamString())
+                            }
+                        }.body()
+                }
+
+                is AutomaticPersistedQueriesSettings.HttpMethod.POST -> {
+                    val requestWithoutQuery = object : GraphQLClientRequest<T> by request {
+                        override val query = null
+                        override val extensions = extensions
+                    }
+                    httpClient
+                        .post(url) {
+                            expectSuccess = true
+                            apply(requestCustomizer)
+                            accept(ContentType.Application.Json)
+                            setBody(TextContent(serializer.serialize(requestWithoutQuery), ContentType.Application.Json))
+                        }.body()
+                }
+            }
+
+            serializer.deserialize(apqRawResultWithoutQuery, request.responseType()).let {
+                if (it.errors.isNullOrEmpty() && it.data != null) return it
+            }
+
+            val apqRawResultWithQuery: String = when (automaticPersistedQueriesSettings.httpMethod) {
+                is AutomaticPersistedQueriesSettings.HttpMethod.GET -> {
+                    httpClient
+                        .get(url) {
+                            expectSuccess = true
+                            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded)
+                            accept(ContentType.Application.Json)
+                            url {
+                                parameters.append("query", serializer.serialize(request))
+                                parameters.append("extension", automaticPersistedQueriesExtension.toQueryParamString())
+                            }
+                        }.body()
+                }
+
+                is AutomaticPersistedQueriesSettings.HttpMethod.POST -> {
+                    val requestWithQuery = object : GraphQLClientRequest<T> by request {
+                        override val extensions = extensions
+                    }
+                    httpClient
+                        .post(url) {
+                            expectSuccess = true
+                            apply(requestCustomizer)
+                            accept(ContentType.Application.Json)
+                            setBody(TextContent(serializer.serialize(requestWithQuery), ContentType.Application.Json))
+                        }.body()
+                }
+            }
+
+            serializer.deserialize(apqRawResultWithQuery, request.responseType())
+        } else {
+            val rawResult: String = httpClient.post(url) {
+                expectSuccess = true
+                apply(requestCustomizer)
+                setBody(TextContent(serializer.serialize(request), ContentType.Application.Json))
+            }.body()
+            serializer.deserialize(rawResult, request.responseType())
+        }
     }
 
     override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLClientResponse<*>> {

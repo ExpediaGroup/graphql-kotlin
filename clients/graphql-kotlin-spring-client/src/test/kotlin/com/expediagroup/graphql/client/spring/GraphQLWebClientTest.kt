@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
+import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -32,6 +33,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutException
@@ -238,6 +240,216 @@ class GraphQLWebClientTest {
             val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldQuery()) {
                 header(customHeaderName, customHeaderValue)
             }
+
+            assertNotNull(result)
+            assertNotNull(result.data)
+            assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
+            assertNull(result.errors)
+            assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies spring web client can execute query using GET with persisted query`() {
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
+        WireMock.stubFor(
+            WireMock
+                .get("""/graphql?extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D""")
+                .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                )
+        )
+
+        val client = GraphQLWebClient(
+            url = "${wireMockServer.baseUrl()}/graphql",
+            serializer = GraphQLClientJacksonSerializer(),
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true)
+        )
+
+        runBlocking {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldQuery())
+
+            assertNotNull(result)
+            assertNotNull(result.data)
+            assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
+            assertNull(result.errors)
+            assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies spring web client can execute query using POST with persisted query`() {
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
+        WireMock.stubFor(
+            WireMock
+                .post("/graphql")
+                .withHeader("Content-Type", EqualToPattern("application/json"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                )
+        )
+
+        val client = GraphQLWebClient(
+            url = "${wireMockServer.baseUrl()}/graphql",
+            serializer = GraphQLClientJacksonSerializer(),
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true, httpMethod = AutomaticPersistedQueriesSettings.HttpMethod.POST)
+        )
+
+        runBlocking {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldQuery())
+
+            assertNotNull(result)
+            assertNotNull(result.data)
+            assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
+            assertNull(result.errors)
+            assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies spring web client can execute query using GET with not persisted query`() {
+        val expectedErrorResponse = JacksonGraphQLResponse(
+            data = null,
+            errors = listOf(
+                JacksonGraphQLError(
+                    message = "PersistedQueryNotFound"
+                )
+            ),
+            extensions = mapOf("persistedQueryId" to "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae", "classification" to "PersistedQueryNotFound")
+        )
+        WireMock.stubFor(
+            WireMock
+                .get("""/graphql?extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D""")
+                .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedErrorResponse))
+                )
+        )
+
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
+        WireMock.stubFor(
+            WireMock
+                .get(
+                    """
+                        |/graphql?query=%7B%22query%22%3A%22query+HelloWorldQuery+%7B+helloWorld+%7D%22%2C%22operationName%22%3A%22HelloWorld%22%7D&
+                        |extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D
+                    """.trimMargin().replace("\n", "")
+                )
+                .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                )
+        )
+
+        val client = GraphQLWebClient(
+            url = "${wireMockServer.baseUrl()}/graphql",
+            serializer = GraphQLClientJacksonSerializer(),
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true)
+        )
+
+        runBlocking {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldQuery())
+
+            assertNotNull(result)
+            assertNotNull(result.data)
+            assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
+            assertNull(result.errors)
+            assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies spring web client can execute query using POST with not persisted query`() {
+        val expectedErrorResponse = JacksonGraphQLResponse(
+            data = null,
+            errors = listOf(
+                JacksonGraphQLError(
+                    message = "PersistedQueryNotFound"
+                )
+            ),
+            extensions = mapOf("persistedQueryId" to "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae", "classification" to "PersistedQueryNotFound")
+        )
+        WireMock.stubFor(
+            WireMock
+                .post("/graphql")
+                .withHeader("Content-Type", EqualToPattern("application/json"))
+                .withRequestBody(
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "operationName":"HelloWorld",
+                              "extensions": {
+                                "persistedQuery": {
+                                  "version": 1,
+                                  "sha256Hash": "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae"
+                                }
+                              }
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
+                )
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedErrorResponse))
+                )
+        )
+
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
+        WireMock.stubFor(
+            WireMock
+                .post("/graphql")
+                .withHeader("Content-Type", EqualToPattern("application/json"))
+                .withRequestBody(
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "query": "query HelloWorldQuery { helloWorld }",
+                              "operationName":"HelloWorld",
+                              "extensions": {
+                                "persistedQuery": {
+                                  "version": 1,
+                                  "sha256Hash": "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae"
+                                }
+                              }
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
+                )
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                )
+        )
+
+        val client = GraphQLWebClient(
+            url = "${wireMockServer.baseUrl()}/graphql",
+            serializer = GraphQLClientJacksonSerializer(),
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(enabled = true, httpMethod = AutomaticPersistedQueriesSettings.HttpMethod.POST)
+        )
+
+        runBlocking {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldQuery())
 
             assertNotNull(result)
             assertNotNull(result.data)
