@@ -37,16 +37,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -71,15 +69,24 @@ abstract class GraphQLWebSocketServer<Session, Message>(
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) {
     private val logger: Logger = LoggerFactory.getLogger(GraphQLWebSocketServer::class.java)
+    private val subscriptionScope = CoroutineScope(SupervisorJob())
 
     @OptIn(FlowPreview::class)
     suspend fun handleSubscription(session: Session): Flow<Message> = coroutineScope {
         val subscriptions = ConcurrentHashMap<String, Job>()
         val graphqlContext = AtomicReference<GraphQLContext?>()
 
-        requestParser.parseRequestFlow(session).map { objectMapper.readValue<GraphQLSubscriptionMessage>(it) }
-            .flatMapConcat { message ->
-                channelFlow<GraphQLSubscriptionMessage> {
+        subscriptionScope.launch {
+            delay(initTimeoutMillis)
+            if (graphqlContext.get() == null) {
+                closeSession(session, GraphQLSubscriptionStatus.CONNECTION_INIT_TIMEOUT)
+            }
+        }
+
+        requestParser.parseRequestFlow(session)
+            .map { objectMapper.readValue<GraphQLSubscriptionMessage>(it) }
+            .flatMapMerge { message ->
+                channelFlow {
                     when (message) {
                         is SubscriptionMessageConnectionInit -> {
                             try {
@@ -127,31 +134,33 @@ abstract class GraphQLWebSocketServer<Session, Message>(
                                 return@channelFlow
                             }
 
-                            val subscriptionJob = coroutineScope {
-                                launch {
-                                    requestHandler.executeSubscription(message.payload, context)
-                                        .map {
-                                            val errors = it.errors
-                                            if (!errors.isNullOrEmpty()) {
-                                                SubscriptionMessageError(id = message.id, payload = errors)
-                                            } else {
-                                                SubscriptionMessageNext(id = message.id, payload = it)
+                            val subscriptionJob = launch {
+                                requestHandler.executeSubscription(message.payload, context)
+                                    .map {
+                                        val errors = it.errors
+                                        if (!errors.isNullOrEmpty()) {
+                                            SubscriptionMessageError(id = message.id, payload = errors)
+                                        } else {
+                                            SubscriptionMessageNext(id = message.id, payload = it)
+                                        }
+                                    }
+                                    .onCompletion {
+                                        if (it == null) {
+                                            try {
+                                                subscriptionHooks.onOperationComplete(message.id, session, context)
+                                            } catch (ex: Throwable) {
+                                                logger.error("Error when executing onOperationComplete hook for operation={}", message.id, ex)
                                             }
+                                            emit(SubscriptionMessageComplete(id = message.id))
                                         }
-                                        .onCompletion {
-                                            if (it == null) {
-                                                try {
-                                                    subscriptionHooks.onOperationComplete(message.id, session, context)
-                                                } catch (ex: Throwable) {
-                                                    logger.error("Error when executing onOperationComplete hook for operation={}", message.id, ex)
-                                                }
-                                                emit(SubscriptionMessageComplete(id = message.id))
-                                            }
-                                        }
-                                        .collect {
-                                            send(it)
-                                        }
-                                }
+                                    }
+                                    .catch {
+                                        logger.error("Exception was thrown while processing subscription", it)
+                                        closeSession(session, GraphQLSubscriptionStatus.SERVER_ERROR)
+                                    }
+                                    .collect {
+                                        send(it)
+                                    }
                             }
                             subscriptions[message.id] = subscriptionJob
                             subscriptionJob.invokeOnCompletion {
@@ -160,21 +169,21 @@ abstract class GraphQLWebSocketServer<Session, Message>(
                         }
 
                         is SubscriptionMessagePing -> {
-                            logger.debug("received subscription ping message")
+                            logger.debug("Received subscription ping message")
                             send(SubscriptionMessagePong())
                         }
 
                         is SubscriptionMessageComplete -> {
-                            logger.debug("subscription id={} completed", message.id)
+                            logger.debug("Client completed subscription id={}", message.id)
                             val subscriptionJob = subscriptions.remove(message.id) ?: run {
-                                logger.debug("subscription id={} not found", message.id)
+                                logger.debug("Subscription id={} not found, nothing to cancel", message.id)
                                 return@channelFlow
                             }
 
                             try {
                                 subscriptionHooks.onOperationComplete(message.id, session, graphqlContext.get())
                             } catch (ex: Throwable) {
-                                logger.error("exception when calling onOperationComplete hook for operation={}", message.id, ex)
+                                logger.error("Exception when calling onOperationComplete hook for operation={}", message.id, ex)
                             } finally {
                                 subscriptionJob.cancel()
                             }
@@ -192,15 +201,9 @@ abstract class GraphQLWebSocketServer<Session, Message>(
                     }
                     .catch {
                         logger.warn("Error occurred when processing the subscription", it)
-                    }.onStart {
-                        launch {
-                            delay(initTimeoutMillis)
-                            if (graphqlContext.get() == null) {
-                                closeSession(session, GraphQLSubscriptionStatus.CONNECTION_INIT_TIMEOUT)
-                            }
-                            cancel()
-                        }
-                    }.onCompletion {
+                        closeSession(session, GraphQLSubscriptionStatus.SERVER_ERROR)
+                    }
+                    .onCompletion {
                         if (it == null) {
                             try {
                                 subscriptionHooks.onDisconnect(session, graphqlContext.get())
@@ -212,13 +215,14 @@ abstract class GraphQLWebSocketServer<Session, Message>(
             }
     }
 
-    private fun cancelSubscription(session: Session, reason: GraphQLSubscriptionStatus, context: GraphQLContext? = null) {
+    private suspend fun cancelSubscription(session: Session, reason: GraphQLSubscriptionStatus, context: GraphQLContext? = null) {
         logger.warn("Closing session - {}", reason.reason)
         try {
             subscriptionHooks.onDisconnect(session, context)
         } catch (e: Throwable) {
             logger.error("Error thrown when executing onDisconnect subscription hook", e)
         }
+        closeSession(session, reason)
     }
 
     abstract suspend fun closeSession(session: Session, reason: GraphQLSubscriptionStatus)

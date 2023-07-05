@@ -14,6 +14,7 @@ dependencies {
     api(projects.graphqlKotlinAutomaticPersistedQueries)
     api(libs.jackson)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.logback)
 }
 
 // Benchmarks

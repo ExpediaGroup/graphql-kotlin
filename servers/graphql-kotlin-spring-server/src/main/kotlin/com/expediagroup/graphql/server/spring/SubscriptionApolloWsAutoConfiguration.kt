@@ -43,7 +43,7 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 private const val URL_HANDLER_ORDER = 0
 
 @Deprecated("Apollo subscriptions-transport-ws protocol auto configuration is deprecated and will be removed in next major release")
-@ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "APOLLO_SUBSCRIPTIONS_WS")
+@ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "APOLLO_SUBSCRIPTIONS_WS", matchIfMissing = true)
 @Configuration
 @Import(GraphQLSchemaConfiguration::class)
 class SubscriptionApolloWsAutoConfiguration {

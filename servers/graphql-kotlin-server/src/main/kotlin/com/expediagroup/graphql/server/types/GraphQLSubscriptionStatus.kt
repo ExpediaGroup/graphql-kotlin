@@ -23,6 +23,7 @@ package com.expediagroup.graphql.server.types
  */
 data class GraphQLSubscriptionStatus(val code: Int, val reason: String) {
     companion object {
+        val SERVER_ERROR = GraphQLSubscriptionStatus(1011, "")
         val INVALID_MESSAGE = GraphQLSubscriptionStatus(4400, "Invalid operation")
         val UNAUTHORIZED = GraphQLSubscriptionStatus(4401, "Unauthorized")
         val FORBIDDEN = GraphQLSubscriptionStatus(4403, "Forbidden")
