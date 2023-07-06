@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
-@ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "GRAPHQL_WS")
+@ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "GRAPHQL_WS", matchIfMissing = true)
 @Configuration
 @Import(GraphQLSchemaConfiguration::class)
 class SubscriptionGraphQLWsAutoConfiguration {
