@@ -16,16 +16,23 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, this class will be removed in next major release")
-class ApolloSubscriptionWebSocketHandlerTest {
+class SubscriptionWebSocketHandlerTest {
 
     @Test
-    fun getSubProtocols() {
-        val handler = SubscriptionWebSocketHandler(mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
-        assertEquals(expected = listOf("graphql-ws"), actual = handler.subProtocols)
+    fun `verify Apollo subscriptions handler supports graphql-ws subprotocol`() {
+        val handler = ApolloSubscriptionWebSocketHandler(mockk(), mockk())
+        assertEquals(expected = listOf(APOLLO_GRAPHQL_WS_PROTOCOL), actual = handler.subProtocols)
+    }
+
+    @Test
+    fun `verify default subscription handler supports graphql-transport-ws subprotocol`() {
+        val handler = SubscriptionWebSocketHandler(mockk(), mockk(), mockk(), mockk(), 1_000, jacksonObjectMapper())
+        assertEquals(expected = listOf(GRAPHQL_WS_PROTOCOL), actual = handler.subProtocols)
     }
 }

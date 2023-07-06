@@ -55,7 +55,9 @@ class SubscriptionWebSocketHandler(
     override suspend fun closeSession(session: WebSocketSession, reason: GraphQLSubscriptionStatus) {
         session.close(CloseStatus(reason.code, reason.reason)).awaitFirst()
     }
+
     override suspend fun sendSubscriptionMessage(session: WebSocketSession, message: String): WebSocketMessage =
         session.textMessage(message)
+
     override fun getSubProtocols(): List<String> = listOf(GRAPHQL_WS_PROTOCOL)
 }

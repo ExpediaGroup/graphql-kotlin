@@ -24,7 +24,21 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.web.reactive.HandlerMapping
+import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
+import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
+
+/**
+ * This value is needed so that this url handler is run without a drastically different order
+ * to the graphql routes in [GraphQLRoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
+ * high or low, then the requests are not handled properly.
+ *
+ * Hopefully we can eventually move the url handler to the same router DSL.
+ * https://github.com/spring-projects/spring-framework/issues/19476
+ */
+private const val URL_HANDLER_ORDER = 0
+
 /**
  * SpringBoot auto-configuration that creates default WebSocket handler for GraphQL subscriptions.
  */
@@ -44,4 +58,9 @@ class SubscriptionAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
+
+    // workaround for https://github.com/spring-projects/spring-framework/issues/19476
+    @Bean
+    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, webSocketHandler: WebSocketHandler): HandlerMapping =
+        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to webSocketHandler), URL_HANDLER_ORDER)
 }

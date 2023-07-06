@@ -22,13 +22,14 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionWebSocketHandler
+import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHooks
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
-import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
@@ -70,16 +71,19 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
+                assertThat(ctx).hasSingleBean(ApolloSubscriptionWebSocketHandler::class.java)
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
                 assertThat(ctx).hasSingleBean(HandlerMapping::class.java)
             }
     }
 
     @Test
-    fun `verify subscription auto configuration backs off in beans are defined by user`() {
+    fun `verify subscription auto configuration backs off if beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomSubscriptionConfiguration::class.java)
-            .withPropertyValues("graphql.packages=com.expediagroup.graphql.server.spring")
+            .withPropertyValues(
+                "graphql.packages=com.expediagroup.graphql.server.spring",
+                "graphql.subscriptions.protocol=GRAPHQL_WS"
+            )
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomSubscriptionConfiguration::class.java)
 
@@ -92,9 +96,11 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
-                assertThat(ctx).getBean(GraphQLRequestHandler::class.java)
-                    .isSameAs(customConfiguration.subscriptionHandler())
+                assertThat(ctx).hasSingleBean(SpringGraphQLSubscriptionHooks::class.java)
+                assertThat(ctx).getBean(SpringGraphQLSubscriptionHooks::class.java)
+                    .isSameAs(customConfiguration.customSubscriptionHooks())
+
+                assertThat(ctx).hasSingleBean(SubscriptionWebSocketHandler::class.java)
 
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
                 assertThat(ctx).getBean(WebSocketHandlerAdapter::class.java)
@@ -125,6 +131,11 @@ class SubscriptionConfigurationTest {
             // custom hooks
         }
 
+        @Bean
+        fun customSubscriptionHooks(): SpringGraphQLSubscriptionHooks = object : SpringGraphQLSubscriptionHooks {
+            // custom subscription hooks
+        }
+
         // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
@@ -134,12 +145,6 @@ class SubscriptionConfigurationTest {
 
         @Bean
         fun subscription(): Subscription = SimpleSubscription()
-
-        @Bean
-        fun subscriptionHandler(): GraphQLRequestHandler = mockk {
-            every { executeSubscription(any(), any()) } returns flowOf()
-        }
-
         @Bean
         fun webSocketHandlerAdapter(): WebSocketHandlerAdapter = mockk()
     }

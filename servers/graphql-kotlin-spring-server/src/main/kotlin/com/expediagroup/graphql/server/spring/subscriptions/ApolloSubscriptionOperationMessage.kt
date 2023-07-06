@@ -31,13 +31,14 @@ data class ApolloSubscriptionOperationMessage(
     val id: String? = null,
     val payload: Any? = null
 ) {
+    @Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
     enum class ClientMessages(val type: String) {
         GQL_CONNECTION_INIT("connection_init"),
         GQL_START("start"),
         GQL_STOP("stop"),
         GQL_CONNECTION_TERMINATE("connection_terminate")
     }
-
+    @Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
     enum class ServerMessages(val type: String) {
         GQL_CONNECTION_ACK("connection_ack"),
         GQL_CONNECTION_ERROR("connection_error"),

@@ -29,18 +29,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.web.reactive.HandlerMapping
-import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
-
-/**
- * This value is needed so that this url handler is run without a drastically different order
- * to the graphql routes in [GraphQLRoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
- * high or low, then the requests are not handled properly.
- *
- * Hopefully we can eventually move the url handler to the same router DSL.
- * https://github.com/spring-projects/spring-framework/issues/19476
- */
-private const val URL_HANDLER_ORDER = 0
 
 @Deprecated("Apollo subscriptions-transport-ws protocol auto configuration is deprecated and will be removed in next major release")
 @ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "APOLLO_SUBSCRIPTIONS_WS", matchIfMissing = true)
@@ -66,11 +54,6 @@ class SubscriptionApolloWsAutoConfiguration {
     ) = ApolloSubscriptionProtocolHandler(config, subscriptionContextFactory, handler, objectMapper, apolloSubscriptionHooks)
 
     @Bean
-    fun apolloSubscriptionWebSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =
+    fun webSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =
         ApolloSubscriptionWebSocketHandler(handler, objectMapper)
-
-    // workaround for https://github.com/spring-projects/spring-framework/issues/19476
-    @Bean
-    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, apolloSubscriptionWebSocketHandler: ApolloSubscriptionProtocolHandler): HandlerMapping =
-        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to apolloSubscriptionWebSocketHandler), URL_HANDLER_ORDER)
 }

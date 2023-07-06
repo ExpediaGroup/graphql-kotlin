@@ -21,7 +21,7 @@ import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 
-private const val APOLLO_GRAPHQL_WS_PROTOCOL = "graphql-ws"
+internal const val APOLLO_GRAPHQL_WS_PROTOCOL = "graphql-ws"
 
 /**
  * Default WebSocket handler for handling GraphQL subscriptions using Apollo graphql-ws protocol.
@@ -32,9 +32,7 @@ class ApolloSubscriptionWebSocketHandler(
     private val objectMapper: ObjectMapper
 ) : WebSocketHandler {
 
-    @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> {
-        println("handling subscription apollo $APOLLO_GRAPHQL_WS_PROTOCOL")
         val response = session.receive()
             .flatMap { apolloSubscriptionProtocolHandler.handle(it.payloadAsText, session) }
             .map { objectMapper.writeValueAsString(it) }

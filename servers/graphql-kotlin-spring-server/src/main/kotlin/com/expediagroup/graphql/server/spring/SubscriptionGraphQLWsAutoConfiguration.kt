@@ -29,18 +29,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.web.reactive.HandlerMapping
-import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
-
-/**
- * This value is needed so that this url handler is run without a drastically different order
- * to the graphql routes in [GraphQLRoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
- * high or low, then the requests are not handled properly.
- *
- * Hopefully we can eventually move the url handler to the same router DSL.
- * https://github.com/spring-projects/spring-framework/issues/19476
- */
-private const val URL_HANDLER_ORDER = 0
 
 @ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "GRAPHQL_WS")
 @Configuration
@@ -61,7 +49,7 @@ class SubscriptionGraphQLWsAutoConfiguration {
     fun subscriptionHooks(): SpringGraphQLSubscriptionHooks = DefaultSpringGraphQLSubscriptionHooks()
 
     @Bean
-    fun subscriptionWebSocketHandler(
+    fun webSocketHandler(
         subscriptionRequestParser: DefaultWebSocketGraphQLRequestParser,
         subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory,
         subscriptionHooks: SpringGraphQLSubscriptionHooks,
@@ -76,9 +64,4 @@ class SubscriptionGraphQLWsAutoConfiguration {
         config.subscriptions.connectionInitTimeout,
         objectMapper
     )
-
-    // workaround for https://github.com/spring-projects/spring-framework/issues/19476
-    @Bean
-    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, subscriptionWebSocketHandler: SubscriptionWebSocketHandler): HandlerMapping =
-        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionWebSocketHandler), URL_HANDLER_ORDER)
 }
