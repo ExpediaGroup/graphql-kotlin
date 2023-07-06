@@ -47,7 +47,8 @@ import kotlin.random.Random
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "graphql.packages=com.expediagroup.graphql.server.spring.execution"
+        "graphql.packages=com.expediagroup.graphql.server.spring.execution",
+        "graphql.subscriptions.protocol=APOLLO_SUBSCRIPTIONS_WS"
     ]
 )
 @EnableAutoConfiguration
