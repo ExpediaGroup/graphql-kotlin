@@ -14,16 +14,28 @@ and `FlowSubscriptionExecutionStrategy` beans.
 If you define your subscriptions using Kotlin `Flow`, make sure to extend `FlowSubscriptionSchemaGeneratorHooks` whenever you need to provide some custom hooks.
 :::
 
-## `subscriptions-transport-ws` subprotocol
+## Subscription Protocols
+
+### `graphql-transport-ws` subprotocol
+
+We have implemented subscriptions in Spring WebSockets following the [`graphql-transport-ws` subprotocol](https://github.com/enisdenjo/graphql-ws)
+from [The Guild](https://the-guild.dev/). This requires that your client send and parse messages in a specific format.
+See protocol documentation for expected messages.
+
+`graphql-transport-ws` is the default subscription protocol that is enabled by default.
+
+### (deprecated) `subscriptions-transport-ws` subprotocol
 
 :::caution
-`subscriptions-transport-ws` was deprecated in favor of [`graphql-ws` protocol](https://github.com/enisdenjo/graphql-ws).
+`subscriptions-transport-ws` was deprecated in favor of [`graphql-transport-ws` protocol](https://github.com/enisdenjo/graphql-ws).
 :::
 
-We have implemented subscriptions in Spring WebSockets following the [`subscriptions-transport-ws` subprotocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) defined by Apollo.
-This requires that your client send and parse messages in a specific format.
+We have implemented subscriptions in Spring WebSockets following the [`subscriptions-transport-ws` subprotocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md)
+defined by [Apollo](https://www.apollographql.com/). This requires that your client send and parse messages in a specific
+format. See protocol documentation for expected messages.
 
-If you would like to implement your own subscription handler, you can provide a primary spring bean for `HandlerMapping` that overrides the [default one](./spring-beans.md) which sets the url for subscriptions to the Apollo subscription handler.
+`subscription-transport-ws` is deprecated. In order to use it, you need to explicitly opt-in by specifying `graphql.subscriptions.protocol=APOLLO_SUBSCRIPTIONS_WS`
+configuration property. Support for this protocol will be removed in the next major release.
 
 ## Subscription Hooks
 

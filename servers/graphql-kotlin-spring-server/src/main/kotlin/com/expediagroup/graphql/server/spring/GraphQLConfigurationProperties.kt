@@ -94,7 +94,8 @@ data class GraphQLConfigurationProperties(
         val keepAliveInterval: Long? = null,
         /** Server timeout between establishing web socket connection and receiving connection-init message. */
         val connectionInitTimeout: Long = 60_000,
-        val protocol: SubscriptionProtocol = SubscriptionProtocol.APOLLO_SUBSCRIPTIONS_WS
+        /** WebSocket based subscription protocol */
+        val protocol: SubscriptionProtocol = SubscriptionProtocol.GRAPHQL_WS
     )
 
     enum class SubscriptionProtocol {

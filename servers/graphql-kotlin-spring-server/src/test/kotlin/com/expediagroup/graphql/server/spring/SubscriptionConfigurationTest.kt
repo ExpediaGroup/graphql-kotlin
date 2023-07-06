@@ -22,8 +22,8 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionWebSocketHandler
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -71,7 +71,7 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(ApolloSubscriptionWebSocketHandler::class.java)
+                assertThat(ctx).hasSingleBean(SubscriptionWebSocketHandler::class.java)
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
                 assertThat(ctx).hasSingleBean(HandlerMapping::class.java)
             }
@@ -82,7 +82,7 @@ class SubscriptionConfigurationTest {
         contextRunner.withUserConfiguration(CustomSubscriptionConfiguration::class.java)
             .withPropertyValues(
                 "graphql.packages=com.expediagroup.graphql.server.spring",
-                "graphql.subscriptions.protocol=GRAPHQL_WS"
+                "graphql.subscriptions.protocol=APOLLO_SUBSCRIPTIONS_WS"
             )
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomSubscriptionConfiguration::class.java)
@@ -96,11 +96,11 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(SpringGraphQLSubscriptionHooks::class.java)
-                assertThat(ctx).getBean(SpringGraphQLSubscriptionHooks::class.java)
+                assertThat(ctx).hasSingleBean(ApolloSubscriptionHooks::class.java)
+                assertThat(ctx).getBean(ApolloSubscriptionHooks::class.java)
                     .isSameAs(customConfiguration.customSubscriptionHooks())
 
-                assertThat(ctx).hasSingleBean(SubscriptionWebSocketHandler::class.java)
+                assertThat(ctx).hasSingleBean(ApolloSubscriptionWebSocketHandler::class.java)
 
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
                 assertThat(ctx).getBean(WebSocketHandlerAdapter::class.java)
@@ -132,7 +132,7 @@ class SubscriptionConfigurationTest {
         }
 
         @Bean
-        fun customSubscriptionHooks(): SpringGraphQLSubscriptionHooks = object : SpringGraphQLSubscriptionHooks {
+        fun customSubscriptionHooks(): ApolloSubscriptionHooks = object : ApolloSubscriptionHooks {
             // custom subscription hooks
         }
 

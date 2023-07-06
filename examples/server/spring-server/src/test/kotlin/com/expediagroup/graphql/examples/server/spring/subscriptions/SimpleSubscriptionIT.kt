@@ -179,7 +179,9 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     }
 
     private fun ApolloSubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
-    private fun getInitMessage(id: String, payload: Any?) = ApolloSubscriptionOperationMessage(ApolloSubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT.type, id = id, payload = payload).toJson()
+    private fun getInitMessage(id: String, payload: Any?) = ApolloSubscriptionOperationMessage(
+        ApolloSubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT.type, id = id, payload = payload
+    ).toJson()
     private fun getStartMessage(query: String, id: String): String {
         val request = GraphQLRequest("subscription { $query }")
         return ApolloSubscriptionOperationMessage(ApolloSubscriptionOperationMessage.ClientMessages.GQL_START.type, id = id, payload = request).toJson()

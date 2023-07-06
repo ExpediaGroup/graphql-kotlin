@@ -23,6 +23,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscri
 import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
 import com.expediagroup.graphql.server.spring.subscriptions.DefaultWebSocketGraphQLRequestParser
+import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionRequestParser
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -42,7 +43,7 @@ class SubscriptionGraphQLWsAutoConfiguration {
     // graphql-transport-ws protocol
     @Bean
     @ConditionalOnMissingBean
-    fun subscriptionRequestParser(): DefaultWebSocketGraphQLRequestParser = DefaultWebSocketGraphQLRequestParser()
+    fun subscriptionRequestParser(): SpringGraphQLSubscriptionRequestParser = DefaultWebSocketGraphQLRequestParser()
 
     @Bean
     @ConditionalOnMissingBean
@@ -50,7 +51,7 @@ class SubscriptionGraphQLWsAutoConfiguration {
 
     @Bean
     fun webSocketHandler(
-        subscriptionRequestParser: DefaultWebSocketGraphQLRequestParser,
+        subscriptionRequestParser: SpringGraphQLSubscriptionRequestParser,
         subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory,
         subscriptionHooks: SpringGraphQLSubscriptionHooks,
         handler: GraphQLRequestHandler,

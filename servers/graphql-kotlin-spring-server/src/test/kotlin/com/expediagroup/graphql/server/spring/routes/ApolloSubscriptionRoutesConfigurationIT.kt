@@ -49,7 +49,8 @@ import java.net.URI
     properties = [
         "graphql.packages=com.expediagroup.graphql.server.spring.routes",
         "graphql.endpoint=foo",
-        "graphql.subscriptions.endpoint=bar"
+        "graphql.subscriptions.endpoint=bar",
+        "graphql.subscriptions.protocol=APOLLO_SUBSCRIPTIONS_WS"
     ]
 )
 @EnableAutoConfiguration
