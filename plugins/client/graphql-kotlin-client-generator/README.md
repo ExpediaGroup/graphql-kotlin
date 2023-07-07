@@ -27,5 +27,5 @@ using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 
 ## Code Generation Limitations
 
-* Only a single operation per GraphQL query file is supported.
+* Only a single operation per GraphQL query file is supported. To avoid duplication of return types, a shared fragments file can be used.
 * Subscriptions are currently NOT supported.

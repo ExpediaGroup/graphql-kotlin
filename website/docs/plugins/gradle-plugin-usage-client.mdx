@@ -475,6 +475,7 @@ graphql {
     headers = mapOf("X-Custom-Header" to "My-Custom-Header")
     queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     serializer = GraphQLSerializer.KOTLINX
+    queryFragmentsFile = file("${project.projectDir}/src/main/resources/fragments.graphql")
     timeout {
         connect = 10_000
         read = 30_000
@@ -510,7 +511,7 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
     serializer.set(GraphQLSerializer.KOTLINX)
-
+    queryFragmentsFile.from("${project.projectDir}/src/main/resources/fragments.graphql")
     dependsOn("graphqlDownloadSDL")
 }
 ```
@@ -537,6 +538,8 @@ graphql {
         headers = ["X-Custom-Header" : "My-Custom-Header"]
         queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
         serializer = GraphQLSerializer.KOTLINX
+        queryFragmentsFile = file("${project.projectDir}/src/main/resources/fragments.graphql")
+
         timeout { t ->
             t.connect = 10000
             t.read = 30000
@@ -570,6 +573,7 @@ graphqlGenerateClient {
     customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
     serializer = GraphQLSerializer.KOTLINX
+    queryFragmentsFile.from("${project.projectDir}/src/main/resources/fragments.graphql")
 
     dependsOn graphqlDownloadSDL
 }

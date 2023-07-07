@@ -36,7 +36,8 @@ data class GraphQLClientGeneratorContext(
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
-    val useOptionalInputWrapper: Boolean = false
+    val useOptionalInputWrapper: Boolean = false,
+    val fragmentsFile: Document? = null,
 ) {
     // per operation caches
     val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()

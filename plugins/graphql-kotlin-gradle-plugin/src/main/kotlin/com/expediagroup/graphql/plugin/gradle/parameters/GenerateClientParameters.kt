@@ -40,6 +40,8 @@ interface GenerateClientParameters : WorkParameters {
     val schemaPath: Property<String>
     /** List of query files that will be processed to generate HTTP clients. */
     val queryFiles: ListProperty<File>
+    /** Fragments file containing GraphQL Fragments to share between queries. */
+    val queryFragmentsFile: Property<File>
     /** Directory where to save the generated source files. */
     val targetDirectory: Property<File>
     /** Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values. */

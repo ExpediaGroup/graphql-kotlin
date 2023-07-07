@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.client.Generated
+import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentFileException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
@@ -30,6 +31,8 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
+import graphql.language.Document
+import graphql.language.FragmentDefinition
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
@@ -63,10 +66,22 @@ class GraphQLClientGenerator(
     /**
      * Generate GraphQL clients for the specified queries.
      */
-    fun generate(queries: List<File>): List<FileSpec> {
+    fun generate(queries: List<File>, fragmentsFile: File? = null): List<FileSpec> {
+
         val result = mutableListOf<FileSpec>()
+
+        val fragmentsDocument = fragmentsFile?.let {
+            val fragmentsConst = fragmentsFile.readText().trim()
+            val d = documentParser.parseDocument(fragmentsConst, parserOptions)
+            d.definitions.forEach {
+                if (it !is FragmentDefinition) {
+                    throw InvalidFragmentFileException(fragmentsFile)
+                }
+            }
+            d
+        }
         for (query in queries) {
-            result.addAll(generate(query))
+            result.addAll(generate(query, fragmentsFile, fragmentsDocument))
         }
 
         // common shared types
@@ -86,13 +101,13 @@ class GraphQLClientGenerator(
             }
             result.add(typeAliasSpec.build())
         }
-        return result
+        return result.distinctBy { it.packageName + it.name }
     }
 
     /**
      * Generate GraphQL client wrapper class and data classes that match the specified query.
      */
-    internal fun generate(queryFile: File): List<FileSpec> {
+    internal fun generate(queryFile: File, fragmentsFile: File?, fragmentsDocument: Document?): List<FileSpec> {
         val queryConst = queryFile.readText().trim()
         val queryDocument = documentParser.parseDocument(queryConst, parserOptions)
 
@@ -113,12 +128,18 @@ class GraphQLClientGenerator(
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
                 serializer = config.serializer,
-                useOptionalInputWrapper = config.useOptionalInputWrapper
+                useOptionalInputWrapper = config.useOptionalInputWrapper,
+                fragmentsFile = fragmentsDocument
             )
             val queryConstName = capitalizedOperationName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)
-                .initializer("%S", queryConst)
+                .initializer(
+                    "%S",
+                    fragmentsFile?.let {
+                        queryConst + "\n\n" + fragmentsFile.readText().trim() // todo only add relevant fragments
+                    } ?: queryConst
+                )
                 .build()
             operationFileSpec.addProperty(queryConstProp)
 

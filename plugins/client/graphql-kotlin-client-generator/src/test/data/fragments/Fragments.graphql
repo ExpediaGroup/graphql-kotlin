@@ -1,0 +1,11 @@
+fragment complexObjectFields on ComplexObject {
+  id
+  name
+  details {
+    ...detailObjectFields
+  }
+}
+
+fragment detailObjectFields on DetailsObject {
+  value
+}

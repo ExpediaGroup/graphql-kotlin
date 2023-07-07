@@ -104,6 +104,12 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var queryFiles: List<File>? = null
 
     /**
+     * Fragments file containing GraphQL Fragments to share between queries.
+     */
+    @Parameter(name = "queryFragmentsFile")
+    private var queryFragmentsFile: File? = null
+
+    /**
      * JSON serializer that will be used to generate the data classes..
      */
     @Parameter(name = "serializer")
@@ -141,7 +147,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
                 captureLineComments?.let { captureLineComments(it) }
                 captureSourceLocation?.let { captureSourceLocation(it) }
             }
-        }).forEach {
+        }, fragmentsFile = queryFragmentsFile).forEach {
             it.writeTo(outputDirectory)
         }
 

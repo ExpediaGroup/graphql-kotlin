@@ -21,6 +21,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.UnknownGraphQLTypeException
 import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinition
+import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinitionNullable
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
@@ -68,6 +69,7 @@ internal fun generateTypeName(
             Scalars.GraphQLBoolean.name -> BOOLEAN
             else -> generateCustomClassName(context, graphQLType, selectionSet)
         }
+
         is ListType -> {
             val type = generateTypeName(context, graphQLType.type, selectionSet)
             val parameterizedType = if (context.serializer == GraphQLSerializer.KOTLINX && context.isCustomScalar(type)) {
@@ -114,24 +116,29 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet)
                     context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 }
+
                 is InputObjectTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.inputs")
                     context.inputClassToTypeSpecs[className] = generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
                 }
+
                 is EnumTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.enums")
                     context.enumClassToTypeSpecs[className] = generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
                 }
+
                 is InterfaceTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet)
                     context.polymorphicTypes[className] = mutableListOf(className)
                     context.typeSpecs[className] = generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 }
+
                 is UnionTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet)
                     context.polymorphicTypes[className] = mutableListOf(className)
                     context.typeSpecs[className] = generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 }
+
                 is ScalarTypeDefinition -> {
                     // its not possible to enter this clause if converter is not available
                     val graphQLScalarMapping = context.customScalarMap[graphQLTypeName]!!
@@ -167,6 +174,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                 context.polymorphicTypes[className] = mutableListOf(className)
                 generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             }
+
             is UnionTypeDefinition -> {
                 context.polymorphicTypes[className] = mutableListOf(className)
                 generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
@@ -189,8 +197,18 @@ internal fun generateClassName(
     nameOverride: String? = null,
     packageName: String = "${context.packageName}.${context.operationName.lowercase()}"
 ): ClassName {
+    var pName = packageName
+    selectionSet?.let {
+        if (it.selections.size == 1 && it.selections.first() is FragmentSpread) {
+            val first = it.selections.first() as FragmentSpread
+            val isSharedFragment = context.fragmentsFile?.findFragmentDefinitionNullable(context, first.name, nameOverride ?: graphQLType.name) != null
+            if (isSharedFragment) {
+                pName = "${context.packageName}.fragments"
+            }
+        }
+    }
     val typeName = nameOverride ?: graphQLType.name
-    val className = ClassName(packageName, typeName)
+    val className = ClassName(pName, typeName)
     val classNames = context.classNameCache.getOrDefault(graphQLType.name, mutableListOf())
     classNames.add(className)
     context.classNameCache[graphQLType.name] = classNames
@@ -235,6 +253,7 @@ private fun calculateSelectedFields(
                     result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path$fieldName."))
                 }
             }
+
             is InlineFragment -> {
                 val targetFragmentType = selection.typeCondition.name
                 val fragmentPathPrefix = if (targetFragmentType == targetType) {
@@ -244,8 +263,10 @@ private fun calculateSelectedFields(
                 }
                 result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, fragmentPathPrefix))
             }
+
             is FragmentSpread -> {
-                val fragmentDefinition = context.queryDocument.findFragmentDefinition(context, selection.name, targetType)
+                val fragmentDefinition = context.findFragmentDefinition(selection.name, targetType)
+
                 val targetFragmentType = fragmentDefinition.typeCondition.name
                 val fragmentPathPrefix = if (targetFragmentType == targetType) {
                     path

@@ -36,6 +36,7 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val serializer = GraphQLSerializer.valueOf(parameters.serializer.get().name)
         val schemaPath = parameters.schemaPath.get()
         val queryFiles = parameters.queryFiles.get()
+        val queryFragmentsFile = parameters.queryFragmentsFile.orNull
         val targetDirectory = parameters.targetDirectory.get()
         val useOptionalInputWrapper = parameters.useOptionalInputWrapper.get()
         val parserOptions = parameters.parserOptions.get()
@@ -54,7 +55,8 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
                 parserOptions.captureIgnoredChars?.let { captureIgnoredChars(it) }
                 parserOptions.captureSourceLocation?.let { captureSourceLocation(it) }
                 parserOptions.captureLineComments?.let { captureLineComments(it) }
-            }
+            },
+            fragmentsFile = queryFragmentsFile
         ).forEach {
             it.writeTo(targetDirectory)
         }

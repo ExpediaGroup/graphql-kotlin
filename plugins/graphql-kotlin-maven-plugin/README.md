@@ -115,6 +115,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
+| `queryFragmentsFile` | File | no  | Shared fragements which can be used in queries. |
 
 **Parameter Details**
 

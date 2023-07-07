@@ -22,6 +22,13 @@ import graphql.language.Document
 import graphql.language.FragmentDefinition
 
 internal fun Document.findFragmentDefinition(context: GraphQLClientGeneratorContext, targetFragment: String, targetType: String): FragmentDefinition =
+    findFragmentDefinitionNullable(context, targetFragment, targetType)
+        ?: throw InvalidFragmentException(context.operationName, targetFragment, targetType)
+
+internal fun Document.findFragmentDefinitionNullable(context: GraphQLClientGeneratorContext, targetFragment: String, targetType: String): FragmentDefinition? =
     this.getDefinitionsOfType(FragmentDefinition::class.java)
         .find { it.name == targetFragment && context.graphQLSchema.getType(it.typeCondition.name).isPresent }
-        ?: throw InvalidFragmentException(context.operationName, targetFragment, targetType)
+
+internal fun GraphQLClientGeneratorContext.findFragmentDefinition(targetFragment: String, targetType: String): FragmentDefinition {
+    return this.fragmentsFile?.findFragmentDefinitionNullable(this, targetFragment, targetType) ?: this.queryDocument.findFragmentDefinition(this, targetFragment, targetType)
+}

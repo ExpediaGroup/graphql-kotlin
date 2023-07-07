@@ -56,11 +56,11 @@ internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File
 internal const val TEST_SCHEMA_PATH = "testSchema.graphql"
 
 @OptIn(ExperimentalCompilerApi::class)
-internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File) {
+internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File, fragmentsFile: File? = null) {
     val (queries, expectedFiles) = locateTestFiles(testDirectory)
 
     val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, config)
-    val fileSpecs = generator.generate(queries)
+    val fileSpecs = generator.generate(queries, fragmentsFile)
     assertTrue(fileSpecs.isNotEmpty())
     assertEquals(expectedFiles.size, fileSpecs.size)
     for (spec in fileSpecs) {
