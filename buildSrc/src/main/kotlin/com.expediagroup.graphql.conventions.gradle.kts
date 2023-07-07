@@ -43,6 +43,9 @@ tasks {
     jacoco {
         toolVersion = libs.versions.jacoco.get()
     }
+    jacocoTestCoverageVerification {
+        finalizedBy(jacocoTestReport)
+    }
     jacocoTestReport {
         dependsOn(test)
     }

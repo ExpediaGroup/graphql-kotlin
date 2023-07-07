@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
+package com.expediagroup.graphql.server.ktor.subscriptions
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
+import com.expediagroup.graphql.server.execution.subscription.GraphQLSubscriptionContextFactory
+import io.ktor.server.websocket.WebSocketServerSession
 
 /**
- * The `graphql-transport-ws` protocol message format
- *
- * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+ * Ktor specific version of WebSocket subscription context factory.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class SubscriptionOperationMessage(
-    val type: String,
-    val id: String? = null,
-    val payload: Any? = null
-)
+interface KtorGraphQLSubscriptionContextFactory : GraphQLSubscriptionContextFactory<WebSocketServerSession>
+
+class DefaultKtorGraphQLSubscriptionContextFactory : KtorGraphQLSubscriptionContextFactory

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
  *
  * https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
  */
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SubscriptionOperationMessage(
+data class ApolloSubscriptionOperationMessage(
     val type: String,
     val id: String? = null,
     val payload: Any? = null
 ) {
+    @Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
     enum class ClientMessages(val type: String) {
         GQL_CONNECTION_INIT("connection_init"),
         GQL_START("start"),
         GQL_STOP("stop"),
         GQL_CONNECTION_TERMINATE("connection_terminate")
     }
-
+    @Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
     enum class ServerMessages(val type: String) {
         GQL_CONNECTION_ACK("connection_ack"),
         GQL_CONNECTION_ERROR("connection_error"),

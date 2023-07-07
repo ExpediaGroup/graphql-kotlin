@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_START
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_STOP
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ACK
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_KEEP_ALIVE
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_DATA
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages.GQL_STOP
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ACK
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_KEEP_ALIVE
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_DATA
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_ERROR
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -43,21 +44,22 @@ import java.time.Duration
  * Implementation of the `graphql-ws` protocol defined by Apollo
  * https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
  */
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
     private val contextFactory: SpringSubscriptionGraphQLContextFactory,
-    private val subscriptionHandler: SpringGraphQLSubscriptionHandler,
+    private val subscriptionHandler: GraphQLRequestHandler,
     private val objectMapper: ObjectMapper,
     private val subscriptionHooks: ApolloSubscriptionHooks
 ) {
     private val sessionState = ApolloSubscriptionSessionState()
     private val logger = LoggerFactory.getLogger(ApolloSubscriptionProtocolHandler::class.java)
-    private val keepAliveMessage = SubscriptionOperationMessage(type = GQL_CONNECTION_KEEP_ALIVE.type)
-    private val basicConnectionErrorMessage = SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type)
-    private val acknowledgeMessage = SubscriptionOperationMessage(GQL_CONNECTION_ACK.type)
+    private val keepAliveMessage = ApolloSubscriptionOperationMessage(type = GQL_CONNECTION_KEEP_ALIVE.type)
+    private val basicConnectionErrorMessage = ApolloSubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type)
+    private val acknowledgeMessage = ApolloSubscriptionOperationMessage(GQL_CONNECTION_ACK.type)
 
     @Suppress("Detekt.TooGenericExceptionCaught")
-    fun handle(payload: String, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    fun handle(payload: String, session: WebSocketSession): Flux<ApolloSubscriptionOperationMessage> {
         val operationMessage = convertToMessageOrNull(payload) ?: return Flux.just(basicConnectionErrorMessage)
         logger.debug("GraphQL subscription client message, sessionId=${session.id} operationMessage=$operationMessage")
 
@@ -75,7 +77,7 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     @Suppress("Detekt.TooGenericExceptionCaught")
-    private fun convertToMessageOrNull(payload: String): SubscriptionOperationMessage? {
+    private fun convertToMessageOrNull(payload: String): ApolloSubscriptionOperationMessage? {
         return try {
             objectMapper.readValue(payload)
         } catch (exception: Exception) {
@@ -88,7 +90,7 @@ class ApolloSubscriptionProtocolHandler(
      * If the keep alive configuration is set, send a message back to client at every interval until the session is terminated.
      * Otherwise just return empty flux to append to the acknowledge message.
      */
-    private fun getKeepAliveFlux(session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    private fun getKeepAliveFlux(session: WebSocketSession): Flux<ApolloSubscriptionOperationMessage> {
         val keepAliveInterval: Long? = config.subscriptions.keepAliveInterval
         if (keepAliveInterval != null) {
             return Flux.interval(Duration.ofMillis(keepAliveInterval))
@@ -101,9 +103,9 @@ class ApolloSubscriptionProtocolHandler(
 
     @Suppress("Detekt.TooGenericExceptionCaught")
     private fun startSubscription(
-        operationMessage: SubscriptionOperationMessage,
+        operationMessage: ApolloSubscriptionOperationMessage,
         session: WebSocketSession
-    ): Flux<SubscriptionOperationMessage> {
+    ): Flux<ApolloSubscriptionOperationMessage> {
         val graphQLContext = sessionState.getGraphQLContext(session)
 
         subscriptionHooks.onOperationWithContext(operationMessage, session, graphQLContext)
@@ -123,7 +125,7 @@ class ApolloSubscriptionProtocolHandler(
         if (payload == null) {
             logger.error("GraphQL subscription payload was null instead of a GraphQLRequest object")
             sessionState.stopOperation(session, operationMessage)
-            return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+            return Flux.just(ApolloSubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
 
         try {
@@ -132,9 +134,9 @@ class ApolloSubscriptionProtocolHandler(
                 .asFlux()
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
-                        SubscriptionOperationMessage(type = GQL_ERROR.type, id = operationMessage.id, payload = it)
+                        ApolloSubscriptionOperationMessage(type = GQL_ERROR.type, id = operationMessage.id, payload = it)
                     } else {
-                        SubscriptionOperationMessage(type = GQL_DATA.type, id = operationMessage.id, payload = it)
+                        ApolloSubscriptionOperationMessage(type = GQL_DATA.type, id = operationMessage.id, payload = it)
                     }
                 }
                 .concatWith(onComplete(operationMessage, session).toFlux())
@@ -143,11 +145,11 @@ class ApolloSubscriptionProtocolHandler(
             logger.error("Error running graphql subscription", exception)
             // Do not terminate the session, just stop the operation messages
             sessionState.stopOperation(session, operationMessage)
-            return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+            return Flux.just(ApolloSubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
     }
 
-    private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    private fun onInit(operationMessage: ApolloSubscriptionOperationMessage, session: WebSocketSession): Flux<ApolloSubscriptionOperationMessage> {
         saveContext(operationMessage, session)
         val acknowledgeMessage = Mono.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
@@ -158,10 +160,10 @@ class ApolloSubscriptionProtocolHandler(
     /**
      * Generate the context and save it for all future messages.
      */
-    private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
+    private fun saveContext(operationMessage: ApolloSubscriptionOperationMessage, session: WebSocketSession) {
         runBlocking {
             val connectionParams = castToMapOfStringString(operationMessage.payload)
-            val graphQLContext = contextFactory.generateContext(session)
+            val graphQLContext = contextFactory.generateContext(session, connectionParams)
             val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
             sessionState.saveContext(session, onConnectGraphQLContext)
         }
@@ -171,9 +173,9 @@ class ApolloSubscriptionProtocolHandler(
      * Called with the publisher has completed on its own.
      */
     private fun onComplete(
-        operationMessage: SubscriptionOperationMessage,
+        operationMessage: ApolloSubscriptionOperationMessage,
         session: WebSocketSession
-    ): Mono<SubscriptionOperationMessage> {
+    ): Mono<ApolloSubscriptionOperationMessage> {
         subscriptionHooks.onOperationComplete(session)
         return sessionState.completeOperation(session, operationMessage)
     }
@@ -182,31 +184,31 @@ class ApolloSubscriptionProtocolHandler(
      * Called with the client has called stop manually, or on error, and we need to cancel the publisher
      */
     private fun onStop(
-        operationMessage: SubscriptionOperationMessage,
+        operationMessage: ApolloSubscriptionOperationMessage,
         session: WebSocketSession
-    ): Flux<SubscriptionOperationMessage> {
+    ): Flux<ApolloSubscriptionOperationMessage> {
         subscriptionHooks.onOperationComplete(session)
         return sessionState.stopOperation(session, operationMessage).toFlux()
     }
 
-    private fun onDisconnect(session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    private fun onDisconnect(session: WebSocketSession): Flux<ApolloSubscriptionOperationMessage> {
         subscriptionHooks.onDisconnect(session)
         sessionState.terminateSession(session)
         return Flux.empty()
     }
 
-    private fun onUnknownOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    private fun onUnknownOperation(operationMessage: ApolloSubscriptionOperationMessage, session: WebSocketSession): Flux<ApolloSubscriptionOperationMessage> {
         logger.error("Unknown subscription operation $operationMessage")
         sessionState.stopOperation(session, operationMessage)
         return Flux.just(getConnectionErrorMessage(operationMessage))
     }
 
-    private fun onException(exception: Exception): Flux<SubscriptionOperationMessage> {
+    private fun onException(exception: Exception): Flux<ApolloSubscriptionOperationMessage> {
         logger.error("Error parsing the subscription message", exception)
         return Flux.just(basicConnectionErrorMessage)
     }
 
-    private fun getConnectionErrorMessage(operationMessage: SubscriptionOperationMessage): SubscriptionOperationMessage {
-        return SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id)
+    private fun getConnectionErrorMessage(operationMessage: ApolloSubscriptionOperationMessage): ApolloSubscriptionOperationMessage {
+        return ApolloSubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id)
     }
 }

@@ -24,8 +24,8 @@ import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.GraphQLContext
@@ -67,7 +67,7 @@ class SpringGraphQLSubscriptionHandlerTest {
             }
     }
     private val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(listOf(mockLoader))
-    private val subscriptionHandler = SpringGraphQLSubscriptionHandler(testGraphQL, dataLoaderRegistryFactory)
+    private val subscriptionHandler = GraphQLRequestHandler(testGraphQL, dataLoaderRegistryFactory)
 
     @Test
     fun `verify subscription`() {

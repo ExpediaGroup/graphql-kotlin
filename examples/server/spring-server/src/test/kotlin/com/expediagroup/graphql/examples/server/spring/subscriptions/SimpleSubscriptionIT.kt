@@ -17,10 +17,7 @@
 package com.expediagroup.graphql.examples.server.spring.subscriptions
 
 import com.expediagroup.graphql.examples.server.spring.SUBSCRIPTION_ENDPOINT
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_START
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -168,12 +165,12 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .then(session.send(Flux.just(session.textMessage(startMessage))))
             .thenMany(
                 session.receive()
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                    .map { objectMapper.readValue<ApolloSubscriptionOperationMessage>(it.payloadAsText) }
                     .doOnNext {
-                        if (it.type == ServerMessages.GQL_DATA.type) {
+                        if (it.type == ApolloSubscriptionOperationMessage.ServerMessages.GQL_DATA.type) {
                             val data = objectMapper.writeValueAsString(it.payload)
                             output.next(data)
-                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                        } else if (it.type == ApolloSubscriptionOperationMessage.ServerMessages.GQL_COMPLETE.type) {
                             output.complete()
                         }
                     }
@@ -181,10 +178,12 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .then()
     }
 
-    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
-    private fun getInitMessage(id: String, payload: Any?) = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type, id = id, payload = payload).toJson()
+    private fun ApolloSubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
+    private fun getInitMessage(id: String, payload: Any?) = ApolloSubscriptionOperationMessage(
+        ApolloSubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT.type, id = id, payload = payload
+    ).toJson()
     private fun getStartMessage(query: String, id: String): String {
         val request = GraphQLRequest("subscription { $query }")
-        return SubscriptionOperationMessage(GQL_START.type, id = id, payload = request).toJson()
+        return ApolloSubscriptionOperationMessage(ApolloSubscriptionOperationMessage.ClientMessages.GQL_START.type, id = id, payload = request).toJson()
     }
 }

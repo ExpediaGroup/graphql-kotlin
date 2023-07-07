@@ -59,10 +59,6 @@ open class SpringGraphQLRequestParser(
         return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
     }
 
-    /**
-     * We have to suppress the warning due to a jackson issue
-     * https://github.com/FasterXML/jackson-module-kotlin/issues/221
-     */
     private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLServerRequest? {
         val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
         return when {

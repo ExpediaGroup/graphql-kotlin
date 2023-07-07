@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,9 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.operations.Subscription
-import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
-import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionProtocolHandler
-import com.expediagroup.graphql.server.spring.subscriptions.DefaultSpringSubscriptionGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.subscriptions.SimpleSubscriptionHooks
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
-import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
-import com.fasterxml.jackson.databind.ObjectMapper
-import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -36,6 +26,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
+import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 
 /**
@@ -53,46 +44,23 @@ private const val URL_HANDLER_ORDER = 0
  */
 @Configuration
 @ConditionalOnBean(Subscription::class)
-@Import(GraphQLSchemaConfiguration::class)
+@Import(
+    SubscriptionApolloWsAutoConfiguration::class,
+    SubscriptionGraphQLWsAutoConfiguration::class
+)
 class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
     fun flowSubscriptionSchemaGeneratorHooks(): SchemaGeneratorHooks = FlowSubscriptionSchemaGeneratorHooks()
 
-    @Bean
-    @ConditionalOnMissingBean
-    fun subscriptionHandler(
-        graphQL: GraphQL,
-        dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory
-    ) = SpringGraphQLSubscriptionHandler(graphQL, dataLoaderRegistryFactory)
-
+    // used for handshake and upgrading connections
     @Bean
     @ConditionalOnMissingBean
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
 
+    // workaround for https://github.com/spring-projects/spring-framework/issues/19476
     @Bean
-    @ConditionalOnMissingBean
-    fun apolloSubscriptionHooks(): ApolloSubscriptionHooks = SimpleSubscriptionHooks()
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun springSubscriptionGraphQLContextFactory(): SpringSubscriptionGraphQLContextFactory = DefaultSpringSubscriptionGraphQLContextFactory()
-
-    @Bean
-    fun apolloSubscriptionProtocolHandler(
-        config: GraphQLConfigurationProperties,
-        subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory,
-        handler: SpringGraphQLSubscriptionHandler,
-        objectMapper: ObjectMapper,
-        apolloSubscriptionHooks: ApolloSubscriptionHooks
-    ) = ApolloSubscriptionProtocolHandler(config, subscriptionContextFactory, handler, objectMapper, apolloSubscriptionHooks)
-
-    @Bean
-    fun subscriptionWebSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =
-        SubscriptionWebSocketHandler(handler, objectMapper)
-
-    @Bean
-    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, subscriptionWebSocketHandler: SubscriptionWebSocketHandler): HandlerMapping =
-        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionWebSocketHandler), URL_HANDLER_ORDER)
+    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, webSocketHandler: WebSocketHandler): HandlerMapping =
+        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to webSocketHandler), URL_HANDLER_ORDER)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
 import graphql.GraphQLContext
 import org.reactivestreams.Subscription
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, use graphql-ws protocol instead")
 internal class ApolloSubscriptionSessionState {
 
     // Sessions are saved by web socket session id
@@ -63,7 +64,7 @@ internal class ApolloSubscriptionSessionState {
      * This will override values without cancelling the subscription so it is the responsibility of the consumer to cancel.
      * These messages will be stopped on [stopOperation].
      */
-    fun saveOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage, subscription: Subscription) {
+    fun saveOperation(session: WebSocketSession, operationMessage: ApolloSubscriptionOperationMessage, subscription: Subscription) {
         val id = operationMessage.id
         if (id != null) {
             val operationsForSession: ConcurrentHashMap<String, Subscription> = activeOperations.getOrPut(session.id) { ConcurrentHashMap() }
@@ -75,7 +76,7 @@ internal class ApolloSubscriptionSessionState {
      * Send the [GQL_COMPLETE] message.
      * This can happen when the publisher finishes or if the client manually sends the stop message.
      */
-    fun completeOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
+    fun completeOperation(session: WebSocketSession, operationMessage: ApolloSubscriptionOperationMessage): Mono<ApolloSubscriptionOperationMessage> {
         return getCompleteMessage(operationMessage)
             .doFinally { removeActiveOperation(session, operationMessage.id, cancelSubscription = false) }
     }
@@ -84,15 +85,15 @@ internal class ApolloSubscriptionSessionState {
      * Stop the subscription sending data and send the [GQL_COMPLETE] message.
      * Does NOT terminate the session.
      */
-    fun stopOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
+    fun stopOperation(session: WebSocketSession, operationMessage: ApolloSubscriptionOperationMessage): Mono<ApolloSubscriptionOperationMessage> {
         return getCompleteMessage(operationMessage)
             .doFinally { removeActiveOperation(session, operationMessage.id, cancelSubscription = true) }
     }
 
-    private fun getCompleteMessage(operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
+    private fun getCompleteMessage(operationMessage: ApolloSubscriptionOperationMessage): Mono<ApolloSubscriptionOperationMessage> {
         val id = operationMessage.id
         if (id != null) {
-            return Mono.just(SubscriptionOperationMessage(type = GQL_COMPLETE.type, id = id))
+            return Mono.just(ApolloSubscriptionOperationMessage(type = GQL_COMPLETE.type, id = id))
         }
         return Mono.empty()
     }
@@ -129,6 +130,6 @@ internal class ApolloSubscriptionSessionState {
     /**
      * Looks up the operation for the client, to check if it already exists
      */
-    fun doesOperationExist(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Boolean =
+    fun doesOperationExist(session: WebSocketSession, operationMessage: ApolloSubscriptionOperationMessage): Boolean =
         activeOperations[session.id]?.containsKey(operationMessage.id) ?: false
 }

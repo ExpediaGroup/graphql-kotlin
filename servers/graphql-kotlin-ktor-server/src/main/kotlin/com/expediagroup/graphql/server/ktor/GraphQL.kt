@@ -32,11 +32,8 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHoo
 import com.expediagroup.graphql.generator.federation.FederatedSimpleTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
-import com.expediagroup.graphql.server.execution.DefaultGraphQLSubscriptionExecutor
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
-import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionHooks
-import com.expediagroup.graphql.server.ktor.subscriptions.graphqlws.KtorGraphQLWebSocketProtocolHandler
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLWebSocketServer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -156,23 +153,25 @@ class GraphQL(config: GraphQLConfiguration) {
         .build()
 
     // TODO cannot override the request handler/server as it requires access to graphql engine
+    private val requestHandler: GraphQLRequestHandler = GraphQLRequestHandler(
+        graphQL = engine,
+        dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory
+    )
+
     val server: KtorGraphQLServer = KtorGraphQLServer(
         requestParser = config.server.requestParser,
         contextFactory = config.server.contextFactory,
-        requestHandler = GraphQLRequestHandler(
-            graphQL = engine,
-            dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory
-        )
+        requestHandler = requestHandler
     )
 
-    val subscriptionsHandler: KtorGraphQLSubscriptionHandler by lazy {
-        KtorGraphQLWebSocketProtocolHandler(
-            subscriptionExecutor = DefaultGraphQLSubscriptionExecutor(
-                graphQL = engine,
-                dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory,
-            ),
-            objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration),
-            subscriptionHooks = DefaultKtorGraphQLSubscriptionHooks(),
+    val subscriptionServer: KtorGraphQLWebSocketServer by lazy {
+        KtorGraphQLWebSocketServer(
+            requestParser = config.server.subscriptions.requestParser,
+            contextFactory = config.server.subscriptions.contextFactory,
+            subscriptionHooks = config.server.subscriptions.hooks,
+            requestHandler = requestHandler,
+            initTimeoutMillis = config.server.subscriptions.connectionInitTimeout,
+            objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration)
         )
     }
 

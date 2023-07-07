@@ -69,10 +69,27 @@ _Created only if the `Subscription` marker interface is used_
 
 | Bean                                    | Description                                                                                                                                                                                                                |
 |:----------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| SpringGraphQLSubscriptionHandler        | Spring reactor code for executing GraphQL subscriptions requests                                                                                                                                                           |
+| FlowSubscriptionSchemaGeneratorHooks | Schema generator hooks that provide support for using `Flow` in your subscriptions |
 | WebSocketHandlerAdapter                 | Spring class for handling web socket http requests. See [Spring documentation](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/reactive/socket/server/support/WebSocketHandlerAdapter.html) |
-| ApolloSubscriptionHooks                 | Provides hooks into the subscription request lifecycle. See [the subscription docs](spring-subscriptions.md)                                                                                                               |
-| SpringSubscriptionGraphQLContextFactory | Spring specific factory that uses the `WebSocketSession`. See [GraphQLContextFactory](../graphql-context-factory.md).                                                                                                      |
+| HandlerMapping | Maps websocket URL to the corresponding web socket handler |
+
+### graphql-transport-ws
+
+| Bean                                    | Description                                                                       |
+|:----------------------------------------|:----------------------------------------------------------------------------------|
+| SpringSubscriptionGraphQLContextFactory | Generates GraphQL subscription context based on the WebSocket session information |
+| SpringGraphQLSubscriptionRequestParser  | Parses incoming WebSocket messages                                                |
+| SpringGraphQLSubscriptionHooks          | Provides hooks into the subscription request lifecycle                            |
+| SubscriptionWebSocketHandler            | WebSocketHandler that implements the `graphql-transport-ws` subscription protocol |
+
+### (deprecated) subscription-transport-ws
+
+| Bean                                    | Description                                                                                                           |
+|:----------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| ApolloSubscriptionHooks                 | Provides hooks into the subscription request lifecycle. See [the subscription docs](spring-subscriptions.md)          |
+| SpringSubscriptionGraphQLContextFactory | Spring specific factory that uses the `WebSocketSession`. See [GraphQLContextFactory](../graphql-context-factory.md). |
+| ApolloSubscriptionProtocolHandler       | Implementation of the `subscription-transport-ws` subscription protocol                                               |
+| ApolloSubscriptionWebSocketHandler      | WebSocketHandler that delegates handling of the messages to the `ApolloSubscriptionProtocolHandler` bean              |
 
 ## Fixed Beans
 

@@ -19,14 +19,10 @@ package com.expediagroup.graphql.server.spring.routes
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.expediagroup.graphql.server.types.GraphQLResponse
-import com.expediagroup.graphql.server.types.GraphQLSubscriptionMessage
-import com.expediagroup.graphql.server.types.SubscriptionMessageComplete
-import com.expediagroup.graphql.server.types.SubscriptionMessageConnectionAck
-import com.expediagroup.graphql.server.types.SubscriptionMessageConnectionInit
-import com.expediagroup.graphql.server.types.SubscriptionMessageNext
-import com.expediagroup.graphql.server.types.SubscriptionMessageSubscribe
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -42,22 +38,23 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
 import java.net.URI
-import java.time.Duration
-import java.util.UUID
 
+@Deprecated("this class tests deprecated subscriptions-transport-ws protocol")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         "graphql.packages=com.expediagroup.graphql.server.spring.routes",
         "graphql.endpoint=foo",
-        "graphql.subscriptions.endpoint=bar"
+        "graphql.subscriptions.endpoint=bar",
+        "graphql.subscriptions.protocol=APOLLO_SUBSCRIPTIONS_WS"
     ]
 )
 @EnableAutoConfiguration
-class SubscriptionRoutesConfigurationIT(
+class ApolloSubscriptionRoutesConfigurationIT(
     @Autowired private val testClient: WebTestClient,
     @LocalServerPort private var port: Int
 ) {
@@ -115,39 +112,37 @@ class SubscriptionRoutesConfigurationIT(
     @Test
     fun `verify subscription-transport-ws protocol subscription`() {
         val request = GraphQLRequest("subscription { getNumber }")
-        val messageId = UUID.randomUUID().toString()
-        val initMessage = SubscriptionMessageConnectionInit().toJson()
-        val subscribeMessage = SubscriptionMessageSubscribe(id = messageId, payload = request).toJson()
-
-        val dataOutput = TestPublisher.create<GraphQLResponse<*>>()
+        val messageId = "1"
+        val initMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id = messageId).toJson()
+        val startMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_START.type, id = messageId, payload = request).toJson()
+        val terminateMessage = ApolloSubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_TERMINATE.type, id = messageId).toJson()
+        val dataOutput = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/bar")
 
         client.execute(uri) { session ->
-            val clientMessages = Flux.just(session.textMessage(initMessage), session.textMessage(subscribeMessage))
-                .delayElements(Duration.ofMillis(200))
-            var connectionAcked = false
+            val firstMessage = session.textMessage(initMessage).toMono()
+                .concatWith(session.textMessage(startMessage).toMono())
 
-            session.send(clientMessages)
-                .thenMany(session.receive())
-                .map { objectMapper.readValue<GraphQLSubscriptionMessage>(it.payloadAsText) }
-                .doOnNext { msg ->
-                    if (connectionAcked && msg is SubscriptionMessageNext) {
-                        dataOutput.next(msg.payload)
-                    } else if (msg is SubscriptionMessageConnectionAck) {
-                        connectionAcked = true
-                    } else if (msg is SubscriptionMessageComplete) {
-                        dataOutput.complete()
-                    } else {
-                        throw IllegalStateException("received unexpected message $msg")
-                    }
-                }
-                .then()
+            session.send(firstMessage)
+                .thenMany(
+                    session.receive()
+                        .map { objectMapper.readValue<ApolloSubscriptionOperationMessage>(it.payloadAsText) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                dataOutput.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                dataOutput.complete()
+                            }
+                        }
+                )
+                .then(session.send(session.textMessage(terminateMessage).toMono()))
         }.subscribe()
 
         StepVerifier.create(dataOutput)
-            .expectNext(GraphQLResponse(data = mapOf("getNumber" to 42)))
+            .expectNext("{\"data\":{\"getNumber\":42}}")
             .expectComplete()
             .verify()
     }
@@ -158,5 +153,5 @@ class SubscriptionRoutesConfigurationIT(
         .jsonPath("$.errors").doesNotExist()
         .jsonPath("$.extensions").doesNotExist()
 
-    private fun GraphQLSubscriptionMessage.toJson() = objectMapper.writeValueAsString(this)
+    private fun ApolloSubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 }

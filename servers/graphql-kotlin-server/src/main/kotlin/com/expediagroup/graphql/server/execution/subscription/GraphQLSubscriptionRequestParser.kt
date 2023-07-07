@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
+package com.expediagroup.graphql.server.execution.subscription
 
-object MessageTypes {
-    const val GQL_CONNECTION_INIT = "connection_init"
-    const val GQL_CONNECTION_ACK = "connection_ack"
-    const val GQL_PING = "ping"
-    const val GQL_PONG = "pong"
-    const val GQL_SUBSCRIBE = "subscribe"
-    const val GQL_NEXT = "next"
-    const val GQL_ERROR = "error"
-    const val GQL_COMPLETE = "complete"
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * A generic server interface that handles reading WebSocket text messages from the specific
+ * WebSocket session implementation.
+ */
+interface GraphQLSubscriptionRequestParser<Session> {
+    suspend fun parseRequestFlow(session: Session): Flow<String>
 }

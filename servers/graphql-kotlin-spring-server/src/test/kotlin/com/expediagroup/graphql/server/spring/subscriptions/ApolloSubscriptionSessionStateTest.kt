@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@Deprecated(message = "subscriptions-transport-ws protocol is deprecated, this class will be removed in next major release")
 class ApolloSubscriptionSessionStateTest {
 
     @Test
@@ -47,7 +48,7 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk()
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val mockOperationMessage: SubscriptionOperationMessage = mockk { every { id } returns null }
+        val mockOperationMessage: ApolloSubscriptionOperationMessage = mockk { every { id } returns null }
 
         assertEquals(expected = 0, actual = state.activeOperations.size)
 
@@ -61,7 +62,7 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk()
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val mockOperationMessage: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val mockOperationMessage: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
 
         assertEquals(expected = 0, actual = state.activeOperations.size)
 
@@ -76,8 +77,8 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk()
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val mockOperationMessage1: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
-        val mockOperationMessage2: SubscriptionOperationMessage = mockk { every { id } returns "def" }
+        val mockOperationMessage1: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val mockOperationMessage2: ApolloSubscriptionOperationMessage = mockk { every { id } returns "def" }
 
         assertEquals(expected = 0, actual = state.activeOperations.size)
 
@@ -97,13 +98,13 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk()
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val inputOperation: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
 
         state.saveOperation(mockSession, inputOperation, mockSubscription)
 
         assertEquals(expected = 1, actual = state.activeOperations.size)
 
-        val cancelOperation: SubscriptionOperationMessage = mockk { every { id } returns null }
+        val cancelOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns null }
         state.stopOperation(mockSession, cancelOperation)
 
         assertEquals(expected = 1, actual = state.activeOperations.size)
@@ -116,13 +117,13 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk()
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val inputOperation: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
 
         state.saveOperation(mockSession, inputOperation, mockSubscription)
 
         assertEquals(expected = 1, actual = state.activeOperations.size)
 
-        val cancelOperation: SubscriptionOperationMessage = mockk { every { id } returns "xyz" }
+        val cancelOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "xyz" }
         state.stopOperation(mockSession, cancelOperation)
 
         assertEquals(expected = 1, actual = state.activeOperations.size)
@@ -135,7 +136,7 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk { every { cancel() } returns Unit }
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
-        val inputOperation: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
 
         state.saveOperation(mockSession, inputOperation, mockSubscription)
 
@@ -155,8 +156,8 @@ class ApolloSubscriptionSessionStateTest {
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
         val mockSubscription1: Subscription = mockk { every { cancel() } returns Unit }
         val mockSubscription2: Subscription = mockk { every { cancel() } returns Unit }
-        val inputOperation1: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
-        val inputOperation2: SubscriptionOperationMessage = mockk { every { id } returns "def" }
+        val inputOperation1: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation2: ApolloSubscriptionOperationMessage = mockk { every { id } returns "def" }
 
         state.saveOperation(mockSession, inputOperation1, mockSubscription1)
         state.saveOperation(mockSession, inputOperation2, mockSubscription2)
@@ -196,7 +197,7 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSessionSubscription: Subscription = mockk { every { cancel() } returns Unit }
         val mockOperationSubscription: Subscription = mockk { every { cancel() } returns Unit }
-        val inputOperation: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
         val mockSession: WebSocketSession = mockk {
             every { id } returns "123"
             every { close() } returns Mono.empty()
@@ -222,7 +223,7 @@ class ApolloSubscriptionSessionStateTest {
         val state = ApolloSubscriptionSessionState()
         val mockSessionSubscription: Subscription = mockk { every { cancel() } returns Unit }
         val mockOperationSubscription: Subscription = mockk { every { cancel() } returns Unit }
-        val inputOperation: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation: ApolloSubscriptionOperationMessage = mockk { every { id } returns "abc" }
         val mockSession: WebSocketSession = mockk {
             every { id } returns "123"
             every { close() } returns Mono.empty()

@@ -22,23 +22,17 @@ and GraphQL execution with `FlowSubscriptionExecutionStrategy`.
 If you define your subscriptions using Kotlin `Flow`, make sure to extend `FlowSubscriptionSchemaGeneratorHooks` whenever you need to provide some custom hooks.
 :::
 
-## WebSocket Sub-protocols
+## Subscription Protocols
 
-We have implemented subscriptions in Ktor WebSockets following the [`graphql-transport-ws`](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) sub-protocol.
-This one is enabled by default if you don't override the config:
+### `graphql-transport-ws` subprotocol
+
+We have implemented subscriptions in Ktor WebSockets following the [`graphql-transport-ws`](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) sub-protocol
+from [The Guild](https://the-guild.dev/). This requires that your client send and parse messages in a specific format.
+See protocol documentation for expected messages.
 
 ```kotlin
 install(Routing) {
     graphQLSubscriptionsRoute()
-}
-```
-
-If you would like to implement your own subscription handler, e.g. to support another sub-protocol, you can provide your implementation to the `graphQLSubscriptionsRoute`
-as shown below:
-
-```kotlin
-install(Routing) {
-    graphQLSubscriptionsRoute(handlerOverride = MyOwnSubscriptionsHandler())
 }
 ```
 

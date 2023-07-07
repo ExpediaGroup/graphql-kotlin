@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions
+package com.expediagroup.graphql.server.spring.subscriptions
 
-import io.ktor.server.websocket.WebSocketServerSession
+import com.expediagroup.graphql.server.execution.subscription.GraphQLSubscriptionHooks
+import org.springframework.web.reactive.socket.WebSocketSession
 
-interface KtorGraphQLSubscriptionHandler {
-    suspend fun handle(session: WebSocketServerSession)
-}
+/**
+ * Spring specific version of WebSocket subscription hooks.
+ */
+interface SpringGraphQLSubscriptionHooks : GraphQLSubscriptionHooks<WebSocketSession>
+
+/**
+ * Default implementation of lifecycle event hooks (No-op).
+ */
+open class DefaultSpringGraphQLSubscriptionHooks : SpringGraphQLSubscriptionHooks
