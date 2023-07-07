@@ -151,10 +151,10 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         val targetQueryFiles: List<File> = when {
             queryFiles.files.isNotEmpty() -> queryFiles.files.toList()
             queryFileDirectory.isPresent -> {
-                queryFileDirectory.get().asFile
-                    .listFiles { file -> file.extension == "graphql" }
+                queryFileDirectory.asFile.orNull?.walkBottomUp()?.filter { file -> file.extension == "graphql" }
                     ?.toList() ?: throw RuntimeException("exception while looking up the query files")
             }
+
             else -> throw RuntimeException("no query files found")
         }
 
