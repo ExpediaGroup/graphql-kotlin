@@ -1,5 +1,7 @@
 type Query {
     helloWorld(name: String): String!
+    parentDir(name: String): String!
+    subDir(name: String): String!
 }
 
 type Mutation {

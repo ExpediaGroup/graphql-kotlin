@@ -29,5 +29,7 @@ class GenerateClientMojoTest {
         assertTrue(queryFilePath.toFile().exists(), "graphql client query file was generated")
         val typeAliasesFilePath = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "GraphQLTypeAliases.kt")
         assertTrue(typeAliasesFilePath.toFile().exists(), "graphql client type aliases were generated")
+        val queryFilePathSubDir = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "SubDirQuery.kt")
+        assertTrue(queryFilePathSubDir.toFile().exists(), "graphql client query sub dir file was generated")
     }
 }

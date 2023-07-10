@@ -1,0 +1,3 @@
+query subDir($name: String!) {
+    subDir(name: $name)
+}
