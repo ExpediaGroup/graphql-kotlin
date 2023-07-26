@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see <a href="https://specs.apollo.dev/inaccessible/v0.2">@inaccessible specification</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = INACCESSIBLE_DIRECTIVE_NAME,
     description = INACESSIBLE_DIRECTIVE_DESCRIPTION,

@@ -61,6 +61,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * @see KeyDirective
  * @see RequiresDirective
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = EXTERNAL_DIRECTIVE_NAME,
     description = EXTERNAL_DIRECTIVE_DESCRIPTION,

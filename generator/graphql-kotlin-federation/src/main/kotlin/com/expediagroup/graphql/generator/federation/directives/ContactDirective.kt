@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.internal.types.DEFAULT_DIRECTIVE_STRING_VALUE
 import graphql.introspection.Introspection.DirectiveLocation
 
 /**
@@ -49,6 +50,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see <a href="https://www.apollographql.com/docs/studio/federated-graphs/#subgraph-contact-info">Subgraph Contact Info</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = CONTACT_DIRECTIVE_NAME,
     description = CONTACT_DIRECTIVE_DESCRIPTION,
@@ -58,9 +60,9 @@ annotation class ContactDirective(
     /** Contact title of the subgraph owner */
     val name: String,
     /** URL where the subgraph's owner can be reached */
-    val url: String = "",
+    val url: String = DEFAULT_DIRECTIVE_STRING_VALUE,
     /** Other relevant notes can be included here; supports Markdown links */
-    val description: String = ""
+    val description: String = DEFAULT_DIRECTIVE_STRING_VALUE
 )
 
 internal const val CONTACT_DIRECTIVE_NAME = "contact"

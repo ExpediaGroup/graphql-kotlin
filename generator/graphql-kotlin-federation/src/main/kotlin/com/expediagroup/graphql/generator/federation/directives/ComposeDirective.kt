@@ -61,6 +61,7 @@ import graphql.schema.GraphQLNonNull
  *
  * @see <a href="https://www.apollographql.com/docs/federation/federated-types/federated-directives/#composedirective">@composeDirective definition</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @Repeatable
 @GraphQLDirective(
     name = COMPOSE_DIRECTIVE_NAME,

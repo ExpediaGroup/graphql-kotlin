@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import graphql.schema.GraphQLNonNull
  * @see <a href="https://www.apollographql.com/docs/studio/contracts/">Apollo Contracts</a>
  * @see <a href="https://specs.apollo.dev/tag/v0.2/">@tag specification</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @Repeatable
 @GraphQLDirective(
     name = TAG_DIRECTIVE_NAME,

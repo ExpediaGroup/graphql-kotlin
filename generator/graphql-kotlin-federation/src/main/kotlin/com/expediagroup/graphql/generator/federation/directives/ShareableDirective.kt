@@ -44,6 +44,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * }
  * ```
  */
+@LinkedSpec(FEDERATION_SPEC)
 @Repeatable
 @GraphQLDirective(
     name = SHAREABLE_DIRECTIVE_NAME,

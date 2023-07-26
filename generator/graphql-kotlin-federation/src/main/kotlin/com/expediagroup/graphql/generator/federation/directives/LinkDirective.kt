@@ -17,18 +17,24 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.internal.types.DEFAULT_DIRECTIVE_STRING_VALUE
 import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLScalarType
 
-const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
-const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
+const val LINK_SPEC = "link"
+const val LINK_SPEC_URL = "https://specs.apollo.dev/link"
+const val LINK_SPEC_LATEST_VERSION = "1.0"
+const val FEDERATION_SPEC = "federation"
+const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation"
+const val FEDERATION_LATEST_VERSION = "2.5"
 
 /**
  * ```graphql
- * directive @link(url: String!, import: [Import]) repeatable on SCHEMA
+ * directive @link(url: String!, as: String, import: [Import]) repeatable on SCHEMA
  * ```
  *
  * The `@link` directive links definitions within the document to external schemas.
@@ -42,6 +48,8 @@ const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
  * specification for details.
  *
  * @param url external schema URL
+ * @param import list of imported schema elements
+ * @param as import namespace
  *
  * @see <a href="https://specs.apollo.dev/link/v1.0/">@link specification</a>
  */
@@ -51,12 +59,12 @@ const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
     description = LINK_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.SCHEMA]
 )
-annotation class LinkDirective(val url: String, val import: Array<String>)
+annotation class LinkDirective(val url: String, val `as`: String = DEFAULT_DIRECTIVE_STRING_VALUE, val import: Array<LinkImport>)
 
 internal const val LINK_DIRECTIVE_NAME = "link"
 private const val LINK_DIRECTIVE_DESCRIPTION = "Links definitions within the document to external schemas."
 
-internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+internal fun linkDirectiveType(importScalarType: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(LINK_DIRECTIVE_NAME)
     .description(LINK_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.SCHEMA)
@@ -66,17 +74,22 @@ internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.sche
             .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
     )
     .argument(
+        GraphQLArgument.newArgument()
+            .name("as")
+            .type(Scalars.GraphQLString)
+    )
+    .argument(
         GraphQLArgument
             .newArgument()
             .name("import")
-            .type(GraphQLList.list(Scalars.GraphQLString))
+            .type(GraphQLList.list(importScalarType))
     )
     .repeatable(true)
     .build()
 
-internal fun appliedLinkDirective(url: String, imports: List<String> = emptyList()) = LINK_DIRECTIVE_TYPE.toAppliedDirective()
+internal fun graphql.schema.GraphQLDirective.toAppliedLinkDirective(url: String, namespace: String?, imports: List<String> = emptyList()) = this.toAppliedDirective()
     .transform { appliedDirectiveBuilder ->
-        LINK_DIRECTIVE_TYPE.getArgument("url")
+        this.getArgument("url")
             .toAppliedArgument()
             .transform { argumentBuilder ->
                 argumentBuilder.valueProgrammatic(url)
@@ -85,8 +98,19 @@ internal fun appliedLinkDirective(url: String, imports: List<String> = emptyList
                 appliedDirectiveBuilder.argument(it)
             }
 
+        if (!namespace.isNullOrBlank()) {
+            this.getArgument("as")
+                .toAppliedArgument()
+                .transform { argumentBuilder ->
+                    argumentBuilder.valueProgrammatic(namespace)
+                }
+                .let {
+                    appliedDirectiveBuilder.argument(it)
+                }
+        }
+
         if (imports.isNotEmpty()) {
-            LINK_DIRECTIVE_TYPE.getArgument("import")
+            this.getArgument("import")
                 .toAppliedArgument()
                 .transform { argumentBuilder ->
                     argumentBuilder.valueProgrammatic(imports)

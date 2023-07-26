@@ -67,6 +67,7 @@ import graphql.introspection.Introspection
  * }
  * ```
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = INTERFACE_OBJECT_DIRECTIVE_NAME,
     description = INTERFACE_OBJECT_DIRECTIVE_DESCRIPTION,

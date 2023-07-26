@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
-import com.apollographql.federation.graphqljava._FieldSet
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.exception.CoercingValueToLiteralException
 import graphql.GraphQLContext
@@ -84,7 +83,7 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
     override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> =
         when (input) {
             is FieldSet -> StringValue.newStringValue(input.value).build()
-            else -> throw CoercingValueToLiteralException(_FieldSet::class, input)
+            else -> throw CoercingValueToLiteralException(FieldSet::class, input)
         }
 }
 

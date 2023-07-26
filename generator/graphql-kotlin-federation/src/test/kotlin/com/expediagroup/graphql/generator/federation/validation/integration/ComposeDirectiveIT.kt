@@ -20,49 +20,48 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.data.integration.composeDirective.CustomSchema
 import com.expediagroup.graphql.generator.federation.data.integration.composeDirective.SimpleQuery
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_LATEST_VERSION
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
-import org.junit.jupiter.api.Assertions
+import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 
 class ComposeDirectiveIT {
 
     @Test
     fun `verifies applying @composeDirective generates valid schema`() {
-        assertDoesNotThrow {
-            val schema = toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.composeDirective"),
-                queries = listOf(TopLevelObject(SimpleQuery())),
-                schemaObject = TopLevelObject(CustomSchema())
-            )
+        val schema = toFederatedSchema(
+            config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.composeDirective"),
+            queries = listOf(TopLevelObject(SimpleQuery())),
+            schemaObject = TopLevelObject(CustomSchema())
+        )
 
-            val expected = """
-                schema @composeDirective(name : "custom") @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
-                  query: Query
-                }
+        val expected = """
+            schema @composeDirective(name : "custom") @link(import : ["@composeDirective"], url : "https://specs.apollo.dev/federation/v$FEDERATION_LATEST_VERSION"){
+              query: Query
+            }
 
-                "Marks underlying custom directive to be included in the Supergraph schema"
-                directive @composeDirective(name: String!) repeatable on SCHEMA
+            "Marks underlying custom directive to be included in the Supergraph schema"
+            directive @composeDirective(name: String!) repeatable on SCHEMA
 
-                directive @custom on FIELD_DEFINITION
+            directive @custom on FIELD_DEFINITION
 
-                "Links definitions within the document to external schemas."
-                directive @link(import: [String], url: String!) repeatable on SCHEMA
+            "Links definitions within the document to external schemas."
+            directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
-                type Query {
-                  _service: _Service!
-                  helloWorld: String! @custom
-                }
+            type Query {
+              _service: _Service!
+              helloWorld: String! @custom
+            }
 
-                type _Service {
-                  sdl: String!
-                }
-            """.trimIndent()
-            val actual = schema.print(
-                includeDirectivesFilter = { directive -> "link" == directive || "composeDirective" == directive || "custom" == directive },
-                includeScalarTypes = false
-            ).trim()
-            Assertions.assertEquals(expected, actual)
-        }
+            type _Service {
+              sdl: String!
+            }
+
+            scalar link__Import
+        """.trimIndent()
+        val actual = schema.print(
+            includeDirectivesFilter = { directive -> "link" == directive || "composeDirective" == directive || "custom" == directive },
+        ).trim()
+        assertEquals(expected, actual)
     }
 }
