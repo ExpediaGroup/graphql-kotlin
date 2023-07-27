@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.hooks
 
+import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.exceptions.EmptyInputObjectTypeException
@@ -50,11 +51,20 @@ import kotlin.reflect.KType
  * that allow users to customize the schema.
  */
 interface SchemaGeneratorHooks {
+
     /**
-     * Called before the final GraphQL schema is built.
-     * This doesn't prevent the called from rebuilding the final schema using java-graphql's functionality
+     * Called before any generation of GraphQL schema.
+     *
+     * Allows users to do some preprocessing and generate custom schema builder instance.
      */
-    fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder = builder
+    fun willBuildSchema(
+        queries: List<TopLevelObject>,
+        mutations: List<TopLevelObject>,
+        subscriptions: List<TopLevelObject>,
+        additionalTypes: Set<KType>,
+        additionalInputTypes: Set<KType>,
+        schemaObject: TopLevelObject?
+    ): GraphQLSchema.Builder = GraphQLSchema.newSchema()
 
     /**
      * Called before using reflection to generate the graphql object type for the given KType.
@@ -187,6 +197,12 @@ interface SchemaGeneratorHooks {
     } else {
         type
     }
+
+    /**
+     * Called after generation of schema but before returning it to the user.
+     * This doesn't prevent the called from rebuilding the final schema using java-graphql's functionality
+     */
+    fun didBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder = builder
 
     val wiringFactory: KotlinDirectiveWiringFactory
         get() = KotlinDirectiveWiringFactory()

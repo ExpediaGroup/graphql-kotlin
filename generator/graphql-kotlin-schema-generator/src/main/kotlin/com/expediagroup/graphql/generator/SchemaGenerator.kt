@@ -70,24 +70,21 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
             codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
         }
 
-        return GraphQLSchema.newSchema()
+        return config.hooks.willBuildSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes, schemaObject)
+            .also { builder ->
+                if (schemaObject != null) {
+                    builder.description(schemaObject.kClass.getGraphQLDescription())
+                        .withSchemaAppliedDirectives(generateSchemaDirectives(this, schemaObject))
+                }
+            }
             .query(generateQueries(this, queries))
             .mutation(generateMutations(this, mutations))
             .subscription(generateSubscriptions(this, subscriptions))
             .additionalTypes(generateAdditionalTypes())
             .additionalDirectives(directives.values.toSet())
             .codeRegistry(codeRegistry.build())
-            .also { builder ->
-                if (schemaObject != null) {
-                    directives.clear()
-
-                    builder.description(schemaObject.kClass.getGraphQLDescription())
-                        .withSchemaAppliedDirectives(generateSchemaDirectives(this, schemaObject))
-                        .additionalDirectives(directives.values.toSet())
-                }
-            }
             .run {
-                config.hooks.willBuildSchema(this)
+                config.hooks.didBuildSchema(this)
             }.build()
     }
 

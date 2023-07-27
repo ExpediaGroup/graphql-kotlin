@@ -144,7 +144,7 @@ open class FederatedSchemaGeneratorHooks(
         return super.didGenerateGraphQLType(type, generatedType)
     }
 
-    override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
+    override fun didBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
 
@@ -206,7 +206,7 @@ open class FederatedSchemaGeneratorHooks(
 
     /**
      * Federated service may not have any regular queries but will have federated queries. In order to ensure that we
-     * have a valid GraphQL schema that can be modified in the [willBuildSchema], query has to have at least one single field.
+     * have a valid GraphQL schema that can be modified in the [didBuildSchema], query has to have at least one single field.
      *
      * Add federated _service query to ensure it is a valid GraphQL schema.
      */
