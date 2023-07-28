@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,47 +66,49 @@ internal fun generateEnumValueDirectives(generator: SchemaGenerator, field: Fiel
 
 private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
     val directiveName = directiveInfo.effectiveName
-    val directiveFromHook = generator.config.hooks.willGenerateDirective(directiveInfo)
-        ?.let { generator.directives.putIfAbsent(directiveName, it) }
+    val directive = generator.directives.computeIfAbsent(directiveName) {
+        val directiveFromHook = generator.config.hooks.willGenerateDirective(directiveInfo)
+        val generatedDirective = if (directiveFromHook != null) {
+            directiveFromHook
+        } else {
+            val builder = GraphQLDirective.newDirective()
+                .name(directiveInfo.effectiveName)
+                .description(directiveInfo.directiveAnnotation.description)
+                .repeatable(directiveInfo.repeatable)
 
-    val directive = directiveFromHook ?: generator.directives.computeIfAbsent(directiveName) {
-        val builder = GraphQLDirective.newDirective()
-            .name(directiveInfo.effectiveName)
-            .description(directiveInfo.directiveAnnotation.description)
-            .repeatable(directiveInfo.repeatable)
+            directiveInfo.directiveAnnotation.locations.forEach {
+                builder.validLocation(it)
+            }
 
-        directiveInfo.directiveAnnotation.locations.forEach {
-            builder.validLocation(it)
+            val directiveClass: KClass<out Annotation> = directiveInfo.directive.annotationClass
+            val directiveArguments: List<KProperty<*>> = directiveClass.getValidProperties(generator.config.hooks)
+
+            directiveArguments.forEach { prop ->
+                val argument = generateDirectiveArgument(prop, generator)
+                builder.argument(argument)
+            }
+            builder.build()
         }
-
-        val directiveClass: KClass<out Annotation> = directiveInfo.directive.annotationClass
-        val directiveArguments: List<KProperty<*>> = directiveClass.getValidProperties(generator.config.hooks)
-
-        directiveArguments.forEach { prop ->
-            val argument = generateDirectiveArgument(prop, generator)
-            builder.argument(argument)
-        }
-
-        builder.build()
+        generator.config.hooks.didGenerateDirective(directiveInfo, generatedDirective)
     }
 
-    val appliedDirective = directive.toAppliedDirective()
     return if (directive.arguments.isNotEmpty()) {
-        appliedDirective.transform { builder ->
-            directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-                directive.getArgument(prop.name)
-                    ?.toAppliedArgument()
-                    ?.transform { argumentBuilder ->
-                        val value = prop.call(directiveInfo.directive)
-                        argumentBuilder.valueProgrammatic(value)
-                    }
-                    ?.let { appliedDirectiveArgument ->
-                        builder.argument(appliedDirectiveArgument)
-                    }
+        directive.toAppliedDirective()
+            .transform { builder ->
+                directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
+                    directive.getArgument(prop.name)
+                        ?.toAppliedArgument()
+                        ?.transform { argumentBuilder ->
+                            val value = prop.call(directiveInfo.directive)
+                            argumentBuilder.valueProgrammatic(value)
+                        }
+                        ?.let { appliedDirectiveArgument ->
+                            builder.argument(appliedDirectiveArgument)
+                        }
+                }
             }
-        }
     } else {
-        appliedDirective
+        directive.toAppliedDirective()
     }
 }
 
