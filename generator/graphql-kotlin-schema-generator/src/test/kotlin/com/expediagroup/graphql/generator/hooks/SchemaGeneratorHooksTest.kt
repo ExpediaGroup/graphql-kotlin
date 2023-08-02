@@ -65,7 +65,7 @@ class SchemaGeneratorHooksTest {
     fun `calls hook before schema is built`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var willBuildSchemaCalled = false
-            override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
+            override fun didBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
                 willBuildSchemaCalled = true
                 builder.additionalTypes(
                     setOf(
