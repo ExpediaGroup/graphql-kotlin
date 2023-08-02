@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,6 +145,11 @@ interface SchemaGeneratorHooks {
             else -> generatedType
         }
     }
+
+    /**
+     * Called after auto-generating the directive from the annotation that allows final transformation before it is applied to a target location.
+     */
+    fun didGenerateDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLDirective = directive
 
     /**
      * Called after converting the function to a field definition but before adding to the query object to allow customization

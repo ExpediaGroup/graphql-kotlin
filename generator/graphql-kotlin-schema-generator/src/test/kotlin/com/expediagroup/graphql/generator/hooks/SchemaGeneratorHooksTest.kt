@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.reactivestreams.Publisher
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -335,13 +336,24 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
-    fun `calls hook before generating directive`() {
+    fun `calls hook before and after generating directive`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            var hookCalled: Boolean = false
+            var beforeHookCalled: AtomicInteger = AtomicInteger(0)
+            var afterHookCalled: AtomicInteger = AtomicInteger(0)
 
-            override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): graphql.schema.GraphQLDirective? {
-                hookCalled = true
+            override fun willGenerateDirective(
+                directiveInfo: DirectiveMetaInformation
+            ): graphql.schema.GraphQLDirective? {
+                beforeHookCalled.incrementAndGet()
                 return super.willGenerateDirective(directiveInfo)
+            }
+
+            override fun didGenerateDirective(
+                directiveInfo: DirectiveMetaInformation,
+                directive: graphql.schema.GraphQLDirective
+            ): graphql.schema.GraphQLDirective {
+                afterHookCalled.incrementAndGet()
+                return super.didGenerateDirective(directiveInfo, directive)
             }
         }
 
@@ -351,7 +363,9 @@ class SchemaGeneratorHooksTest {
             config = getTestSchemaConfigWithHooks(hooks)
         )
 
-        assertTrue(hooks.hookCalled)
+        // hooks should only be called once
+        assertEquals(1, hooks.beforeHookCalled.get())
+        assertEquals(1, hooks.afterHookCalled.get())
         assertNotNull(schema.getDirective("custom"))
     }
 
@@ -422,5 +436,8 @@ class SchemaGeneratorHooksTest {
 
         @MyCustomDirective
         fun directiveQuery(): String = TODO()
+
+        @MyCustomDirective
+        fun directiveQuery2(): String = TODO()
     }
 }
