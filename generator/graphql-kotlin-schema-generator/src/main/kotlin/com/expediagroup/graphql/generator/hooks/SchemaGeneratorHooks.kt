@@ -28,6 +28,8 @@ import com.expediagroup.graphql.generator.exceptions.EmptySubscriptionTypeExcept
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
 import com.expediagroup.graphql.generator.internal.extensions.isValidAdditionalType
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLAppliedDirective
+import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -39,6 +41,7 @@ import graphql.schema.GraphQLSchemaElement
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import org.reactivestreams.Publisher
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -134,6 +137,11 @@ interface SchemaGeneratorHooks {
      * The default logic just filters out interfaces if inputType is true.
      */
     fun isValidAdditionalType(kClass: KClass<*>, inputType: Boolean): Boolean = kClass.isValidAdditionalType(inputType)
+
+    /**
+     * Called before setting applied directive argument value.
+     */
+    fun isValidDirectiveArgumentValue(directiveName: String, argumentName: String, value: Any?): Boolean = true
 
     /**
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.

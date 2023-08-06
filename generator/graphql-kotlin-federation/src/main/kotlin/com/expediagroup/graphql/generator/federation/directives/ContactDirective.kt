@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
-import com.expediagroup.graphql.generator.internal.types.DEFAULT_DIRECTIVE_STRING_VALUE
 import graphql.introspection.Introspection.DirectiveLocation
 
 /**
@@ -60,9 +59,9 @@ annotation class ContactDirective(
     /** Contact title of the subgraph owner */
     val name: String,
     /** URL where the subgraph's owner can be reached */
-    val url: String = DEFAULT_DIRECTIVE_STRING_VALUE,
+    val url: String = "",
     /** Other relevant notes can be included here; supports Markdown links */
-    val description: String = DEFAULT_DIRECTIVE_STRING_VALUE
+    val description: String = ""
 )
 
 internal const val CONTACT_DIRECTIVE_NAME = "contact"

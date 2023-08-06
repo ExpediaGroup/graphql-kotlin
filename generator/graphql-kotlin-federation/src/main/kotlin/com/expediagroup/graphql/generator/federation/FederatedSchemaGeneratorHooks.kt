@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
@@ -64,13 +65,11 @@ import com.expediagroup.graphql.generator.federation.types._Service
 import com.expediagroup.graphql.generator.federation.types.generateEntityFieldDefinition
 import com.expediagroup.graphql.generator.federation.validation.FederatedSchemaValidator
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.generator.internal.types.DEFAULT_DIRECTIVE_STRING_VALUE
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
-import graphql.schema.GraphQLNamedOutputType
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
@@ -150,15 +149,13 @@ open class FederatedSchemaGeneratorHooks(
             val appliedLinkDirectives = schemaObject?.kClass?.annotations?.filterIsInstance(LinkDirective::class.java)
             appliedLinkDirectives?.forEach { appliedDirectiveAnnotation ->
                 val specUrl = Paths.get(appliedDirectiveAnnotation.url)
-                // TODO verify supported version?
-                val specVersion = specUrl.fileName.name
                 val spec = specUrl.parent.fileName.name
 
                 if (linkSpecs.containsKey(spec)) {
                     throw RuntimeException("Attempting to import same @link spec twice")
                 } else {
                     val nameSpace: String = appliedDirectiveAnnotation.`as`.takeIf {
-                        it.isNotBlank() && it != DEFAULT_DIRECTIVE_STRING_VALUE
+                        it.isNotBlank()
                     } ?: spec
                     val imports: Map<String, String> = appliedDirectiveAnnotation.import.associate {
                         normalizeImportName(it.name) to normalizeImportName(it.`as`)
@@ -227,6 +224,16 @@ open class FederatedSchemaGeneratorHooks(
         KEY_DIRECTIVE_NAME -> KEY_DIRECTIVE_TYPE_V2
         LINK_DIRECTIVE_NAME -> linkDirectiveType(linkImportScalar)
         else -> super.willGenerateDirective(directiveInfo)
+    }
+
+    override fun isValidDirectiveArgumentValue(directiveName: String, argumentName: String, value: Any?): Boolean {
+        if (directiveName == LINK_DIRECTIVE_NAME && argumentName == "as" && value.toString().isBlank()) {
+            return false
+        }
+        if (directiveName == CONTACT_DIRECTIVE_NAME && (argumentName == "url" || argumentName == "description") && value.toString().isBlank()) {
+            return false
+        }
+        return super.isValidDirectiveArgumentValue(directiveName, argumentName, value)
     }
 
     override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {

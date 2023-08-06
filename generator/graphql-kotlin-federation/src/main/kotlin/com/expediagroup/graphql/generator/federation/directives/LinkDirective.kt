@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
-import com.expediagroup.graphql.generator.internal.types.DEFAULT_DIRECTIVE_STRING_VALUE
 import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
@@ -59,7 +58,7 @@ const val FEDERATION_LATEST_VERSION = "2.5"
     description = LINK_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.SCHEMA]
 )
-annotation class LinkDirective(val url: String, val `as`: String = DEFAULT_DIRECTIVE_STRING_VALUE, val import: Array<LinkImport>)
+annotation class LinkDirective(val url: String, val `as`: String = "", val import: Array<LinkImport>)
 
 internal const val LINK_DIRECTIVE_NAME = "link"
 private const val LINK_DIRECTIVE_DESCRIPTION = "Links definitions within the document to external schemas."

@@ -33,9 +33,6 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.hasAnnotation
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
-const val DEFAULT_DIRECTIVE_STRING_VALUE = "DEFAULT_VALUE"
-const val DEFAULT_DIRECTIVE_INT_VALUE = Int.MIN_VALUE
-
 internal fun generateDirectives(
     generator: SchemaGenerator,
     element: KAnnotatedElement,
@@ -99,12 +96,10 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveMet
         directive.toAppliedDirective()
             .transform { builder ->
                 directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-                    // TODO how to handle/skip default values
                     val argumentToBeModified = directive.getArgument(prop.name)
                     if (argumentToBeModified != null) {
                         val value = prop.call(directiveInfo.directive)
-                        // annotations cannot have null values, we should skip known defaults
-                        if (value != DEFAULT_DIRECTIVE_STRING_VALUE && value != DEFAULT_DIRECTIVE_INT_VALUE) {
+                        if (generator.config.hooks.isValidDirectiveArgumentValue(directiveName, prop.name, value)) {
                             argumentToBeModified.toAppliedArgument()
                                 .transform { argumentBuilder ->
                                     argumentBuilder.valueProgrammatic(value)
