@@ -1,9 +1,5 @@
 rootProject.name = "graphql-kotlin"
 
-plugins {
-    id("com.gradle.enterprise") version("3.14.1")
-}
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 // Clients
@@ -69,10 +65,3 @@ project(":graphql-kotlin-ktor-server").projectDir = file("servers/graphql-kotlin
 project(":graphql-kotlin-dataloader").projectDir = file("executions/graphql-kotlin-dataloader")
 project(":graphql-kotlin-dataloader-instrumentation").projectDir = file("executions/graphql-kotlin-dataloader-instrumentation")
 project(":graphql-kotlin-automatic-persisted-queries").projectDir = file("executions/graphql-kotlin-automatic-persisted-queries")
-
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-    }
-}
