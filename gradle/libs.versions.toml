@@ -6,20 +6,18 @@ federation = "3.0.1"
 graphql-java = "20.2"
 graalvm = "0.9.21"
 jackson = "2.15.0"
-kotlin = "1.7.21"
-# TODO kotlin 1.8 upgrade -> kotlinx-benchmark 0.4.7+ uses kotlin 1.8
-kotlinx-benchmark = "0.4.6"
-# TODO kotlin 1.8 upgrade -> kotlinx-coroutines 1.7.0+ uses kotlin 1.8
-kotlinx-coroutines = "1.6.4"
-# TODO kotlin 1.8 upgrade -> kotlinx-serialization 1.5.0+ uses kotlin 1.8
-kotlinx-serialization = "1.4.1"
-# TODO kotlin 1.8 upgrade -> ktor 2.3.0+ uses kotlin 1.8
-ktor = "2.2.4"
+# kotlin version has to match the compile-testing compiler version
+kotlin = "1.8.22"
+# TODO kotlin 1.9 upgrade -> kotlinx-benchaamrk 0.4.9+ uses kotlin 1.9
+kotlinx-benchmark = "0.4.8"
+kotlinx-coroutines = "1.7.3"
+# TODO kotlin 1.9 upgrade -> kotlinx-serialization 1.6.0+ uses kotlin 1.9
+kotlinx-serialization = "1.5.1"
+ktor = "2.3.3"
 maven-plugin-annotation = "3.9.0"
 maven-plugin-api = "3.9.2"
 maven-project = "2.2.1"
-# TODO kotlin 1.8 upgrade -> kotlinpoet 1.13.0+ uses kotlin 1.8
-poet = "1.12.0"
+poet = "1.14.2"
 ## reactor and spring versions should be the same as defined in spring-boot-dependencies
 reactor-core = "3.5.6"
 reactor-extensions = "1.2.2"
@@ -28,22 +26,18 @@ spring = "6.0.9"
 spring-boot = "3.1.0"
 
 # test dependencies
-# kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
-# https://github.com/tschuchortdev/kotlin-compile-testing the latest version targets kotlin 1.7.10 which blocks updates to newer
-# versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
-compile-testing = "0.1.0"
+compile-testing = "0.3.2"
 icu = "73.1"
 junit = "5.9.3"
 logback = "1.4.7"
-# TODO kotlin 1.8 upgrade -> mock 1.13.4+ uses kotlin 1.8
-mockk = "1.13.3"
+mockk = "1.13.7"
 rxjava = "3.1.6"
 wiremock = "2.35.0"
 
 # plugins
-# TODO kotlin 1.8 upgrade -> detekt 1.22.0+ uses kotlin 1.8
-detekt = "1.21.0"
-dokka = "1.7.20"
+# TODO kotlin 1.9 upgrade -> detekt 1.23.1+ uses kotlin 1.9
+detekt = "1.23.0"
+dokka = "1.8.20"
 jacoco = "0.8.10"
 # klint gradle plugin breaks with 0.46.x+
 ktlint-core = "0.45.2"
@@ -99,6 +93,8 @@ junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.r
 junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
 junit-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 kotlin-junit-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
+kotlin-annotation-processing = { group = "org.jetbrains.kotlin", name = "kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
+kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }

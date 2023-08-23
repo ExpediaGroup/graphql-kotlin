@@ -11,11 +11,11 @@ public const val UNION_MISSING_TYPE_SELECTION: String =
 
 @Generated
 public class UnionMissingTypeSelection : GraphQLClientRequest<UnionMissingTypeSelection.Result> {
-  public override val query: String = UNION_MISSING_TYPE_SELECTION
+  override val query: String = UNION_MISSING_TYPE_SELECTION
 
-  public override val operationName: String = "UnionMissingTypeSelection"
+  override val operationName: String = "UnionMissingTypeSelection"
 
-  public override fun responseType(): KClass<UnionMissingTypeSelection.Result> =
+  override fun responseType(): KClass<UnionMissingTypeSelection.Result> =
       UnionMissingTypeSelection.Result::class
 
   @Generated

@@ -11,12 +11,11 @@ public const val COMPLEX_OBJECT_QUERY: String =
 
 @Generated
 public class ComplexObjectQuery : GraphQLClientRequest<ComplexObjectQuery.Result> {
-  public override val query: String = COMPLEX_OBJECT_QUERY
+  override val query: String = COMPLEX_OBJECT_QUERY
 
-  public override val operationName: String = "ComplexObjectQuery"
+  override val operationName: String = "ComplexObjectQuery"
 
-  public override fun responseType(): KClass<ComplexObjectQuery.Result> =
-      ComplexObjectQuery.Result::class
+  override fun responseType(): KClass<ComplexObjectQuery.Result> = ComplexObjectQuery.Result::class
 
   @Generated
   public data class Result(

@@ -38,7 +38,7 @@ public data class FirstInterfaceImplementation2(
   /**
    * Unique identifier of the first implementation
    */
-  public override val id: Int,
+  override val id: Int,
   /**
    * Name of the first implementation
    */
@@ -57,7 +57,7 @@ public data class SecondInterfaceImplementation2(
   /**
    * Unique identifier of the second implementation
    */
-  public override val id: Int,
+  override val id: Int,
   /**
    * Name of the second implementation
    */
@@ -77,5 +77,5 @@ public data class DefaultBasicInterface2Implementation(
   /**
    * Unique identifier of an interface
    */
-  public override val id: Int,
+  override val id: Int,
 ) : BasicInterface2

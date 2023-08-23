@@ -13,12 +13,11 @@ public const val REUSED_TYPES_QUERY: String =
 
 @Generated
 public class ReusedTypesQuery : GraphQLClientRequest<ReusedTypesQuery.Result> {
-  public override val query: String = REUSED_TYPES_QUERY
+  override val query: String = REUSED_TYPES_QUERY
 
-  public override val operationName: String = "ReusedTypesQuery"
+  override val operationName: String = "ReusedTypesQuery"
 
-  public override fun responseType(): KClass<ReusedTypesQuery.Result> =
-      ReusedTypesQuery.Result::class
+  override fun responseType(): KClass<ReusedTypesQuery.Result> = ReusedTypesQuery.Result::class
 
   @Generated
   public data class Result(

@@ -10,9 +10,9 @@ public const val ANONYMOUS_QUERY: String = "query {\n  scalarQuery {\n    name\n
 
 @Generated
 public class AnonymousQuery : GraphQLClientRequest<AnonymousQuery.Result> {
-  public override val query: String = ANONYMOUS_QUERY
+  override val query: String = ANONYMOUS_QUERY
 
-  public override fun responseType(): KClass<AnonymousQuery.Result> = AnonymousQuery.Result::class
+  override fun responseType(): KClass<AnonymousQuery.Result> = AnonymousQuery.Result::class
 
   @Generated
   public data class Result(

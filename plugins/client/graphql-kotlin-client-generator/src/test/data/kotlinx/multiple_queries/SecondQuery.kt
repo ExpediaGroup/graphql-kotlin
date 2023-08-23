@@ -22,15 +22,15 @@ public const val SECOND_QUERY: String =
 @Generated
 @Serializable
 public class SecondQuery(
-  public override val variables: SecondQuery.Variables,
+  override val variables: SecondQuery.Variables,
 ) : GraphQLClientRequest<SecondQuery.Result> {
   @Required
-  public override val query: String = SECOND_QUERY
+  override val query: String = SECOND_QUERY
 
   @Required
-  public override val operationName: String = "SecondQuery"
+  override val operationName: String = "SecondQuery"
 
-  public override fun responseType(): KClass<SecondQuery.Result> = SecondQuery.Result::class
+  override fun responseType(): KClass<SecondQuery.Result> = SecondQuery.Result::class
 
   @Generated
   @Serializable

@@ -13,13 +13,13 @@ public const val SELF_REFERENCING_INPUT_QUERY: String =
 
 @Generated
 public class SelfReferencingInputQuery(
-  public override val variables: SelfReferencingInputQuery.Variables,
+  override val variables: SelfReferencingInputQuery.Variables,
 ) : GraphQLClientRequest<SelfReferencingInputQuery.Result> {
-  public override val query: String = SELF_REFERENCING_INPUT_QUERY
+  override val query: String = SELF_REFERENCING_INPUT_QUERY
 
-  public override val operationName: String = "SelfReferencingInputQuery"
+  override val operationName: String = "SelfReferencingInputQuery"
 
-  public override fun responseType(): KClass<SelfReferencingInputQuery.Result> =
+  override fun responseType(): KClass<SelfReferencingInputQuery.Result> =
       SelfReferencingInputQuery.Result::class
 
   @Generated

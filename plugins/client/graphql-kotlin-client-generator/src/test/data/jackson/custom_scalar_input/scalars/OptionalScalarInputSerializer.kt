@@ -15,7 +15,6 @@ import java.lang.Class
 import java.util.UUID
 import kotlin.Any
 import kotlin.Boolean
-import kotlin.Unit
 import kotlin.collections.Map
 import kotlin.collections.mapOf
 
@@ -24,14 +23,14 @@ public class OptionalScalarInputSerializer : JsonSerializer<OptionalInput<*>>() 
   private val converters: Map<Class<*>, ScalarConverter<*>> = mapOf(UUID::class.java to
       UUIDScalarConverter(), ULocale::class.java to ULocaleScalarConverter())
 
-  public override fun isEmpty(provider: SerializerProvider, `value`: OptionalInput<*>): Boolean =
-      value == OptionalInput.Undefined
+  override fun isEmpty(provider: SerializerProvider, `value`: OptionalInput<*>): Boolean = value ==
+      OptionalInput.Undefined
 
-  public override fun serialize(
+  override fun serialize(
     `value`: OptionalInput<*>,
     gen: JsonGenerator,
     serializers: SerializerProvider,
-  ): Unit {
+  ) {
     when (value) {
       is OptionalInput.Undefined -> return
       is OptionalInput.Defined -> {
@@ -55,7 +54,7 @@ public class OptionalScalarInputSerializer : JsonSerializer<OptionalInput<*>>() 
     `value`: Any,
     gen: JsonGenerator,
     serializers: SerializerProvider,
-  ): Unit {
+  ) {
     val clazz = value::class.java
     val converter = converters[clazz] as? ScalarConverter<Any>
     if (converter != null) {

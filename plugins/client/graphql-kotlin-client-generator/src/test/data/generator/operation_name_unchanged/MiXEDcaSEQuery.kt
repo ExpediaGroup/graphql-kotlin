@@ -11,11 +11,11 @@ public const val MI_XE_DCA_SE_QUERY: String =
 
 @Generated
 public class MiXEDcaSEQuery : GraphQLClientRequest<MiXEDcaSEQuery.Result> {
-  public override val query: String = MI_XE_DCA_SE_QUERY
+  override val query: String = MI_XE_DCA_SE_QUERY
 
-  public override val operationName: String = "miXEDcaSEQuery"
+  override val operationName: String = "miXEDcaSEQuery"
 
-  public override fun responseType(): KClass<MiXEDcaSEQuery.Result> = MiXEDcaSEQuery.Result::class
+  override fun responseType(): KClass<MiXEDcaSEQuery.Result> = MiXEDcaSEQuery.Result::class
 
   @Generated
   public data class Result(

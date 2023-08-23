@@ -15,12 +15,12 @@ public const val DEPRECATED_OPT_IN_QUERY: String =
 @Serializable
 public class DeprecatedOptInQuery : GraphQLClientRequest<DeprecatedOptInQuery.Result> {
   @Required
-  public override val query: String = DEPRECATED_OPT_IN_QUERY
+  override val query: String = DEPRECATED_OPT_IN_QUERY
 
   @Required
-  public override val operationName: String = "DeprecatedOptInQuery"
+  override val operationName: String = "DeprecatedOptInQuery"
 
-  public override fun responseType(): KClass<DeprecatedOptInQuery.Result> =
+  override fun responseType(): KClass<DeprecatedOptInQuery.Result> =
       DeprecatedOptInQuery.Result::class
 
   @Generated

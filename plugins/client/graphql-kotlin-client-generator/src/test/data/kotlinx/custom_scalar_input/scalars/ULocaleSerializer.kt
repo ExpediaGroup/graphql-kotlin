@@ -3,7 +3,6 @@ package com.expediagroup.graphql.generated.scalars
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.ULocaleScalarConverter
 import com.ibm.icu.util.ULocale
-import kotlin.Unit
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -18,9 +17,9 @@ import kotlinx.serialization.serializerOrNull
 public object ULocaleSerializer : KSerializer<ULocale> {
   private val converter: ULocaleScalarConverter = ULocaleScalarConverter()
 
-  public override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ULocale")
+  override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ULocale")
 
-  public override fun serialize(encoder: Encoder, `value`: ULocale): Unit {
+  override fun serialize(encoder: Encoder, `value`: ULocale) {
     val encoded = converter.toJson(value)
     val serializer = serializerOrNull(encoded::class.java)
     if (serializer != null) {
@@ -30,7 +29,7 @@ public object ULocaleSerializer : KSerializer<ULocale> {
     }
   }
 
-  public override fun deserialize(decoder: Decoder): ULocale {
+  override fun deserialize(decoder: Decoder): ULocale {
     val jsonDecoder = decoder as JsonDecoder
     val rawContent: Any = when (val element = jsonDecoder.decodeJsonElement()) {
       is JsonPrimitive -> element.jsonPrimitive.content

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.ibm.icu.util.ULocale
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationComponentRegistrar
 import org.junit.jupiter.params.provider.Arguments
 import java.io.File
@@ -54,13 +55,14 @@ internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File
 
 internal const val TEST_SCHEMA_PATH = "testSchema.graphql"
 
+@OptIn(ExperimentalCompilerApi::class)
 internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File) {
     val (queries, expectedFiles) = locateTestFiles(testDirectory)
 
     val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, config)
     val fileSpecs = generator.generate(queries)
     assertTrue(fileSpecs.isNotEmpty())
-//    assertEquals(expectedFiles.size, fileSpecs.size)
+    assertEquals(expectedFiles.size, fileSpecs.size)
     for (spec in fileSpecs) {
         val expected = expectedFiles[spec.packageName + "." + spec.name]?.readText()
         assertEquals(expected, spec.toString())
@@ -76,7 +78,7 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
         sources = generatedSources
         inheritClassPath = true
         if (config.serializer == GraphQLSerializer.KOTLINX) {
-            compilerPlugins = listOf(SerializationComponentRegistrar())
+            compilerPluginRegistrars = listOf(SerializationComponentRegistrar())
         }
     }.compile()
     if (compilationResult.exitCode != KotlinCompilation.ExitCode.OK) {

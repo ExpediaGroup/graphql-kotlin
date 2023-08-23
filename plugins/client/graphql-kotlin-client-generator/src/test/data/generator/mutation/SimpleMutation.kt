@@ -13,13 +13,13 @@ public const val SIMPLE_MUTATION: String =
 
 @Generated
 public class SimpleMutation(
-  public override val variables: SimpleMutation.Variables,
+  override val variables: SimpleMutation.Variables,
 ) : GraphQLClientRequest<SimpleMutation.Result> {
-  public override val query: String = SIMPLE_MUTATION
+  override val query: String = SIMPLE_MUTATION
 
-  public override val operationName: String = "SimpleMutation"
+  override val operationName: String = "SimpleMutation"
 
-  public override fun responseType(): KClass<SimpleMutation.Result> = SimpleMutation.Result::class
+  override fun responseType(): KClass<SimpleMutation.Result> = SimpleMutation.Result::class
 
   @Generated
   public data class Variables(

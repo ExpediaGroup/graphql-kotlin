@@ -11,11 +11,11 @@ public const val ENUM_QUERY: String = "query EnumQuery {\n  enumQuery\n  otherEn
 
 @Generated
 public class EnumQuery : GraphQLClientRequest<EnumQuery.Result> {
-  public override val query: String = ENUM_QUERY
+  override val query: String = ENUM_QUERY
 
-  public override val operationName: String = "EnumQuery"
+  override val operationName: String = "EnumQuery"
 
-  public override fun responseType(): KClass<EnumQuery.Result> = EnumQuery.Result::class
+  override fun responseType(): KClass<EnumQuery.Result> = EnumQuery.Result::class
 
   @Generated
   public data class Result(

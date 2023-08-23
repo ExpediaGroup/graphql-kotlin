@@ -12,11 +12,11 @@ public const val DIFFERENT_SELECTIONS_QUERY: String =
 
 @Generated
 public class DifferentSelectionsQuery : GraphQLClientRequest<DifferentSelectionsQuery.Result> {
-  public override val query: String = DIFFERENT_SELECTIONS_QUERY
+  override val query: String = DIFFERENT_SELECTIONS_QUERY
 
-  public override val operationName: String = "DifferentSelectionsQuery"
+  override val operationName: String = "DifferentSelectionsQuery"
 
-  public override fun responseType(): KClass<DifferentSelectionsQuery.Result> =
+  override fun responseType(): KClass<DifferentSelectionsQuery.Result> =
       DifferentSelectionsQuery.Result::class
 
   @Generated

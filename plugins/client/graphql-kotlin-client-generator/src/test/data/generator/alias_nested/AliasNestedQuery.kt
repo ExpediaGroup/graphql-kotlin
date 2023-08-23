@@ -12,12 +12,11 @@ public const val ALIAS_NESTED_QUERY: String =
 
 @Generated
 public class AliasNestedQuery : GraphQLClientRequest<AliasNestedQuery.Result> {
-  public override val query: String = ALIAS_NESTED_QUERY
+  override val query: String = ALIAS_NESTED_QUERY
 
-  public override val operationName: String = "AliasNestedQuery"
+  override val operationName: String = "AliasNestedQuery"
 
-  public override fun responseType(): KClass<AliasNestedQuery.Result> =
-      AliasNestedQuery.Result::class
+  override fun responseType(): KClass<AliasNestedQuery.Result> = AliasNestedQuery.Result::class
 
   @Generated
   public data class Result(

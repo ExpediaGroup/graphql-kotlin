@@ -11,12 +11,11 @@ public const val SCALAR_ALIAS_QUERY: String =
 
 @Generated
 public class ScalarAliasQuery : GraphQLClientRequest<ScalarAliasQuery.Result> {
-  public override val query: String = SCALAR_ALIAS_QUERY
+  override val query: String = SCALAR_ALIAS_QUERY
 
-  public override val operationName: String = "ScalarAliasQuery"
+  override val operationName: String = "ScalarAliasQuery"
 
-  public override fun responseType(): KClass<ScalarAliasQuery.Result> =
-      ScalarAliasQuery.Result::class
+  override fun responseType(): KClass<ScalarAliasQuery.Result> = ScalarAliasQuery.Result::class
 
   @Generated
   public data class Result(

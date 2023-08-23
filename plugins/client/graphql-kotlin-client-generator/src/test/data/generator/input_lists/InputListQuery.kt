@@ -12,13 +12,13 @@ public const val INPUT_LIST_QUERY: String =
 
 @Generated
 public class InputListQuery(
-  public override val variables: InputListQuery.Variables,
+  override val variables: InputListQuery.Variables,
 ) : GraphQLClientRequest<InputListQuery.Result> {
-  public override val query: String = INPUT_LIST_QUERY
+  override val query: String = INPUT_LIST_QUERY
 
-  public override val operationName: String = "InputListQuery"
+  override val operationName: String = "InputListQuery"
 
-  public override fun responseType(): KClass<InputListQuery.Result> = InputListQuery.Result::class
+  override fun responseType(): KClass<InputListQuery.Result> = InputListQuery.Result::class
 
   @Generated
   public data class Variables(

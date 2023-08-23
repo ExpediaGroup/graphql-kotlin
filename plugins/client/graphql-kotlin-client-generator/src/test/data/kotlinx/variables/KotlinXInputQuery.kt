@@ -18,16 +18,15 @@ public const val KOTLIN_X_INPUT_QUERY: String =
 @Generated
 @Serializable
 public class KotlinXInputQuery(
-  public override val variables: KotlinXInputQuery.Variables,
+  override val variables: KotlinXInputQuery.Variables,
 ) : GraphQLClientRequest<KotlinXInputQuery.Result> {
   @Required
-  public override val query: String = KOTLIN_X_INPUT_QUERY
+  override val query: String = KOTLIN_X_INPUT_QUERY
 
   @Required
-  public override val operationName: String = "KotlinXInputQuery"
+  override val operationName: String = "KotlinXInputQuery"
 
-  public override fun responseType(): KClass<KotlinXInputQuery.Result> =
-      KotlinXInputQuery.Result::class
+  override fun responseType(): KClass<KotlinXInputQuery.Result> = KotlinXInputQuery.Result::class
 
   @Generated
   @Serializable

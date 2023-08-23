@@ -11,11 +11,11 @@ public const val LIST_QUERY: String = "query ListQuery {\n  listQuery {\n    id\
 
 @Generated
 public class ListQuery : GraphQLClientRequest<ListQuery.Result> {
-  public override val query: String = LIST_QUERY
+  override val query: String = LIST_QUERY
 
-  public override val operationName: String = "ListQuery"
+  override val operationName: String = "ListQuery"
 
-  public override fun responseType(): KClass<ListQuery.Result> = ListQuery.Result::class
+  override fun responseType(): KClass<ListQuery.Result> = ListQuery.Result::class
 
   @Generated
   public data class Result(

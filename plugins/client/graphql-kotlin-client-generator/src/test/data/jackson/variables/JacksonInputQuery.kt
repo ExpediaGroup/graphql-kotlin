@@ -15,14 +15,13 @@ public const val JACKSON_INPUT_QUERY: String =
 
 @Generated
 public class JacksonInputQuery(
-  public override val variables: JacksonInputQuery.Variables,
+  override val variables: JacksonInputQuery.Variables,
 ) : GraphQLClientRequest<JacksonInputQuery.Result> {
-  public override val query: String = JACKSON_INPUT_QUERY
+  override val query: String = JACKSON_INPUT_QUERY
 
-  public override val operationName: String = "JacksonInputQuery"
+  override val operationName: String = "JacksonInputQuery"
 
-  public override fun responseType(): KClass<JacksonInputQuery.Result> =
-      JacksonInputQuery.Result::class
+  override fun responseType(): KClass<JacksonInputQuery.Result> = JacksonInputQuery.Result::class
 
   @Generated
   public data class Variables(

@@ -12,11 +12,11 @@ public const val OBJECT_WITH_NAMED_FRAGMENT_QUERY: String =
 @Generated
 public class ObjectWithNamedFragmentQuery :
     GraphQLClientRequest<ObjectWithNamedFragmentQuery.Result> {
-  public override val query: String = OBJECT_WITH_NAMED_FRAGMENT_QUERY
+  override val query: String = OBJECT_WITH_NAMED_FRAGMENT_QUERY
 
-  public override val operationName: String = "ObjectWithNamedFragmentQuery"
+  override val operationName: String = "ObjectWithNamedFragmentQuery"
 
-  public override fun responseType(): KClass<ObjectWithNamedFragmentQuery.Result> =
+  override fun responseType(): KClass<ObjectWithNamedFragmentQuery.Result> =
       ObjectWithNamedFragmentQuery.Result::class
 
   @Generated

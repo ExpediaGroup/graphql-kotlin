@@ -10,5 +10,5 @@ import kotlin.Any
 public class AnyToUUIDConverter : StdConverter<Any, UUID>() {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-  public override fun convert(`value`: Any): UUID = converter.toScalar(value)
+  override fun convert(`value`: Any): UUID = converter.toScalar(value)
 }

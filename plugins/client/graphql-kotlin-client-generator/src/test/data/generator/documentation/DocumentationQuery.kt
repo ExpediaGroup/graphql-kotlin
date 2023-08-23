@@ -11,12 +11,11 @@ public const val DOCUMENTATION_QUERY: String =
 
 @Generated
 public class DocumentationQuery : GraphQLClientRequest<DocumentationQuery.Result> {
-  public override val query: String = DOCUMENTATION_QUERY
+  override val query: String = DOCUMENTATION_QUERY
 
-  public override val operationName: String = "DocumentationQuery"
+  override val operationName: String = "DocumentationQuery"
 
-  public override fun responseType(): KClass<DocumentationQuery.Result> =
-      DocumentationQuery.Result::class
+  override fun responseType(): KClass<DocumentationQuery.Result> = DocumentationQuery.Result::class
 
   @Generated
   public data class Result(
