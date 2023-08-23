@@ -12,11 +12,11 @@ public const val DIFFERENT_SUBSELECTION_QUERY: String =
 
 @Generated
 public class DifferentSubselectionQuery : GraphQLClientRequest<DifferentSubselectionQuery.Result> {
-  public override val query: String = DIFFERENT_SUBSELECTION_QUERY
+  override val query: String = DIFFERENT_SUBSELECTION_QUERY
 
-  public override val operationName: String = "DifferentSubselectionQuery"
+  override val operationName: String = "DifferentSubselectionQuery"
 
-  public override fun responseType(): KClass<DifferentSubselectionQuery.Result> =
+  override fun responseType(): KClass<DifferentSubselectionQuery.Result> =
       DifferentSubselectionQuery.Result::class
 
   @Generated

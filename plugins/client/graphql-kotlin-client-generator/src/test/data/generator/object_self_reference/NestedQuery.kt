@@ -11,11 +11,11 @@ public const val NESTED_QUERY: String =
 
 @Generated
 public class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
-  public override val query: String = NESTED_QUERY
+  override val query: String = NESTED_QUERY
 
-  public override val operationName: String = "NestedQuery"
+  override val operationName: String = "NestedQuery"
 
-  public override fun responseType(): KClass<NestedQuery.Result> = NestedQuery.Result::class
+  override fun responseType(): KClass<NestedQuery.Result> = NestedQuery.Result::class
 
   @Generated
   public data class Result(

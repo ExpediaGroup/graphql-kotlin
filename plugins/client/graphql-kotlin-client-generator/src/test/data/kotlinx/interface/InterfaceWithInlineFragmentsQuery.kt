@@ -16,12 +16,12 @@ public const val INTERFACE_WITH_INLINE_FRAGMENTS_QUERY: String =
 public class InterfaceWithInlineFragmentsQuery :
     GraphQLClientRequest<InterfaceWithInlineFragmentsQuery.Result> {
   @Required
-  public override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_QUERY
+  override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_QUERY
 
   @Required
-  public override val operationName: String = "InterfaceWithInlineFragmentsQuery"
+  override val operationName: String = "InterfaceWithInlineFragmentsQuery"
 
-  public override fun responseType(): KClass<InterfaceWithInlineFragmentsQuery.Result> =
+  override fun responseType(): KClass<InterfaceWithInlineFragmentsQuery.Result> =
       InterfaceWithInlineFragmentsQuery.Result::class
 
   @Generated

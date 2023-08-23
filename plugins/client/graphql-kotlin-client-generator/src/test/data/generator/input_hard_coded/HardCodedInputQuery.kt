@@ -11,11 +11,11 @@ public const val HARD_CODED_INPUT_QUERY: String =
 
 @Generated
 public class HardCodedInputQuery : GraphQLClientRequest<HardCodedInputQuery.Result> {
-  public override val query: String = HARD_CODED_INPUT_QUERY
+  override val query: String = HARD_CODED_INPUT_QUERY
 
-  public override val operationName: String = "HardCodedInputQuery"
+  override val operationName: String = "HardCodedInputQuery"
 
-  public override fun responseType(): KClass<HardCodedInputQuery.Result> =
+  override fun responseType(): KClass<HardCodedInputQuery.Result> =
       HardCodedInputQuery.Result::class
 
   @Generated

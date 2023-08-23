@@ -12,11 +12,11 @@ public const val INTERFACE_WITH_NAMED_FRAGMENTS_QUERY: String =
 @Generated
 public class InterfaceWithNamedFragmentsQuery :
     GraphQLClientRequest<InterfaceWithNamedFragmentsQuery.Result> {
-  public override val query: String = INTERFACE_WITH_NAMED_FRAGMENTS_QUERY
+  override val query: String = INTERFACE_WITH_NAMED_FRAGMENTS_QUERY
 
-  public override val operationName: String = "InterfaceWithNamedFragmentsQuery"
+  override val operationName: String = "InterfaceWithNamedFragmentsQuery"
 
-  public override fun responseType(): KClass<InterfaceWithNamedFragmentsQuery.Result> =
+  override fun responseType(): KClass<InterfaceWithNamedFragmentsQuery.Result> =
       InterfaceWithNamedFragmentsQuery.Result::class
 
   @Generated

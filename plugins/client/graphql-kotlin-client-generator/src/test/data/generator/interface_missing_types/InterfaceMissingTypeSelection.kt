@@ -12,11 +12,11 @@ public const val INTERFACE_MISSING_TYPE_SELECTION: String =
 @Generated
 public class InterfaceMissingTypeSelection :
     GraphQLClientRequest<InterfaceMissingTypeSelection.Result> {
-  public override val query: String = INTERFACE_MISSING_TYPE_SELECTION
+  override val query: String = INTERFACE_MISSING_TYPE_SELECTION
 
-  public override val operationName: String = "InterfaceMissingTypeSelection"
+  override val operationName: String = "InterfaceMissingTypeSelection"
 
-  public override fun responseType(): KClass<InterfaceMissingTypeSelection.Result> =
+  override fun responseType(): KClass<InterfaceMissingTypeSelection.Result> =
       InterfaceMissingTypeSelection.Result::class
 
   @Generated

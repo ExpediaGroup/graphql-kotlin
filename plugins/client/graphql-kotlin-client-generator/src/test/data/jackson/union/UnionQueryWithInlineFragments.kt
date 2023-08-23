@@ -12,11 +12,11 @@ public const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
 @Generated
 public class UnionQueryWithInlineFragments :
     GraphQLClientRequest<UnionQueryWithInlineFragments.Result> {
-  public override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
+  override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
 
-  public override val operationName: String = "UnionQueryWithInlineFragments"
+  override val operationName: String = "UnionQueryWithInlineFragments"
 
-  public override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
+  override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
       UnionQueryWithInlineFragments.Result::class
 
   @Generated

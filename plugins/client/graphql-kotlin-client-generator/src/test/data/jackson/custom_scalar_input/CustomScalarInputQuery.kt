@@ -21,13 +21,13 @@ public const val CUSTOM_SCALAR_INPUT_QUERY: String =
 
 @Generated
 public class CustomScalarInputQuery(
-  public override val variables: CustomScalarInputQuery.Variables,
+  override val variables: CustomScalarInputQuery.Variables,
 ) : GraphQLClientRequest<CustomScalarInputQuery.Result> {
-  public override val query: String = CUSTOM_SCALAR_INPUT_QUERY
+  override val query: String = CUSTOM_SCALAR_INPUT_QUERY
 
-  public override val operationName: String = "CustomScalarInputQuery"
+  override val operationName: String = "CustomScalarInputQuery"
 
-  public override fun responseType(): KClass<CustomScalarInputQuery.Result> =
+  override fun responseType(): KClass<CustomScalarInputQuery.Result> =
       CustomScalarInputQuery.Result::class
 
   @Generated

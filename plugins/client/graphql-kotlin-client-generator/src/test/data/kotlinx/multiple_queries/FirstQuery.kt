@@ -22,15 +22,15 @@ public const val FIRST_QUERY: String =
 @Generated
 @Serializable
 public class FirstQuery(
-  public override val variables: FirstQuery.Variables,
+  override val variables: FirstQuery.Variables,
 ) : GraphQLClientRequest<FirstQuery.Result> {
   @Required
-  public override val query: String = FIRST_QUERY
+  override val query: String = FIRST_QUERY
 
   @Required
-  public override val operationName: String = "FirstQuery"
+  override val operationName: String = "FirstQuery"
 
-  public override fun responseType(): KClass<FirstQuery.Result> = FirstQuery.Result::class
+  override fun responseType(): KClass<FirstQuery.Result> = FirstQuery.Result::class
 
   @Generated
   @Serializable

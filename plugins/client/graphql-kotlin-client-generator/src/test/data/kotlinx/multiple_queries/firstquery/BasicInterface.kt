@@ -34,11 +34,11 @@ public data class FirstInterfaceImplementation(
   /**
    * Unique identifier of the first implementation
    */
-  public override val id: Int,
+  override val id: Int,
   /**
    * Name of the first implementation
    */
-  public override val name: String,
+  override val name: String,
   /**
    * Custom field integer value
    */
@@ -55,11 +55,11 @@ public data class SecondInterfaceImplementation(
   /**
    * Unique identifier of the second implementation
    */
-  public override val id: Int,
+  override val id: Int,
   /**
    * Name of the second implementation
    */
-  public override val name: String,
+  override val name: String,
   /**
    * Custom field float value
    */
@@ -79,9 +79,9 @@ public data class DefaultBasicInterfaceImplementation(
   /**
    * Unique identifier of an interface
    */
-  public override val id: Int,
+  override val id: Int,
   /**
    * Name field
    */
-  public override val name: String,
+  override val name: String,
 ) : BasicInterface()

@@ -5,7 +5,6 @@ import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.serialization.types.OptionalInput.Defined
 import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
-import kotlin.Unit
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -18,11 +17,10 @@ public object OptionalComplexArgumentInputSerializer :
     KSerializer<OptionalInput<ComplexArgumentInput>> {
   private val `delegate`: KSerializer<ComplexArgumentInput> = ComplexArgumentInput.serializer()
 
-  public override val descriptor: SerialDescriptor =
+  override val descriptor: SerialDescriptor =
       buildClassSerialDescriptor("OptionalComplexArgumentInputSerializer")
 
-  public override fun serialize(encoder: Encoder, `value`: OptionalInput<ComplexArgumentInput>):
-      Unit {
+  override fun serialize(encoder: Encoder, `value`: OptionalInput<ComplexArgumentInput>) {
     when (value) {
       is OptionalInput.Undefined -> return
       is OptionalInput.Defined<ComplexArgumentInput> ->
@@ -33,6 +31,6 @@ public object OptionalComplexArgumentInputSerializer :
   /**
    * undefined is only supported during client serialization, this code should never be invoked
    */
-  public override fun deserialize(decoder: Decoder): OptionalInput<ComplexArgumentInput> =
+  override fun deserialize(decoder: Decoder): OptionalInput<ComplexArgumentInput> =
       OptionalInput.Defined(decoder.decodeNullableSerializableValue(delegate.nullable))
 }

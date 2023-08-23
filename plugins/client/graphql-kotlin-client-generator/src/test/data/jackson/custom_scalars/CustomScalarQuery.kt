@@ -11,12 +11,11 @@ public const val CUSTOM_SCALAR_QUERY: String =
 
 @Generated
 public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
-  public override val query: String = CUSTOM_SCALAR_QUERY
+  override val query: String = CUSTOM_SCALAR_QUERY
 
-  public override val operationName: String = "CustomScalarQuery"
+  override val operationName: String = "CustomScalarQuery"
 
-  public override fun responseType(): KClass<CustomScalarQuery.Result> =
-      CustomScalarQuery.Result::class
+  override fun responseType(): KClass<CustomScalarQuery.Result> = CustomScalarQuery.Result::class
 
   @Generated
   public data class Result(

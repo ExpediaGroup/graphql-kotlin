@@ -10,5 +10,5 @@ import kotlin.Any
 public class UUIDToAnyConverter : StdConverter<UUID, Any>() {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-  public override fun convert(`value`: UUID): Any = converter.toJson(value)
+  override fun convert(`value`: UUID): Any = converter.toJson(value)
 }

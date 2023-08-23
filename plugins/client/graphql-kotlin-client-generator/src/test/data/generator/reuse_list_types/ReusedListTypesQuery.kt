@@ -16,11 +16,11 @@ public const val REUSED_LIST_TYPES_QUERY: String =
 
 @Generated
 public class ReusedListTypesQuery : GraphQLClientRequest<ReusedListTypesQuery.Result> {
-  public override val query: String = REUSED_LIST_TYPES_QUERY
+  override val query: String = REUSED_LIST_TYPES_QUERY
 
-  public override val operationName: String = "ReusedListTypesQuery"
+  override val operationName: String = "ReusedListTypesQuery"
 
-  public override fun responseType(): KClass<ReusedListTypesQuery.Result> =
+  override fun responseType(): KClass<ReusedListTypesQuery.Result> =
       ReusedListTypesQuery.Result::class
 
   @Generated

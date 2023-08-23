@@ -12,11 +12,11 @@ public const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
 @Generated
 public class UnionQueryWithNamedFragments :
     GraphQLClientRequest<UnionQueryWithNamedFragments.Result> {
-  public override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
+  override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
 
-  public override val operationName: String = "UnionQueryWithNamedFragments"
+  override val operationName: String = "UnionQueryWithNamedFragments"
 
-  public override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
+  override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
       UnionQueryWithNamedFragments.Result::class
 
   @Generated

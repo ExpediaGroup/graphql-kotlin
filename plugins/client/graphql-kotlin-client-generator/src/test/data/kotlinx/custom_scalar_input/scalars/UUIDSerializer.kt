@@ -3,7 +3,6 @@ package com.expediagroup.graphql.generated.scalars
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter
 import java.util.UUID
-import kotlin.Unit
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -18,9 +17,9 @@ import kotlinx.serialization.serializerOrNull
 public object UUIDSerializer : KSerializer<UUID> {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-  public override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UUID")
+  override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UUID")
 
-  public override fun serialize(encoder: Encoder, `value`: UUID): Unit {
+  override fun serialize(encoder: Encoder, `value`: UUID) {
     val encoded = converter.toJson(value)
     val serializer = serializerOrNull(encoded::class.java)
     if (serializer != null) {
@@ -30,7 +29,7 @@ public object UUIDSerializer : KSerializer<UUID> {
     }
   }
 
-  public override fun deserialize(decoder: Decoder): UUID {
+  override fun deserialize(decoder: Decoder): UUID {
     val jsonDecoder = decoder as JsonDecoder
     val rawContent: Any = when (val element = jsonDecoder.decodeJsonElement()) {
       is JsonPrimitive -> element.jsonPrimitive.content

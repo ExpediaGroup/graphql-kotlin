@@ -10,5 +10,5 @@ import kotlin.Any
 public class ULocaleToAnyConverter : StdConverter<ULocale, Any>() {
   private val converter: ULocaleScalarConverter = ULocaleScalarConverter()
 
-  public override fun convert(`value`: ULocale): Any = converter.toJson(value)
+  override fun convert(`value`: ULocale): Any = converter.toJson(value)
 }

@@ -14,13 +14,13 @@ public const val INCLUDE_SKIP_DIRECTIVES_QUERY: String =
 
 @Generated
 public class IncludeSkipDirectivesQuery(
-  public override val variables: IncludeSkipDirectivesQuery.Variables,
+  override val variables: IncludeSkipDirectivesQuery.Variables,
 ) : GraphQLClientRequest<IncludeSkipDirectivesQuery.Result> {
-  public override val query: String = INCLUDE_SKIP_DIRECTIVES_QUERY
+  override val query: String = INCLUDE_SKIP_DIRECTIVES_QUERY
 
-  public override val operationName: String = "IncludeSkipDirectivesQuery"
+  override val operationName: String = "IncludeSkipDirectivesQuery"
 
-  public override fun responseType(): KClass<IncludeSkipDirectivesQuery.Result> =
+  override fun responseType(): KClass<IncludeSkipDirectivesQuery.Result> =
       IncludeSkipDirectivesQuery.Result::class
 
   @Generated

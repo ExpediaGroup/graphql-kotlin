@@ -38,7 +38,7 @@ public data class FirstInterfaceImplementation2(
   /**
    * Name of the first implementation
    */
-  public override val name: String,
+  override val name: String,
   /**
    * Custom field integer value
    */
@@ -53,7 +53,7 @@ public data class SecondInterfaceImplementation2(
   /**
    * Name of the second implementation
    */
-  public override val name: String,
+  override val name: String,
   /**
    * Custom field float value
    */
@@ -69,5 +69,5 @@ public data class DefaultBasicInterface2Implementation(
   /**
    * Name field
    */
-  public override val name: String,
+  override val name: String,
 ) : BasicInterface2
