@@ -9,7 +9,7 @@ jackson = "2.15.0"
 # kotlin version has to match the compile-testing compiler version
 kotlin = "1.8.22"
 # TODO kotlin 1.9 upgrade -> kotlinx-benchaamrk 0.4.9+ uses kotlin 1.9
-kotlinx-benchmark = "0.4.8"
+kotlinx-benchmark = "0.4.9"
 kotlinx-coroutines = "1.7.3"
 # TODO kotlin 1.9 upgrade -> kotlinx-serialization 1.6.0+ uses kotlin 1.9
 kotlinx-serialization = "1.5.1"
