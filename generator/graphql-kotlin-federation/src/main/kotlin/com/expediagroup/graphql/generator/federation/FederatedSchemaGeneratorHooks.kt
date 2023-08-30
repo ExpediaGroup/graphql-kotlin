@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
@@ -49,7 +48,7 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.linkDirectiveType
+import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
 import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
 import com.expediagroup.graphql.generator.federation.execution.EntitiesDataFetcher
@@ -110,10 +109,11 @@ open class FederatedSchemaGeneratorHooks(
     )
 
     // workaround to https://github.com/ExpediaGroup/graphql-kotlin/issues/1815
+    // since those scalars can be renamed, we need to ensure we only generate those scalars just once
     private val fieldSetScalar: GraphQLScalarType by lazy {
         if (optInFederationV2) {
             FIELD_SET_SCALAR_TYPE.run {
-                val fieldSetScalarName = namespacedTypeName("federation", this.name)
+                val fieldSetScalarName = namespacedTypeName(FEDERATION_SPEC, this.name)
                 if (fieldSetScalarName != this.name) {
                     return@run this.transform { it.name(fieldSetScalarName) }
                 } else {
@@ -126,7 +126,7 @@ open class FederatedSchemaGeneratorHooks(
     }
     private val linkImportScalar: GraphQLScalarType by lazy {
         LINK_IMPORT_SCALAR_TYPE.run {
-            val importScalarName = namespacedTypeName("link", this.name)
+            val importScalarName = namespacedTypeName(LINK_SPEC, this.name)
             if (importScalarName != this.name) {
                 this.transform {
                     it.name(importScalarName)
@@ -146,6 +146,7 @@ open class FederatedSchemaGeneratorHooks(
         schemaObject: TopLevelObject?
     ): GraphQLSchema.Builder {
         if (optInFederationV2) {
+            // preprocess any @LinkDirective applications to capture namespaces for all the imported specs
             val appliedLinkDirectives = schemaObject?.kClass?.annotations?.filterIsInstance(LinkDirective::class.java)
             appliedLinkDirectives?.forEach { appliedDirectiveAnnotation ->
                 val specUrl = Paths.get(appliedDirectiveAnnotation.url)
@@ -197,7 +198,7 @@ open class FederatedSchemaGeneratorHooks(
     private fun normalizeImportName(name: String) = name.replace("@", "")
 
     /**
-     * Add support for FieldSet scalar to the schema.
+     * Add support for FieldSet and LinkImport scalars to the schema.
      */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         FieldSet::class -> fieldSetScalar
@@ -222,18 +223,8 @@ open class FederatedSchemaGeneratorHooks(
     private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = when (directiveInfo.effectiveName) {
         EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE_V2
         KEY_DIRECTIVE_NAME -> KEY_DIRECTIVE_TYPE_V2
-        LINK_DIRECTIVE_NAME -> linkDirectiveType(linkImportScalar)
+        LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
         else -> super.willGenerateDirective(directiveInfo)
-    }
-
-    override fun isValidDirectiveArgumentValue(directiveName: String, argumentName: String, value: Any?): Boolean {
-        if (directiveName == LINK_DIRECTIVE_NAME && argumentName == "as" && value.toString().isBlank()) {
-            return false
-        }
-        if (directiveName == CONTACT_DIRECTIVE_NAME && (argumentName == "url" || argumentName == "description") && value.toString().isBlank()) {
-            return false
-        }
-        return super.isValidDirectiveArgumentValue(directiveName, argumentName, value)
     }
 
     override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
@@ -293,7 +284,7 @@ open class FederatedSchemaGeneratorHooks(
                         null
                     }
                     ?: emptyList()
-                val linkDirective = linkDirectiveType(linkImportScalar)
+                val linkDirective = linkDirectiveDefinition(linkImportScalar)
                 builder.additionalDirective(linkDirective)
                     .withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(latestSpecVersion, null, fed2Imports))
             }
@@ -356,17 +347,10 @@ open class FederatedSchemaGeneratorHooks(
         .build()
 
     /**
-     * Get the modified SDL returned by _service field
-     *
-     * It should NOT contain:
-     *   - default schema definition
-     *   - empty Query type
-     *   - any directive definitions
-     *   - any custom directives
-     *   - new federated scalars
+     * Generate SDL that will be returned by _service field
      *
      * See the federation spec for more details:
-     * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#query_service
+     * https://www.apollographql.com/docs/federation/subgraph-spec/#enhanced-introspection-with-query_service
      */
     private fun getFederatedServiceSdl(schema: GraphQLSchema): String {
         return if (optInFederationV2) {

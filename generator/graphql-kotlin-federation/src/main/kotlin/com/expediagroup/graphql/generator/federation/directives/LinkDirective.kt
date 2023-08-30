@@ -24,11 +24,12 @@ import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
 
+const val APOLLO_SPEC_URL = "https://specs.apollo.dev"
 const val LINK_SPEC = "link"
-const val LINK_SPEC_URL = "https://specs.apollo.dev/link"
+const val LINK_SPEC_URL = "$APOLLO_SPEC_URL/link"
 const val LINK_SPEC_LATEST_VERSION = "1.0"
 const val FEDERATION_SPEC = "federation"
-const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation"
+const val FEDERATION_SPEC_URL = "$APOLLO_SPEC_URL/federation"
 const val FEDERATION_LATEST_VERSION = "2.5"
 
 /**
@@ -38,17 +39,15 @@ const val FEDERATION_LATEST_VERSION = "2.5"
  *
  * The `@link` directive links definitions within the document to external schemas.
  *
- * External schemas are identified by their url, which optionally ends with a name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`
+ * External schemas are identified by their url, which should end with a specification name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.5"`.
  *
- * By default, external types should be namespaced (prefixed with namespace__, e.g. key directive should be namespaced as federation__key) unless they are explicitly imported. `graphql-kotlin`
- * automatically imports ALL federation directives to avoid the need for namespacing.
- *
- * >NOTE: We currently DO NOT support full `@link` directive capability as it requires support for namespacing and renaming imports. This functionality may be added in the future releases. See `@link`
- * specification for details.
+ * External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External types defined in the specification will be automatically namespaced
+ * (prefixed with `{NAME}__`) unless they are explicitly imported. While both custom namespace (`as`) and import arguments are optional, due to https://github.com/ExpediaGroup/graphql-kotlin/issues/1830
+ * we currently always require those values to be explicitly provided.
  *
  * @param url external schema URL
+ * @param as custom namespace, should default to the specification name specified in the url
  * @param import list of imported schema elements
- * @param as import namespace
  *
  * @see <a href="https://specs.apollo.dev/link/v1.0/">@link specification</a>
  */
@@ -58,12 +57,12 @@ const val FEDERATION_LATEST_VERSION = "2.5"
     description = LINK_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.SCHEMA]
 )
-annotation class LinkDirective(val url: String, val `as`: String = "", val import: Array<LinkImport>)
+annotation class LinkDirective(val url: String, val `as`: String, val import: Array<LinkImport>)
 
 internal const val LINK_DIRECTIVE_NAME = "link"
 private const val LINK_DIRECTIVE_DESCRIPTION = "Links definitions within the document to external schemas."
 
-internal fun linkDirectiveType(importScalarType: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+internal fun linkDirectiveDefinition(importScalarType: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(LINK_DIRECTIVE_NAME)
     .description(LINK_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.SCHEMA)
@@ -86,7 +85,7 @@ internal fun linkDirectiveType(importScalarType: GraphQLScalarType): graphql.sch
     .repeatable(true)
     .build()
 
-internal fun graphql.schema.GraphQLDirective.toAppliedLinkDirective(url: String, namespace: String?, imports: List<String> = emptyList()) = this.toAppliedDirective()
+internal fun graphql.schema.GraphQLDirective.toAppliedLinkDirective(url: String, namespace: String? = null, imports: List<String> = emptyList()) = this.toAppliedDirective()
     .transform { appliedDirectiveBuilder ->
         this.getArgument("url")
             .toAppliedArgument()

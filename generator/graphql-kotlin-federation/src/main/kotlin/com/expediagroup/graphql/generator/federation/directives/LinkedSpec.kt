@@ -16,5 +16,20 @@
 
 package com.expediagroup.graphql.generator.federation.directives
 
+/**
+ * Meta annotation used to indicate that given directive/type is associated with imported `@link` specification.
+ *
+ * Example usage:
+ * ```
+ * @LinkedSpec(FEDERATION_SPEC)
+ * @Repeatable
+ * @GraphQLDirective(
+ *     name = KEY_DIRECTIVE_NAME,
+ *     description = KEY_DIRECTIVE_DESCRIPTION,
+ *     locations = [DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE]
+ * )
+ * annotation class KeyDirective(val fields: FieldSet, val resolvable: Boolean = true)
+ * ```
+ */
 @Target(allowedTargets = [AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS])
 annotation class LinkedSpec(val value: String)

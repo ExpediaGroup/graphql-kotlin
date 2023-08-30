@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 
 package com.expediagroup.graphql.generator.federation
 
-import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.LinkDirective
-import com.expediagroup.graphql.generator.federation.directives.LinkImport
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions

@@ -96,19 +96,15 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveMet
         directive.toAppliedDirective()
             .transform { builder ->
                 directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-                    val argumentToBeModified = directive.getArgument(prop.name)
-                    if (argumentToBeModified != null) {
-                        val value = prop.call(directiveInfo.directive)
-                        if (generator.config.hooks.isValidDirectiveArgumentValue(directiveName, prop.name, value)) {
-                            argumentToBeModified.toAppliedArgument()
-                                .transform { argumentBuilder ->
-                                    argumentBuilder.valueProgrammatic(value)
-                                }
-                                .let { appliedDirectiveArgument ->
-                                    builder.argument(appliedDirectiveArgument)
-                                }
+                    directive.getArgument(prop.name)
+                        ?.toAppliedArgument()
+                        ?.transform { argumentBuilder ->
+                            val value = prop.call(directiveInfo.directive)
+                            argumentBuilder.valueProgrammatic(value)
                         }
-                    }
+                        ?.let { appliedDirectiveArgument ->
+                            builder.argument(appliedDirectiveArgument)
+                        }
                 }
             }
     } else {

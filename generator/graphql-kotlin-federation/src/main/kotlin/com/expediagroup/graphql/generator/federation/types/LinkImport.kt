@@ -31,6 +31,13 @@ import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.util.Locale
 
+/**
+ * Custom scalar that is used to represent references to elements from imported specification.
+ *
+ * Imported elements can either specify the same name as in the specification OR a local custom name (i.e. rename).
+ * * "@key" - simple import, using the same name as in the specification
+ * * { "name": "@key", "as": "@myKey" } - imports `@key` from the specification with a local `@myKey` name
+ */
 internal val LINK_IMPORT_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar()
     .name("Import")
     .coercing(LinkImportCoercing())
@@ -54,9 +61,9 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
         is LinkImport -> input
         is StringValue -> LinkImport(name = input.value, `as` = input.value)
         is ObjectValue -> {
-            val name = input.objectFields.firstOrNull { it.name == "name" }?.value?.toString() ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
-            val namespaced = input.objectFields.firstOrNull { it.name == "as" }?.value?.toString()
-            LinkImport(name = name, `as` = namespaced ?: name)
+            val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
+            val namespacedValue = input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue
+            LinkImport(name = nameValue.value, `as` = namespacedValue?.value ?: nameValue.value)
         }
         else -> throw CoercingParseValueException(
             "Cannot parse $input to LinkImport. Expected AST type of `StringValue` or `ObjectValue` but was ${input.javaClass.simpleName} "
@@ -67,9 +74,9 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
         when (input) {
             is StringValue -> LinkImport(name = input.value, `as` = input.value)
             is ObjectValue -> {
-                val name = input.objectFields.firstOrNull { it.name == "name" }?.value?.toString() ?: throw CoercingParseLiteralException("Cannot parse $input to LinkImport")
-                val namespaced = input.objectFields.firstOrNull { it.name == "as" }?.value?.toString()
-                LinkImport(name = name, `as` = namespaced ?: name)
+                val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue ?: throw CoercingParseLiteralException("Cannot parse $input to LinkImport")
+                val namespacedValue = input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue
+                LinkImport(name = nameValue.value, `as` = namespacedValue?.value ?: nameValue.value)
             }
             else -> throw CoercingParseLiteralException(
                 "Cannot parse $input to LinkImport. Expected AST type of `StringValue` or `ObjectValue` but was ${input.javaClass.simpleName} "
