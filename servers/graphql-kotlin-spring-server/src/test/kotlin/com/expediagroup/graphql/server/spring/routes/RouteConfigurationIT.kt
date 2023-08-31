@@ -206,6 +206,18 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     }
 
     @Test
+    fun `verify POST graphQL request without response content type`() {
+        testClient.post()
+            .uri("/graphql")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(GraphQLRequest("query { hello(name: \"POST application/graphql\") }"))
+            .exchange()
+            .expectHeader()
+            .contentType(MediaType.APPLICATION_JSON)
+            .verifyGraphQLRoute("Hello POST application/graphql!")
+    }
+
+    @Test
     fun `verify POST request with XML content type will result in HTTP 400 bad request`() {
         testClient.post()
             .uri("/graphql")

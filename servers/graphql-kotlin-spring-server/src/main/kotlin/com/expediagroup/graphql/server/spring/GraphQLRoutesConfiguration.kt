@@ -49,7 +49,7 @@ class GraphQLRoutesConfiguration(
                 val acceptMediaType = serverRequest
                     .headers()
                     .accept()
-                    .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
+                    .find { it != MediaType.ALL && it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
                     ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
                     ?: MediaType.APPLICATION_JSON
                 if (graphQLResponse != null) {
