@@ -20,7 +20,7 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.data.integration.composeDirective.CustomSchema
 import com.expediagroup.graphql.generator.federation.data.integration.composeDirective.SimpleQuery
-import com.expediagroup.graphql.generator.federation.directives.FEDERATION_LATEST_VERSION
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_VERSION
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
@@ -36,7 +36,7 @@ class ComposeDirectiveIT {
         )
 
         val expected = """
-            schema @composeDirective(name : "custom") @link(import : ["@composeDirective"], url : "https://specs.apollo.dev/federation/v$FEDERATION_LATEST_VERSION"){
+            schema @composeDirective(name : "custom") @link(import : ["@composeDirective"], url : "https://specs.apollo.dev/federation/v$FEDERATION_SPEC_LATEST_VERSION"){
               query: Query
             }
 

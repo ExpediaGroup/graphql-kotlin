@@ -17,7 +17,10 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLNonNull
 
 /**
  * ```graphql
@@ -49,7 +52,6 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see <a href="https://www.apollographql.com/docs/studio/federated-graphs/#subgraph-contact-info">Subgraph Contact Info</a>
  */
-@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = CONTACT_DIRECTIVE_NAME,
     description = CONTACT_DIRECTIVE_DESCRIPTION,
@@ -66,3 +68,27 @@ annotation class ContactDirective(
 
 internal const val CONTACT_DIRECTIVE_NAME = "contact"
 private const val CONTACT_DIRECTIVE_DESCRIPTION = "Provides contact information of the owner responsible for this subgraph schema."
+
+internal val CONTACT_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(CONTACT_DIRECTIVE_NAME)
+    .description(CONTACT_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.SCHEMA)
+    .argument(
+        GraphQLArgument.newArgument()
+            .name("name")
+            .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
+            .build()
+    )
+    .argument(
+        GraphQLArgument.newArgument()
+            .name("url")
+            .type(Scalars.GraphQLString)
+            .build()
+    )
+    .argument(
+        GraphQLArgument.newArgument()
+            .name("description")
+            .type(Scalars.GraphQLString)
+            .build()
+    )
+    .build()

@@ -55,10 +55,3 @@ annotation class ShareableDirective
 
 internal const val SHAREABLE_DIRECTIVE_NAME = "shareable"
 private const val SHAREABLE_DIRECTIVE_DESCRIPTION = "Indicates that given object and/or field can be resolved by multiple subgraphs"
-
-internal val SHAREABLE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(SHAREABLE_DIRECTIVE_NAME)
-    .description(SHAREABLE_DIRECTIVE_DESCRIPTION)
-    .validLocations(DirectiveLocation.FIELD_DEFINITION, DirectiveLocation.OBJECT)
-    .repeatable(true)
-    .build()

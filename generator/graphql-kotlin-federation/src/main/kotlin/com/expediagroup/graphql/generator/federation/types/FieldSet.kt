@@ -49,9 +49,14 @@ internal val FIELD_SET_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newSca
     .coercing(FieldSetCoercing)
     .build()
 
-internal val FIELD_SET_ARGUMENT = GraphQLArgument.newArgument()
+internal val FIELD_SET_ARGUMENT: GraphQLArgument = GraphQLArgument.newArgument()
     .name(FIELD_SET_ARGUMENT_NAME)
     .type(GraphQLNonNull(FIELD_SET_SCALAR_TYPE))
+    .build()
+
+internal fun fieldSetArgumentDefinition(fieldSetScalar: GraphQLScalarType): GraphQLArgument = GraphQLArgument.newArgument()
+    .name(FIELD_SET_ARGUMENT_NAME)
+    .type(GraphQLNonNull(fieldSetScalar))
     .build()
 
 private object FieldSetCoercing : Coercing<FieldSet, String> {

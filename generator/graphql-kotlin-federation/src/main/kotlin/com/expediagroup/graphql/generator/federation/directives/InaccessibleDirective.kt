@@ -89,20 +89,3 @@ annotation class InaccessibleDirective
 
 internal const val INACCESSIBLE_DIRECTIVE_NAME = "inaccessible"
 private const val INACESSIBLE_DIRECTIVE_DESCRIPTION = "Marks location within schema as inaccessible from the GraphQL Gateway"
-
-internal val INACCESSIBLE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(INACCESSIBLE_DIRECTIVE_NAME)
-    .description(INACESSIBLE_DIRECTIVE_DESCRIPTION)
-    .validLocations(
-        DirectiveLocation.FIELD_DEFINITION,
-        DirectiveLocation.OBJECT,
-        DirectiveLocation.INTERFACE,
-        DirectiveLocation.UNION,
-        DirectiveLocation.ENUM,
-        DirectiveLocation.ENUM_VALUE,
-        DirectiveLocation.SCALAR,
-        DirectiveLocation.INPUT_OBJECT,
-        DirectiveLocation.INPUT_FIELD_DEFINITION,
-        DirectiveLocation.ARGUMENT_DEFINITION
-    )
-    .build()

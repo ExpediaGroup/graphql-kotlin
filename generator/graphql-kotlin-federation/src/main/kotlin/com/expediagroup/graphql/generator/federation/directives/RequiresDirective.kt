@@ -18,7 +18,9 @@ package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
+import com.expediagroup.graphql.generator.federation.types.fieldSetArgumentDefinition
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLScalarType
 
 /**
  * ```graphql
@@ -85,4 +87,11 @@ internal val REQUIRES_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.
     .description(REQUIRES_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.FIELD_DEFINITION)
     .argument(FIELD_SET_ARGUMENT)
+    .build()
+
+internal fun requiresDirectiveDefinition(fieldSetScalar: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(REQUIRES_DIRECTIVE_NAME)
+    .description(REQUIRES_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .argument(fieldSetArgumentDefinition(fieldSetScalar))
     .build()

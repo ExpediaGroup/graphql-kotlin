@@ -22,20 +22,21 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE_V2
-import com.expediagroup.graphql.generator.federation.directives.FEDERATION_LATEST_VERSION
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
-import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_URL
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.INTERFACE_OBJECT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
 import com.expediagroup.graphql.generator.federation.directives.LINK_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.LINK_SPEC
 import com.expediagroup.graphql.generator.federation.directives.LinkDirective
@@ -48,9 +49,14 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
+import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
 import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
+import com.expediagroup.graphql.generator.federation.exception.UnknownSpecificationException
 import com.expediagroup.graphql.generator.federation.execution.EntitiesDataFetcher
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.types.ANY_SCALAR_TYPE
@@ -153,13 +159,14 @@ open class FederatedSchemaGeneratorHooks(
                 val spec = specUrl.parent.fileName.name
 
                 if (linkSpecs.containsKey(spec)) {
-                    throw RuntimeException("Attempting to import same @link spec twice")
+                    throw DuplicateSpecificationLinkImport(spec, appliedDirectiveAnnotation.url)
                 } else {
                     val nameSpace: String = appliedDirectiveAnnotation.`as`.takeIf {
                         it.isNotBlank()
                     } ?: spec
-                    val imports: Map<String, String> = appliedDirectiveAnnotation.import.associate {
-                        normalizeImportName(it.name) to normalizeImportName(it.`as`)
+                    val imports: Map<String, String> = appliedDirectiveAnnotation.import.associate { import ->
+                        val importedName = import.`as`.takeIf { it.isNotBlank() } ?: import.name
+                        normalizeImportName(import.name) to normalizeImportName(importedName)
                     }
 
                     val linkSpec = LinkSpec(nameSpace, imports)
@@ -215,15 +222,19 @@ open class FederatedSchemaGeneratorHooks(
 
     private fun willGenerateFederatedDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = when {
         federationV2OnlyDirectiveNames.contains(directiveInfo.effectiveName) -> throw IncorrectFederatedDirectiveUsage(directiveInfo.effectiveName)
+        CONTACT_DIRECTIVE_NAME == directiveInfo.effectiveName -> CONTACT_DIRECTIVE_TYPE
         EXTERNAL_DIRECTIVE_NAME == directiveInfo.effectiveName -> EXTERNAL_DIRECTIVE_TYPE
         KEY_DIRECTIVE_NAME == directiveInfo.effectiveName -> KEY_DIRECTIVE_TYPE
         else -> super.willGenerateDirective(directiveInfo)
     }
 
     private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = when (directiveInfo.effectiveName) {
+        CONTACT_DIRECTIVE_NAME -> CONTACT_DIRECTIVE_TYPE
         EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE_V2
-        KEY_DIRECTIVE_NAME -> KEY_DIRECTIVE_TYPE_V2
+        KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
         LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
+        PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
+        REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
         else -> super.willGenerateDirective(directiveInfo)
     }
 
@@ -234,6 +245,7 @@ open class FederatedSchemaGeneratorHooks(
 
     override fun didGenerateDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLDirective {
         if (optInFederationV2) {
+            // namespace generated directive if needed
             val linkedSpec = directiveInfo.directive.annotationClass.annotations
                 .filterIsInstance(LinkedSpec::class.java)
                 .map { it.value }
@@ -251,7 +263,7 @@ open class FederatedSchemaGeneratorHooks(
     }
 
     private fun namespacedTypeName(specification: String, name: String): String {
-        val spec = linkSpecs[specification] ?: throw RuntimeException("Attempting to use directive $name from $specification specification without importing the spec through @link directive")
+        val spec = linkSpecs[specification] ?: throw UnknownSpecificationException(name, specification)
         return spec.imports[name] ?: "${spec.namespace}__$name"
     }
 
@@ -265,10 +277,9 @@ open class FederatedSchemaGeneratorHooks(
         if (optInFederationV2) {
             // apply @link federation spec import only if it was not yet specified
             val federationSpecImportExists = originalSchema.schemaAppliedDirectives.filter { it.name == "link" }.any {
-                it.getArgument("url")?.argumentValue?.value?.toString()?.startsWith(FEDERATION_SPEC_URL) == true
+                it.getArgument("url")?.argumentValue?.value?.toString()?.startsWith(FEDERATION_SPEC_URL_PREFIX) == true
             }
             if (!federationSpecImportExists) {
-                val latestSpecVersion = "$FEDERATION_SPEC_URL/v$FEDERATION_LATEST_VERSION"
                 val fed2Imports = linkSpecs[FEDERATION_SPEC]?.imports
                     ?.keys
                     ?.mapNotNull {
@@ -286,7 +297,7 @@ open class FederatedSchemaGeneratorHooks(
                     ?: emptyList()
                 val linkDirective = linkDirectiveDefinition(linkImportScalar)
                 builder.additionalDirective(linkDirective)
-                    .withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(latestSpecVersion, null, fed2Imports))
+                    .withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(FEDERATION_SPEC_LATEST_URL, null, fed2Imports))
             }
         }
 
@@ -367,10 +378,15 @@ open class FederatedSchemaGeneratorHooks(
      * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#union-_entity
      */
     private fun getFederatedEntities(originalSchema: GraphQLSchema): Set<String> {
+        val keyDirectiveName = if (optInFederationV2) {
+            namespacedTypeName(FEDERATION_SPEC, KEY_DIRECTIVE_NAME)
+        } else {
+            KEY_DIRECTIVE_NAME
+        }
         return originalSchema.allTypesAsList
             .asSequence()
             .filterIsInstance<GraphQLObjectType>()
-            .filter { type -> type.hasAppliedDirective(KEY_DIRECTIVE_NAME) }
+            .filter { type -> type.hasAppliedDirective(keyDirectiveName) }
             .map { it.name }
             .toSet()
     }

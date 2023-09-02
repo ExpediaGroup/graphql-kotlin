@@ -17,10 +17,7 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
-import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
-import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLNonNull
 
 /**
  * ```graphql
@@ -46,14 +43,3 @@ annotation class OverrideDirective(val from: String)
 
 internal const val OVERRIDE_DIRECTIVE_NAME = "override"
 private const val OVERRIDE_DIRECTIVE_DESCRIPTION = "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
-
-internal val OVERRIDE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(OVERRIDE_DIRECTIVE_NAME)
-    .description(OVERRIDE_DIRECTIVE_DESCRIPTION)
-    .validLocations(DirectiveLocation.FIELD_DEFINITION)
-    .argument(
-        GraphQLArgument.newArgument()
-            .name("from")
-            .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
-    )
-    .build()

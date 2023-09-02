@@ -18,9 +18,11 @@ package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
+import com.expediagroup.graphql.generator.federation.types.fieldSetArgumentDefinition
 import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLScalarType
 
 /**
  * ```graphql
@@ -109,11 +111,11 @@ internal val KEY_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schem
     .repeatable(true)
     .build()
 
-internal val KEY_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+internal fun keyDirectiveDefinition(fieldSetScalar: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(KEY_DIRECTIVE_NAME)
     .description(KEY_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE)
-    .argument(FIELD_SET_ARGUMENT)
+    .argument(fieldSetArgumentDefinition(fieldSetScalar))
     .argument(
         GraphQLArgument.newArgument()
             .name("resolvable")

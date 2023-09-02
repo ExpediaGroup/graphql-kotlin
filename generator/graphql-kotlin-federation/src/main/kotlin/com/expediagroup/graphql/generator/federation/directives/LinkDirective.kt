@@ -25,12 +25,16 @@ import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
 
 const val APOLLO_SPEC_URL = "https://specs.apollo.dev"
+
 const val LINK_SPEC = "link"
-const val LINK_SPEC_URL = "$APOLLO_SPEC_URL/link"
 const val LINK_SPEC_LATEST_VERSION = "1.0"
+const val LINK_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$LINK_SPEC"
+const val LINK_SPEC_LATEST_URL = "$LINK_SPEC_URL_PREFIX/v$LINK_SPEC_LATEST_VERSION"
+
 const val FEDERATION_SPEC = "federation"
-const val FEDERATION_SPEC_URL = "$APOLLO_SPEC_URL/federation"
-const val FEDERATION_LATEST_VERSION = "2.5"
+const val FEDERATION_SPEC_LATEST_VERSION = "2.5"
+const val FEDERATION_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$FEDERATION_SPEC"
+const val FEDERATION_SPEC_LATEST_URL = "$FEDERATION_SPEC_URL_PREFIX/v$FEDERATION_SPEC_LATEST_VERSION"
 
 /**
  * ```graphql
