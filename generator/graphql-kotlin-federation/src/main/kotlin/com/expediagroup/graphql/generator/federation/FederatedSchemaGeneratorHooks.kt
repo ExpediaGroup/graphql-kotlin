@@ -296,8 +296,11 @@ open class FederatedSchemaGeneratorHooks(
                     }
                     ?: emptyList()
                 val linkDirective = linkDirectiveDefinition(linkImportScalar)
-                builder.additionalDirective(linkDirective)
-                    .withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(FEDERATION_SPEC_LATEST_URL, null, fed2Imports))
+                if (!originalSchema.directives.any { it.name == LINK_DIRECTIVE_NAME }) {
+                    // only add @link directive definition if it doesn't exist yet
+                    builder.additionalDirective(linkDirective)
+                }
+                builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(FEDERATION_SPEC_LATEST_URL, null, fed2Imports))
             }
         }
 
