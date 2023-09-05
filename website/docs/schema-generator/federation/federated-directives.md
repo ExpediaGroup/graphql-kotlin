@@ -43,7 +43,7 @@ it will generate following schema
 schema
 @composeDirective(name: "@custom")
 @link(import : ["@custom"], url: "https://myspecs.dev/myCustomDirective/v1.0")
-@link(url : "https://specs.apollo.dev/federation/v2.4")
+@link(url : "https://specs.apollo.dev/federation/v2.3")
 {
    query: Query
 }
@@ -357,7 +357,7 @@ scalar Import
 The `@link` directive links definitions within the document to external schemas. See [@link specification](https://specs.apollo.dev/link/v1.0) for details.
 
 External schemas are identified by their `url`, which optionally ends with a name and version with the following format:
-`{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.4"`.
+`{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.3"`.
 
 External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External
 types defined in the specification will be automatically namespaced (prefixed with `{NAME}__`) unless they are explicitly

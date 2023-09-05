@@ -45,7 +45,7 @@ class LinkDirectiveTest {
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @link(as : "fed", import : [{name : "@key", as : "@myKey"}], url : "https://specs.apollo.dev/federation/v2.4"){
+            schema @link(as : "fed", import : [{name : "@key", as : "@myKey"}], url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
 
