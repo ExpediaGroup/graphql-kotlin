@@ -349,6 +349,11 @@ This allows end users to query GraphQL Gateway for any product review fields and
 Only available in Federation v2.
 :::
 
+:::caution
+While both custom namespace (`as`) and `import` arguments are optional in the schema definition, due to [#1830](https://github.com/ExpediaGroup/graphql-kotlin/issues/1830)
+we currently always require those values to be explicitly provided.
+:::
+
 ```graphql
 directive @link(url: String!, as: String, import: [Import]) repeatable on SCHEMA
 scalar Import
@@ -356,41 +361,68 @@ scalar Import
 
 The `@link` directive links definitions within the document to external schemas. See [@link specification](https://specs.apollo.dev/link/v1.0) for details.
 
-External schemas are identified by their `url`, which optionally ends with a name and version with the following format:
-`{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.3"`.
+External schemas are identified by their `url`, which ends with a name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`,
+e.g. `url = "https://specs.apollo.dev/federation/v2.3"`.
 
 External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External
 types defined in the specification will be automatically namespaced (prefixed with `{NAME}__`) unless they are explicitly
-imported. While both custom namespace (`as`) and import arguments are optional, due to https://github.com/ExpediaGroup/graphql-kotlin/issues/1830
-we currently always require those values to be explicitly provided.
+imported. Namespace should default to the specification name from the imported spec url. Custom namespace can be provided
+by specifying `as` argument value.
+
+External types can be imported using the same name or can be aliased to some custom name.
 
 ```kotlin
-@LinkDirective(url = "https://myspecs.company.dev/foo/v1.0", imports = ["@foo", "bar"])
+@LinkDirective(`as` = "custom", imports = [LinkImport(name = "@foo"), LinkImport(name = "@bar", `as` = "@myBar")], url = "https://myspecs.dev/custom/v1.0")
 class MySchema
 ```
 
 This will generate following schema:
 
 ```graphql
-schema @link(import : ["@foo", "bar"], url : "https://myspecs.company.dev/foo/v1.0") {
+schema @link(as: "custom", import : ["@foo", { name: "@bar", as: "@myBar" }], url : "https://myspecs.dev/custom/v1.0") {
     query: Query
 }
 ```
 
 ### `@LinkedSpec` annotation
 
-This meta annotation is used to indicate that given directive/type is associated with imported `@link` specification.
+When importing custom specifications, we need to be able to identify whether given element is part of the referenced specification.
+`@LinkedSpec` is a meta annotation that is used to indicate that given directive/type is associated with imported `@link` specification.
+
+In order to ensure consistent behavior, `@LinkedSpec` value have to match default specification name as it appears in the
+imported url and not the aliased value.
 
 Example usage:
 
 ```
 @LinkedSpec("custom")
-@GraphQLDirective
+@GraphQLDirective(
+    name = "foo",
+    locations = [DirectiveLocation.FIELD_DEFINITION]
+)
 annotation class Foo
 ```
 
-We can then import those types in the `@link` application OR they will be automatically namespaced with the specification
-prefix.
+In the example above, we specify that `@foo` directive is part of the `custom` specification. We can then reference `@foo`
+in the `@link` specification imports
+
+```graphql
+schema @link(as: "custom", import : ["@foo"], url : "https://myspecs.dev/custom/v1.0") {
+    query: Query
+}
+
+directive @foo on FIELD_DEFINITION
+```
+
+If we don't import the directive, then it will automatically namespaced to the spec
+
+```graphql
+schema @link(as: "custom", url : "https://myspecs.dev/custom/v1.0") {
+    query: Query
+}
+
+directive @custom__foo on FIELD_DEFINITION
+```
 
 ## `@override` directive
 
