@@ -43,7 +43,7 @@ it will generate following schema
 schema
 @composeDirective(name: "@custom")
 @link(import : ["@custom"], url: "https://myspecs.dev/myCustomDirective/v1.0")
-@link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3")
+@link(url : "https://specs.apollo.dev/federation/v2.4")
 {
    query: Query
 }
@@ -350,15 +350,19 @@ Only available in Federation v2.
 :::
 
 ```graphql
-directive @link(url: String!, import: [String]) repeatable on SCHEMA
+directive @link(url: String!, as: String, import: [Import]) repeatable on SCHEMA
+scalar Import
 ```
 
 The `@link` directive links definitions within the document to external schemas. See [@link specification](https://specs.apollo.dev/link/v1.0) for details.
 
-External schemas are identified by their `url`, which optionally ends with a name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`.
+External schemas are identified by their `url`, which optionally ends with a name and version with the following format:
+`{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.4"`.
 
-By default, external types should be namespaced (prefixed with `<namespace>__`, e.g. `key` directive should be namespaced as `federation__key`) unless they are explicitly imported.
-`graphql-kotlin` automatically imports ALL federation directives to avoid the need for namespacing.
+External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External
+types defined in the specification will be automatically namespaced (prefixed with `{NAME}__`) unless they are explicitly
+imported. While both custom namespace (`as`) and import arguments are optional, due to https://github.com/ExpediaGroup/graphql-kotlin/issues/1830
+we currently always require those values to be explicitly provided.
 
 ```kotlin
 @LinkDirective(url = "https://myspecs.company.dev/foo/v1.0", imports = ["@foo", "bar"])
@@ -373,10 +377,20 @@ schema @link(import : ["@foo", "bar"], url : "https://myspecs.company.dev/foo/v1
 }
 ```
 
-:::danger
-We currently DO NOT support full `@link` directive capability as it requires support for namespacing and renaming imports. This functionality may be added in the future releases. See
-[@link specification](https://specs.apollo.dev/link/v1.0) for details.
-:::
+### `@LinkedSpec` annotation
+
+This meta annotation is used to indicate that given directive/type is associated with imported `@link` specification.
+
+Example usage:
+
+```
+@LinkedSpec("custom")
+@GraphQLDirective
+annotation class Foo
+```
+
+We can then import those types in the `@link` application OR they will be automatically namespaced with the specification
+prefix.
 
 ## `@override` directive
 

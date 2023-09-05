@@ -30,7 +30,7 @@ class FederatedSchemaV2GeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
+            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.4"){
               query: Query
             }
 

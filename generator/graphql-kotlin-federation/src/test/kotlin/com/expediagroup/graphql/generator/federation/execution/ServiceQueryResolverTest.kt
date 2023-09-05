@@ -90,7 +90,7 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(url : "https://specs.apollo.dev/federation/v2.5"){
+schema @link(url : "https://specs.apollo.dev/federation/v2.4"){
   query: Query
 }
 
@@ -118,7 +118,7 @@ scalar link__Import
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
+schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.4"){
   query: Query
 }
 

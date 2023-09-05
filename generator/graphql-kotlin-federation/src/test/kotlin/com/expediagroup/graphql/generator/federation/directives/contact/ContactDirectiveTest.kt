@@ -30,7 +30,7 @@ class ContactDirectiveTest {
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.5"){
+            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.4"){
               query: Query
             }
 

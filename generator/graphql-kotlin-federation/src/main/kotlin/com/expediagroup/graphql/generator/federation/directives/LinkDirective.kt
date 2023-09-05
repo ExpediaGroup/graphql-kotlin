@@ -32,7 +32,7 @@ const val LINK_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$LINK_SPEC"
 const val LINK_SPEC_LATEST_URL = "$LINK_SPEC_URL_PREFIX/v$LINK_SPEC_LATEST_VERSION"
 
 const val FEDERATION_SPEC = "federation"
-const val FEDERATION_SPEC_LATEST_VERSION = "2.5"
+const val FEDERATION_SPEC_LATEST_VERSION = "2.4"
 const val FEDERATION_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$FEDERATION_SPEC"
 const val FEDERATION_SPEC_LATEST_URL = "$FEDERATION_SPEC_URL_PREFIX/v$FEDERATION_SPEC_LATEST_VERSION"
 
@@ -43,7 +43,7 @@ const val FEDERATION_SPEC_LATEST_URL = "$FEDERATION_SPEC_URL_PREFIX/v$FEDERATION
  *
  * The `@link` directive links definitions within the document to external schemas.
  *
- * External schemas are identified by their url, which should end with a specification name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.5"`.
+ * External schemas are identified by their url, which should end with a specification name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.4"`.
  *
  * External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External types defined in the specification will be automatically namespaced
  * (prefixed with `{NAME}__`) unless they are explicitly imported. While both custom namespace (`as`) and import arguments are optional, due to https://github.com/ExpediaGroup/graphql-kotlin/issues/1830
