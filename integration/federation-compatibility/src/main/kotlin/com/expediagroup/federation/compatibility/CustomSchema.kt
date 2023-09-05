@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
     url = FEDERATION_SPEC_LATEST_URL,
     `as` = "federation",
     import = [
+        LinkImport("@composeDirective"),
         LinkImport("@extends"),
         LinkImport("@external"),
         LinkImport("@inaccessible"),
