@@ -1,4 +1,4 @@
-federation_version: =2.5.1
+federation_version: =2.4.13
 subgraphs:
   products:
     routing_url: http://products:8080/graphql
