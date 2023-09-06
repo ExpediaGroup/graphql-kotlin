@@ -17,11 +17,11 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-}
-
 tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
+
     val kotlinJvmVersion: String by project
     /*
     integration test is run by invoking maven directly

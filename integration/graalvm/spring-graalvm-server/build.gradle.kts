@@ -1,5 +1,4 @@
 import com.expediagroup.graphql.plugin.gradle.graphql
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
@@ -19,12 +18,13 @@ dependencies {
     testImplementation(libs.spring.boot.test)
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
+    test {
+        useJUnitPlatform()
+    }
 }
 
 graalvmNative {
