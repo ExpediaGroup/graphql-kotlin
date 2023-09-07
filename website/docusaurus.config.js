@@ -5,12 +5,12 @@ module.exports = {
   baseUrl: "/graphql-kotlin/",
   organizationName: "ExpediaGroup",
   projectName: "graphql-kotlin",
-  scripts: [
-    "https://buttons.github.io/buttons.js"
-  ],
   favicon: "img/favicon.ico",
   customFields: {
     repoUrl: "https://github.com/ExpediaGroup/graphql-kotlin"
+  },
+  markdown: {
+    mermaid: true
   },
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
@@ -22,7 +22,6 @@ module.exports = {
         docs: {
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/website",
           lastVersion: '6.x.x',
-          remarkPlugins: [require('mdx-mermaid')],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarPath: require.resolve('./sidebars.js'),
@@ -37,6 +36,10 @@ module.exports = {
     ]
   ],
   plugins: [],
+  scripts: [
+    "https://buttons.github.io/buttons.js"
+  ],
+  themes: ['@docusaurus/theme-mermaid'],
   themeConfig: {
     image: "img/undraw_online.svg",
     colorMode: {
