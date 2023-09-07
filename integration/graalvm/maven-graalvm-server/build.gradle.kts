@@ -45,7 +45,7 @@ tasks {
     val buildGraalVmNativeImage by register("buildGraalVmNativeImage") {
         dependsOn(gradle.includedBuild("graphql-kotlin").task(":resolveIntegrationTestDependencies"))
         dependsOn(":common-graalvm-server:publishToMavenLocal")
-        timeout.set(Duration.ofSeconds(500))
+        timeout.set(Duration.ofSeconds(1200))
         doLast {
             exec {
                 environment(mavenEnvironmentVariables)
