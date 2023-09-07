@@ -10,7 +10,7 @@ on:
 
 jobs:
   graalvm-integration:
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,6 +38,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Build native image
+        timeout-minutes: 20
         id: build_server
         run: |
           ./gradlew :${server}:buildGraalVmNativeImage
