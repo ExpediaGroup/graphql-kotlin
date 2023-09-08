@@ -90,45 +90,12 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+schema @link(url : "https://specs.apollo.dev/federation/v2.3"){
   query: Query
 }
 
-"Marks underlying custom directive to be included in the Supergraph schema"
-directive @composeDirective(name: String!) repeatable on SCHEMA
-
-"Marks target object as extending part of the federated schema"
-directive @extends on OBJECT | INTERFACE
-
-"Marks target field as external meaning it will be resolved by federated schema"
-directive @external on OBJECT | FIELD_DEFINITION
-
-"Marks location within schema as inaccessible from the GraphQL Gateway"
-directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
-
-"Provides meta information to the router that this entity type is an interface in the supergraph."
-directive @interfaceObject on OBJECT
-
-"Space separated list of primary keys needed to access federated object"
-directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
-
 "Links definitions within the document to external schemas."
-directive @link(import: [String], url: String!) repeatable on SCHEMA
-
-"Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
-directive @override(from: String!) on FIELD_DEFINITION
-
-"Specifies the base type field set that will be selectable by the gateway"
-directive @provides(fields: FieldSet!) on FIELD_DEFINITION
-
-"Specifies required input field set from the base type for a resolver"
-directive @requires(fields: FieldSet!) on FIELD_DEFINITION
-
-"Indicates that given object and/or field can be resolved by multiple subgraphs"
-directive @shareable repeatable on OBJECT | FIELD_DEFINITION
-
-"Allows users to annotate fields and types with additional metadata information"
-directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
 type Query {
   _service: _Service!
@@ -146,53 +113,31 @@ type _Service {
   sdl: String!
 }
 
-"Federation type representing set of fields"
-scalar FieldSet
+scalar link__Import
 """
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
   query: Query
 }
 
-"Marks underlying custom directive to be included in the Supergraph schema"
-directive @composeDirective(name: String!) repeatable on SCHEMA
-
 directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
-
-"Marks target object as extending part of the federated schema"
-directive @extends on OBJECT | INTERFACE
 
 "Marks target field as external meaning it will be resolved by federated schema"
 directive @external on OBJECT | FIELD_DEFINITION
-
-"Marks location within schema as inaccessible from the GraphQL Gateway"
-directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
-
-"Provides meta information to the router that this entity type is an interface in the supergraph."
-directive @interfaceObject on OBJECT
 
 "Space separated list of primary keys needed to access federated object"
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
 "Links definitions within the document to external schemas."
-directive @link(import: [String], url: String!) repeatable on SCHEMA
-
-"Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
-directive @override(from: String!) on FIELD_DEFINITION
+directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
 "Specifies the base type field set that will be selectable by the gateway"
 directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 
 "Specifies required input field set from the base type for a resolver"
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
-
-"Indicates that given object and/or field can be resolved by multiple subgraphs"
-directive @shareable repeatable on OBJECT | FIELD_DEFINITION
-
-"Allows users to annotate fields and types with additional metadata information"
-directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 interface Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
   id: String!
@@ -247,6 +192,8 @@ scalar FieldSet
 
 "Federation scalar type used to represent any external entities passed to _entities query."
 scalar _Any
+
+scalar link__Import
 """
 
 class ServiceQueryResolverTest {

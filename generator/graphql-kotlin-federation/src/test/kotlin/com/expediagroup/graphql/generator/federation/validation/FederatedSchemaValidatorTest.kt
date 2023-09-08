@@ -18,13 +18,14 @@ package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.externalDirective
 import com.expediagroup.graphql.generator.federation.getKeyDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
+import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -76,7 +77,7 @@ class FederatedSchemaValidatorTest {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .withAppliedDirective(
-                KEY_DIRECTIVE_TYPE_V2.toAppliedDirective()
+                keyDirectiveDefinition(FIELD_SET_SCALAR_TYPE).toAppliedDirective()
                     .transform { directive ->
                         directive.argument(
                             FIELD_SET_ARGUMENT.toAppliedArgument()

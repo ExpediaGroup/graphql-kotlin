@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.expediagroup.graphql.generator.federation.directives.contact
 
-package com.expediagroup.graphql.plugin.maven
-
-import kotlinx.coroutines.runBlocking
-import kotlin.test.assertEquals
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.directives.ContactDirective
+import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
-import java.io.File
-import java.net.URL
-import java.nio.file.Paths
 
-class GenerateSDLMojoTest {
+class ContactDirectiveTest {
 
     @Test
-    fun `verify GraphQL schema was generated`() {
-        val buildDirectory = System.getProperty("buildDirectory")
-        val schemaFile = File(buildDirectory, "schema.graphql")
-        assertTrue(schemaFile.exists(), "schema file was generated")
-
-        val expectedSchema = """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.3"){
+    fun `verify we can import federation spec using custom @link`() {
+        val expectedSchema =
+            """
+            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
+
+            "Provides contact information of the owner responsible for this subgraph schema."
+            directive @contact(description: String, name: String!, url: String) on SCHEMA
 
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
@@ -69,7 +66,7 @@ class GenerateSDLMojoTest {
 
             type Query {
               _service: _Service!
-              helloWorld(name: String): String!
+              foo: String!
             }
 
             type _Service {
@@ -77,7 +74,25 @@ class GenerateSDLMojoTest {
             }
 
             scalar link__Import
-        """.trimIndent()
-        assertEquals(expectedSchema, schemaFile.readText().trim())
+            """.trimIndent()
+
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.contact"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
+        )
+
+        val schema = toFederatedSchema(
+            queries = listOf(TopLevelObject(FooQuery())),
+            schemaObject = TopLevelObject(CustomSchema()),
+            config = config
+        )
+        assertEquals(expectedSchema, schema.print().trim())
+    }
+
+    @ContactDirective(name = "My Team Name", url = "https://myteam.slack.com/room", description = "Send emails to foo@myteamname.com")
+    class CustomSchema
+
+    class FooQuery {
+        fun foo(): String = TODO()
     }
 }

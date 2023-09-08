@@ -17,16 +17,16 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 /**
- * Annotation representing FieldSet scalar type that is used to represent a set of fields.
+ * Annotation representing Import scalar type that is used to by @link directive to import types from a specification.
  *
- * Field set can represent:
- * - single field, e.g. "id"
- * - multiple fields, e.g. "id name"
- * - nested selection sets, e.g. "id user { name }"
+ * When importing schema elements we can either:
+ * - import elements directly, i.e. use name that matches the type name in the imported specification, e.g. `@key`
+ * - specify custom name for imported elements (allows to avoid schema collisions), e.g. `{ name = "@key`, as = "@myKey"}`
  *
- * @param value field set that represents a set of fields forming the key
+ * @param name original imported type name
+ * @param `as` imported type name in the schema
  *
- * @see [com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE]
+ * @see [com.expediagroup.graphql.generator.federation.types.LINK_IMPORT_SCALAR_TYPE]
  */
-@LinkedSpec(FEDERATION_SPEC)
-annotation class FieldSet(val value: String)
+@LinkedSpec(LINK_SPEC)
+annotation class LinkImport(val name: String, val `as`: String = "")

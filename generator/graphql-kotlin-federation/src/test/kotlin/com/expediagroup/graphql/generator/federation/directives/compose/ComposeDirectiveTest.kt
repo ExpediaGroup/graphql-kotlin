@@ -13,37 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.expediagroup.graphql.generator.federation.directives.compose
 
-package com.expediagroup.graphql.generator.federation
-
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.directives.ComposeDirective
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.federation.directives.LinkDirective
+import com.expediagroup.graphql.generator.federation.directives.LinkImport
+import com.expediagroup.graphql.generator.federation.directives.LinkedSpec
+import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
+import com.expediagroup.graphql.generator.scalars.ID
+import graphql.introspection.Introspection
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class FederatedSchemaV2GeneratorTest {
+class ComposeDirectiveTest {
+
     @Test
-    fun `verify can generate federated schema`() {
+    fun `verify we can generate valid schema with @composeDirective`() {
         val expectedSchema =
             """
-            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
 
-            directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+            "Marks underlying custom directive to be included in the Supergraph schema"
+            directive @composeDirective(name: String!) repeatable on SCHEMA
+
+            directive @custom on FIELD_DEFINITION
 
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
                 reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
-
-            "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -57,12 +70,6 @@ class FederatedSchemaV2GeneratorTest {
             "Links definitions within the document to external schemas."
             directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
-            "Specifies the base type field set that will be selectable by the gateway"
-            directive @provides(fields: FieldSet!) on FIELD_DEFINITION
-
-            "Specifies required input field set from the base type for a resolver"
-            directive @requires(fields: FieldSet!) on FIELD_DEFINITION
-
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
                 "Skipped when true."
@@ -75,48 +82,18 @@ class FederatedSchemaV2GeneratorTest {
                 url: String!
               ) on SCALAR
 
-            interface Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
-              id: String!
-              reviews: [Review!]!
-              upc: String!
-            }
+            union _Entity = Foo
 
-            union _Entity = Author | Book | User
-
-            type Author @key(fields : "authorId", resolvable : true) {
-              authorId: Int!
-              name: String!
-            }
-
-            type Book implements Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
-              author: User! @provides(fields : "name")
-              id: String!
-              reviews: [Review!]!
-              shippingCost: String! @requires(fields : "weight")
-              upc: String!
-              weight: Float! @external
-            }
-
-            type CustomScalar {
-              value: String!
+            type Foo @key(fields : "id", resolvable : true) {
+              id: ID!
+              name: String
             }
 
             type Query {
               "Union of all types that use the @key directive, including both types native to the schema and extended types"
               _entities(representations: [_Any!]!): [_Entity]!
               _service: _Service!
-            }
-
-            type Review {
-              body: String! @custom
-              content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
-              customScalar: CustomScalar!
-              id: String!
-            }
-
-            type User @key(fields : "userId", resolvable : true) {
-              name: String!
-              userId: Int!
+              foo: Foo! @custom
             }
 
             type _Service {
@@ -133,18 +110,37 @@ class FederatedSchemaV2GeneratorTest {
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v2"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.compose"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
-        val schema = toFederatedSchema(config = config)
+        val schema = toFederatedSchema(queries = listOf(TopLevelObject(FooQuery())), schemaObject = TopLevelObject(CustomSchema()), config = config)
         Assertions.assertEquals(expectedSchema, schema.print().trim())
-        val productType = schema.getObjectType("Book")
-        assertNotNull(productType)
-        assertNotNull(productType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
+        val fooType = schema.getObjectType("Foo")
+        assertNotNull(fooType)
+        assertNotNull(fooType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
 
         val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
         assertNotNull(entityUnion)
-        assertTrue(entityUnion.types.contains(productType))
+        assertTrue(entityUnion.types.contains(fooType))
+    }
+
+    @LinkDirective(url = "https://www.myspecs.dev/myspec/v1.0", `as` = "myspec", import = [LinkImport("@custom")])
+    @ComposeDirective(name = "custom")
+    class CustomSchema
+
+    @KeyDirective(fields = FieldSet("id"))
+    data class Foo(val id: ID, val name: String?)
+
+    @LinkedSpec("myspec")
+    @GraphQLDirective(
+        name = "custom",
+        locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
+    )
+    annotation class CustomDirective
+
+    class FooQuery {
+        @CustomDirective
+        fun foo(): Foo = TODO()
     }
 }

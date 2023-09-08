@@ -67,6 +67,7 @@ import graphql.introspection.Introspection
  * }
  * ```
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = INTERFACE_OBJECT_DIRECTIVE_NAME,
     description = INTERFACE_OBJECT_DIRECTIVE_DESCRIPTION,
@@ -76,9 +77,3 @@ annotation class InterfaceObjectDirective
 
 internal const val INTERFACE_OBJECT_DIRECTIVE_NAME = "interfaceObject"
 private const val INTERFACE_OBJECT_DIRECTIVE_DESCRIPTION = "Provides meta information to the router that this entity type is an interface in the supergraph."
-
-internal val INTERFACE_OBJECT_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(INTERFACE_OBJECT_DIRECTIVE_NAME)
-    .description(INTERFACE_OBJECT_DIRECTIVE_DESCRIPTION)
-    .validLocations(Introspection.DirectiveLocation.OBJECT)
-    .build()

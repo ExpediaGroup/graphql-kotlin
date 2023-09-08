@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.directives
+package com.expediagroup.graphql.generator.federation.exception
+
+import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 
 /**
- * Annotation representing FieldSet scalar type that is used to represent a set of fields.
- *
- * Field set can represent:
- * - single field, e.g. "id"
- * - multiple fields, e.g. "id name"
- * - nested selection sets, e.g. "id user { name }"
- *
- * @param value field set that represents a set of fields forming the key
- *
- * @see [com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE]
+ * Exception thrown if same specification is imported multiple times
  */
-@LinkedSpec(FEDERATION_SPEC)
-annotation class FieldSet(val value: String)
+class DuplicateSpecificationLinkImport(spec: String, url: String) : GraphQLKotlinException(
+    message = "Invalid federated schema - multiple $spec specification @link(url: \"$url\") imports"
+)

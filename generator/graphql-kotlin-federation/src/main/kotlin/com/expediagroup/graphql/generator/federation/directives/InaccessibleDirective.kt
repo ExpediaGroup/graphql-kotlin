@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see <a href="https://specs.apollo.dev/inaccessible/v0.2">@inaccessible specification</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = INACCESSIBLE_DIRECTIVE_NAME,
     description = INACESSIBLE_DIRECTIVE_DESCRIPTION,
@@ -88,20 +89,3 @@ annotation class InaccessibleDirective
 
 internal const val INACCESSIBLE_DIRECTIVE_NAME = "inaccessible"
 private const val INACESSIBLE_DIRECTIVE_DESCRIPTION = "Marks location within schema as inaccessible from the GraphQL Gateway"
-
-internal val INACCESSIBLE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(INACCESSIBLE_DIRECTIVE_NAME)
-    .description(INACESSIBLE_DIRECTIVE_DESCRIPTION)
-    .validLocations(
-        DirectiveLocation.FIELD_DEFINITION,
-        DirectiveLocation.OBJECT,
-        DirectiveLocation.INTERFACE,
-        DirectiveLocation.UNION,
-        DirectiveLocation.ENUM,
-        DirectiveLocation.ENUM_VALUE,
-        DirectiveLocation.SCALAR,
-        DirectiveLocation.INPUT_OBJECT,
-        DirectiveLocation.INPUT_FIELD_DEFINITION,
-        DirectiveLocation.ARGUMENT_DEFINITION
-    )
-    .build()

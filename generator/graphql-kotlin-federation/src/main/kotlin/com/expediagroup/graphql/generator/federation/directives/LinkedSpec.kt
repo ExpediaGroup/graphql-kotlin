@@ -17,16 +17,19 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 /**
- * Annotation representing FieldSet scalar type that is used to represent a set of fields.
+ * Meta annotation used to indicate that given directive/type is associated with imported `@link` specification.
  *
- * Field set can represent:
- * - single field, e.g. "id"
- * - multiple fields, e.g. "id name"
- * - nested selection sets, e.g. "id user { name }"
- *
- * @param value field set that represents a set of fields forming the key
- *
- * @see [com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE]
+ * Example usage:
+ * ```
+ * @LinkedSpec(FEDERATION_SPEC)
+ * @Repeatable
+ * @GraphQLDirective(
+ *     name = KEY_DIRECTIVE_NAME,
+ *     description = KEY_DIRECTIVE_DESCRIPTION,
+ *     locations = [DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE]
+ * )
+ * annotation class KeyDirective(val fields: FieldSet, val resolvable: Boolean = true)
+ * ```
  */
-@LinkedSpec(FEDERATION_SPEC)
-annotation class FieldSet(val value: String)
+@Target(allowedTargets = [AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS])
+annotation class LinkedSpec(val value: String)

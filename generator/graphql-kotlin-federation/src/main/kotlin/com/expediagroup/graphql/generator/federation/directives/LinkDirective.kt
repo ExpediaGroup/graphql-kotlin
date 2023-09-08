@@ -22,26 +22,36 @@ import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLScalarType
 
-const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
-const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
+const val APOLLO_SPEC_URL = "https://specs.apollo.dev"
+
+const val LINK_SPEC = "link"
+const val LINK_SPEC_LATEST_VERSION = "1.0"
+const val LINK_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$LINK_SPEC"
+const val LINK_SPEC_LATEST_URL = "$LINK_SPEC_URL_PREFIX/v$LINK_SPEC_LATEST_VERSION"
+
+const val FEDERATION_SPEC = "federation"
+const val FEDERATION_SPEC_LATEST_VERSION = "2.3"
+const val FEDERATION_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$FEDERATION_SPEC"
+const val FEDERATION_SPEC_LATEST_URL = "$FEDERATION_SPEC_URL_PREFIX/v$FEDERATION_SPEC_LATEST_VERSION"
 
 /**
  * ```graphql
- * directive @link(url: String!, import: [Import]) repeatable on SCHEMA
+ * directive @link(url: String!, as: String, import: [Import]) repeatable on SCHEMA
  * ```
  *
  * The `@link` directive links definitions within the document to external schemas.
  *
- * External schemas are identified by their url, which optionally ends with a name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`
+ * External schemas are identified by their url, which should end with a specification name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`, e.g. `url = "https://specs.apollo.dev/federation/v2.3"`.
  *
- * By default, external types should be namespaced (prefixed with namespace__, e.g. key directive should be namespaced as federation__key) unless they are explicitly imported. `graphql-kotlin`
- * automatically imports ALL federation directives to avoid the need for namespacing.
- *
- * >NOTE: We currently DO NOT support full `@link` directive capability as it requires support for namespacing and renaming imports. This functionality may be added in the future releases. See `@link`
- * specification for details.
+ * External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External types defined in the specification will be automatically namespaced
+ * (prefixed with `{NAME}__`) unless they are explicitly imported. While both custom namespace (`as`) and import arguments are optional, due to https://github.com/ExpediaGroup/graphql-kotlin/issues/1830
+ * we currently always require those values to be explicitly provided.
  *
  * @param url external schema URL
+ * @param as custom namespace, should default to the specification name specified in the url
+ * @param import list of imported schema elements
  *
  * @see <a href="https://specs.apollo.dev/link/v1.0/">@link specification</a>
  */
@@ -51,12 +61,12 @@ const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
     description = LINK_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.SCHEMA]
 )
-annotation class LinkDirective(val url: String, val import: Array<String>)
+annotation class LinkDirective(val url: String, val `as`: String, val import: Array<LinkImport>)
 
 internal const val LINK_DIRECTIVE_NAME = "link"
 private const val LINK_DIRECTIVE_DESCRIPTION = "Links definitions within the document to external schemas."
 
-internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+internal fun linkDirectiveDefinition(importScalarType: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(LINK_DIRECTIVE_NAME)
     .description(LINK_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.SCHEMA)
@@ -66,17 +76,22 @@ internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.sche
             .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
     )
     .argument(
+        GraphQLArgument.newArgument()
+            .name("as")
+            .type(Scalars.GraphQLString)
+    )
+    .argument(
         GraphQLArgument
             .newArgument()
             .name("import")
-            .type(GraphQLList.list(Scalars.GraphQLString))
+            .type(GraphQLList.list(importScalarType))
     )
     .repeatable(true)
     .build()
 
-internal fun appliedLinkDirective(url: String, imports: List<String> = emptyList()) = LINK_DIRECTIVE_TYPE.toAppliedDirective()
+internal fun graphql.schema.GraphQLDirective.toAppliedLinkDirective(url: String, namespace: String? = null, imports: List<String> = emptyList()) = this.toAppliedDirective()
     .transform { appliedDirectiveBuilder ->
-        LINK_DIRECTIVE_TYPE.getArgument("url")
+        this.getArgument("url")
             .toAppliedArgument()
             .transform { argumentBuilder ->
                 argumentBuilder.valueProgrammatic(url)
@@ -85,8 +100,19 @@ internal fun appliedLinkDirective(url: String, imports: List<String> = emptyList
                 appliedDirectiveBuilder.argument(it)
             }
 
+        if (!namespace.isNullOrBlank()) {
+            this.getArgument("as")
+                .toAppliedArgument()
+                .transform { argumentBuilder ->
+                    argumentBuilder.valueProgrammatic(namespace)
+                }
+                .let {
+                    appliedDirectiveBuilder.argument(it)
+                }
+        }
+
         if (imports.isNotEmpty()) {
-            LINK_DIRECTIVE_TYPE.getArgument("import")
+            this.getArgument("import")
                 .toAppliedArgument()
                 .transform { argumentBuilder ->
                     argumentBuilder.valueProgrammatic(imports)

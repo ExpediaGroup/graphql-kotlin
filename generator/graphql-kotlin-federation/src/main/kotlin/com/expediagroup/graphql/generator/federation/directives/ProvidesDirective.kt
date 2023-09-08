@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
+import com.expediagroup.graphql.generator.federation.types.fieldSetArgumentDefinition
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLScalarType
 
 /**
  * ```graphql
@@ -87,6 +89,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * @see FieldSet
  * @see ExternalDirective
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = PROVIDES_DIRECTIVE_NAME,
     description = PROVIDES_DIRECTIVE_DESCRIPTION,
@@ -102,4 +105,11 @@ internal val PROVIDES_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.
     .description(PROVIDES_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.FIELD_DEFINITION)
     .argument(FIELD_SET_ARGUMENT)
+    .build()
+
+internal fun providesDirectiveDefinition(fieldSetScalar: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(PROVIDES_DIRECTIVE_NAME)
+    .description(PROVIDES_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .argument(fieldSetArgumentDefinition(fieldSetScalar))
     .build()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
-import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
-import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLNonNull
 
 /**
  * ```graphql
@@ -36,6 +33,7 @@ import graphql.schema.GraphQLNonNull
  *
  * @see <a href="https://www.apollographql.com/docs/rover/subgraphs/#publishing-a-subgraph-schema-to-apollo-studio">Publishing schema to Apollo Studio</a>
  */
+@LinkedSpec(FEDERATION_SPEC)
 @GraphQLDirective(
     name = OVERRIDE_DIRECTIVE_NAME,
     description = OVERRIDE_DIRECTIVE_DESCRIPTION,
@@ -45,14 +43,3 @@ annotation class OverrideDirective(val from: String)
 
 internal const val OVERRIDE_DIRECTIVE_NAME = "override"
 private const val OVERRIDE_DIRECTIVE_DESCRIPTION = "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
-
-internal val OVERRIDE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(OVERRIDE_DIRECTIVE_NAME)
-    .description(OVERRIDE_DIRECTIVE_DESCRIPTION)
-    .validLocations(DirectiveLocation.FIELD_DEFINITION)
-    .argument(
-        GraphQLArgument.newArgument()
-            .name("from")
-            .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
-    )
-    .build()
