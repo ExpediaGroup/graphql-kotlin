@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,11 @@ class KotlinDataLoaderRegistry(
      * @return list of current completable futures.
      */
     fun getCurrentFutures(): List<CompletableFuture<*>> =
-        registry.dataLoaders.map { it.cacheMap.all }.flatten()
+        synchronized(registry.dataLoaders) {
+            registry.dataLoaders.map { dataLoader ->
+                dataLoader.cacheMap.all
+            }.flatten()
+        }
 
     /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
@@ -69,9 +73,11 @@ class KotlinDataLoaderRegistry(
      * [onDispatchFutures]
      */
     override fun dispatchAll() {
-        onDispatchFutures.clear()
-        onDispatchFutures.addAll(getCurrentFutures())
-        registry.dispatchAll()
+        synchronized(onDispatchFutures) {
+            onDispatchFutures.clear()
+            onDispatchFutures.addAll(getCurrentFutures())
+            registry.dispatchAll()
+        }
     }
 
     /**
@@ -82,12 +88,16 @@ class KotlinDataLoaderRegistry(
      * @return weather or not all futures gathered before [dispatchAll] were handled
      */
     fun onDispatchFuturesHandled(): Boolean =
-        onDispatchFutures.all { it.numberOfDependents == 0 }
+        synchronized(onDispatchFutures) {
+            onDispatchFutures.all { it.numberOfDependents == 0 }
+        }
 
     /**
      * Will signal if more dataLoaders where invoked during the [dispatchAll] invocation
      * @return weather or not futures where loaded during [dispatchAll]
      */
     fun dataLoadersInvokedOnDispatch(): Boolean =
-        getCurrentFutures().size > onDispatchFutures.size
+        synchronized(onDispatchFutures) {
+            getCurrentFutures().size > onDispatchFutures.size
+        }
 }
