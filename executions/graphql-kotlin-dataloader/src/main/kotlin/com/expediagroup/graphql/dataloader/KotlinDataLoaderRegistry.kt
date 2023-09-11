@@ -97,5 +97,7 @@ class KotlinDataLoaderRegistry(
      * @return weather or not futures where loaded during [dispatchAll]
      */
     fun dataLoadersInvokedOnDispatch(): Boolean =
-        getCurrentFutures().size > onDispatchFutures.size
+        synchronized(onDispatchFutures) {
+            getCurrentFutures().size > onDispatchFutures.size
+        }
 }
