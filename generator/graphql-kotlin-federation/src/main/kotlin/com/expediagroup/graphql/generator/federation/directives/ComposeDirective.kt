@@ -46,7 +46,7 @@ import graphql.introspection.Introspection
  * it will generate following schema
  *
  * ```graphql
- * schema @composeDirective(name: "@custom") @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+ * schema @composeDirective(name: "@custom") @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
  *    query: Query
  * }
  *

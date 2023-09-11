@@ -4,7 +4,22 @@ title: Federated Directives
 ---
 `graphql-kotlin` supports a number of directives that can be used to annotate a schema and direct certain behaviors.
 
-For more details, see the [Apollo Federation Specification](https://www.apollographql.com/docs/federation/federation-spec/).
+For more details, see the [Apollo Federation Specification](https://www.apollographql.com/docs/federation/subgraph-spec/).
+
+## `@authenticated` directive
+
+```graphql
+directive @authenticated on
+    ENUM
+  | FIELD_DEFINITION
+  | INTERFACE
+  | OBJECT
+  | SCALAR
+```
+
+Directive that is used to indicate that the target element is accessible only to the authenticated supergraph users. For more granular access control, see the
+[`@requiresScopes`[#requirescope-directive] directive usage. Refer to the [Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#authenticated)
+for additional details.
 
 ## `@composeDirective` directive
 
@@ -43,7 +58,7 @@ it will generate following schema
 schema
 @composeDirective(name: "@custom")
 @link(import : ["@custom"], url: "https://myspecs.dev/myCustomDirective/v1.0")
-@link(url : "https://specs.apollo.dev/federation/v2.3")
+@link(url : "https://specs.apollo.dev/federation/v2.5")
 {
    query: Query
 }
@@ -362,7 +377,7 @@ scalar Import
 The `@link` directive links definitions within the document to external schemas. See [@link specification](https://specs.apollo.dev/link/v1.0) for details.
 
 External schemas are identified by their `url`, which ends with a name and version with the following format: `{NAME}/v{MAJOR}.{MINOR}`,
-e.g. `url = "https://specs.apollo.dev/federation/v2.3"`.
+e.g. `url = "https://specs.apollo.dev/federation/v2.5"`.
 
 External types are associated with the target specification by annotating it with `@LinkedSpec` meta annotation. External
 types defined in the specification will be automatically namespaced (prefixed with `{NAME}__`) unless they are explicitly
@@ -576,6 +591,20 @@ type Product @key(fields : "id") {
   weight: Float! @external
 }
 ```
+
+## `@requiresScopes` directive
+
+```graphql
+directive @requiresScopes(scopes: [[Scope!]!]!) on
+    ENUM
+  | FIELD_DEFINITION
+  | INTERFACE
+  | OBJECT
+  | SCALAR
+```
+
+Directive that is used to indicate that the target element is accessible only to the authenticated supergraph users with the appropriate JWT scopes. Refer to the
+[Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#requiresscopes) for additional details.
 
 ## `@shareable` directive
 

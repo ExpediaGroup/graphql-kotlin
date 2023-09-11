@@ -92,24 +92,26 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveMet
         generator.config.hooks.didGenerateDirective(directiveInfo, generatedDirective)
     }
 
-    return if (directive.arguments.isNotEmpty()) {
-        directive.toAppliedDirective()
-            .transform { builder ->
-                directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-                    directive.getArgument(prop.name)
-                        ?.toAppliedArgument()
-                        ?.transform { argumentBuilder ->
-                            val value = prop.call(directiveInfo.directive)
-                            argumentBuilder.valueProgrammatic(value)
-                        }
-                        ?.let { appliedDirectiveArgument ->
-                            builder.argument(appliedDirectiveArgument)
-                        }
+    val appliedDirective = generator.config.hooks.willApplyDirective(directiveInfo, directive)
+        ?: if (directive.arguments.isNotEmpty()) {
+            directive.toAppliedDirective()
+                .transform { builder ->
+                    directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
+                        directive.getArgument(prop.name)
+                            ?.toAppliedArgument()
+                            ?.transform { argumentBuilder ->
+                                val value = prop.call(directiveInfo.directive)
+                                argumentBuilder.valueProgrammatic(value)
+                            }
+                            ?.let { appliedDirectiveArgument ->
+                                builder.argument(appliedDirectiveArgument)
+                            }
+                    }
                 }
-            }
-    } else {
-        directive.toAppliedDirective()
-    }
+        } else {
+            directive.toAppliedDirective()
+        }
+    return generator.config.hooks.didApplyDirective(directiveInfo, appliedDirective)
 }
 
 private fun generateDirectiveArgument(prop: KProperty<*>, generator: SchemaGenerator): GraphQLArgument {
