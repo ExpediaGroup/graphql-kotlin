@@ -119,22 +119,12 @@ toFederatedSchema(
 will generate
 
 ```graphql
-schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+schema @link(import : ["@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
   query: Query
 }
 
-directive @composeDirective(name: String!) repeatable on SCHEMA
-directive @extends on OBJECT | INTERFACE
-directive @external on FIELD_DEFINITION
-directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
-directive @interfaceObject on OBJECT
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 directive @link(import: [String], url: String!) repeatable on SCHEMA
-directive @override(from: String!) on FIELD_DEFINITION
-directive @provides(fields: FieldSet!) on FIELD_DEFINITION
-directive @requires(fields: FieldSet!) on FIELD_DEFINITION
-directive @shareable on OBJECT | FIELD_DEFINITION
-directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 type Query {
    getUsers: [User!]!

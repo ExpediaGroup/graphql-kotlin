@@ -43,7 +43,7 @@ class ComposeDirectiveTest {
     fun `verify we can generate valid schema with @composeDirective`() {
         val expectedSchema =
             """
-            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
               query: Query
             }
 

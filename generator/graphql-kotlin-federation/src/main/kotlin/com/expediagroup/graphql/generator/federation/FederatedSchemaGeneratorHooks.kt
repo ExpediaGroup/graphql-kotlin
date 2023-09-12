@@ -47,13 +47,16 @@ import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.REQUIRES_SCOPE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.requiresScopesDirectiveType
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
+import com.expediagroup.graphql.generator.federation.directives.toAppliedRequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
 import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
 import com.expediagroup.graphql.generator.federation.exception.UnknownSpecificationException
@@ -65,6 +68,7 @@ import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_NAME
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.FieldSetTransformer
 import com.expediagroup.graphql.generator.federation.types.LINK_IMPORT_SCALAR_TYPE
+import com.expediagroup.graphql.generator.federation.types.SCOPE_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.SERVICE_FIELD_DEFINITION
 import com.expediagroup.graphql.generator.federation.types._Service
 import com.expediagroup.graphql.generator.federation.types.generateEntityFieldDefinition
@@ -73,6 +77,7 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLNamedType
@@ -136,6 +141,18 @@ open class FederatedSchemaGeneratorHooks(
             if (importScalarName != this.name) {
                 this.transform {
                     it.name(importScalarName)
+                }
+            } else {
+                this
+            }
+        }
+    }
+    private val scopesScalar: GraphQLScalarType by lazy {
+        SCOPE_SCALAR_TYPE.run {
+            val scopesScalarName = namespacedTypeName(FEDERATION_SPEC, this.name)
+            if (scopesScalarName != this.name) {
+                this.transform {
+                    it.name(scopesScalarName)
                 }
             } else {
                 this
@@ -235,7 +252,16 @@ open class FederatedSchemaGeneratorHooks(
         LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
         PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
         REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
+        REQUIRES_SCOPE_DIRECTIVE_NAME -> requiresScopesDirectiveType(scopesScalar)
         else -> super.willGenerateDirective(directiveInfo)
+    }
+
+    override fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? {
+        return if (directiveInfo.effectiveName == REQUIRES_SCOPE_DIRECTIVE_NAME) {
+            directive.toAppliedRequiresScopesDirective(directiveInfo)
+        } else {
+            super.willApplyDirective(directiveInfo, directive)
+        }
     }
 
     override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {

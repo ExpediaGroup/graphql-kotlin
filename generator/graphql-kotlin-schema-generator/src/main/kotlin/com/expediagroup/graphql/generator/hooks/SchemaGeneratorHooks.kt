@@ -28,6 +28,7 @@ import com.expediagroup.graphql.generator.exceptions.EmptySubscriptionTypeExcept
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
 import com.expediagroup.graphql.generator.internal.extensions.isValidAdditionalType
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -78,6 +79,11 @@ interface SchemaGeneratorHooks {
      * This allows for special handling of the directive annotations.
      */
     fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = null
+
+    /**
+     * Called before transforming directive definition to applied directive. This allows for special handling of the directive transformation (e.g. handling nulls, default parameters, etc).
+     */
+    fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? = null
 
     /**
      * Called after using reflection to generate the graphql object type but before returning it to the schema builder.
@@ -157,22 +163,27 @@ interface SchemaGeneratorHooks {
     }
 
     /**
-     * Called after auto-generating the directive from the annotation that allows final transformation before it is applied to a target location.
+     * Called after auto-generating the directive definition from the annotation that allows final transformation before it is added to the schema document.
      */
     fun didGenerateDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLDirective = directive
 
     /**
-     * Called after converting the function to a field definition but before adding to the query object to allow customization
+     * Called after transforming directive definition to applied directive that allows for final transformation before it is applied to a target location.
+     */
+    fun didApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLAppliedDirective): GraphQLAppliedDirective = directive
+
+    /**
+     * Called after converting the function to a field definition but before adding to the query object to allow customization.
      */
     fun didGenerateQueryField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the mutation object to allow customization
+     * Called after converting the function to a field definition but before adding to the mutation object to allow customization.
      */
     fun didGenerateMutationField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the subscription object to allow customization
+     * Called after converting the function to a field definition but before adding to the subscription object to allow customization.
      */
     fun didGenerateSubscriptionField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 

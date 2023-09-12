@@ -13,35 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.expediagroup.graphql.generator.federation.directives.contact
+
+package com.expediagroup.graphql.generator.federation.directives.requiresscope
 
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.generator.federation.directives.ContactDirective
+import com.expediagroup.graphql.generator.federation.directives.REQUIRES_SCOPE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.RequiresScopesDirective
+import com.expediagroup.graphql.generator.federation.directives.Scope
+import com.expediagroup.graphql.generator.federation.directives.Scopes
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.test.assertNotNull
 
-class ContactDirectiveTest {
+class RequiresScopesDirectiveTest {
 
     @Test
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.5"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.5"){
               query: Query
             }
-
-            "Provides contact information of the owner responsible for this subgraph schema."
-            directive @contact(description: String, name: String!, url: String) on SCHEMA
 
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
                 reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "Indicates to composition that the target element is accessible only to the authenticated supergraph users with the appropriate JWT scopes"
+            directive @federation__requiresScopes(scopes: [[federation__Scope]!]!) on SCALAR | OBJECT | FIELD_DEFINITION | INTERFACE | ENUM
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -66,33 +71,35 @@ class ContactDirectiveTest {
 
             type Query {
               _service: _Service!
-              foo: String!
+              foo: String! @federation__requiresScopes(scopes : [["scope1", "scope2"], ["scope3"]])
             }
 
             type _Service {
               sdl: String!
             }
 
+            "Federation type representing a JWT scope"
+            scalar federation__Scope
+
             scalar link__Import
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.contact"),
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.requiresscope"),
             hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
-        val schema = toFederatedSchema(
-            queries = listOf(TopLevelObject(FooQuery())),
-            schemaObject = TopLevelObject(CustomSchema()),
-            config = config
-        )
-        assertEquals(expectedSchema, schema.print().trim())
+        val schema = toFederatedSchema(queries = listOf(TopLevelObject(FooQuery())), config = config)
+        Assertions.assertEquals(expectedSchema, schema.print().trim())
+        val query = schema.getObjectType("Query")
+        assertNotNull(query)
+        val fooQuery = query.getField("foo")
+        assertNotNull(fooQuery)
+        assertNotNull(fooQuery.hasAppliedDirective(REQUIRES_SCOPE_DIRECTIVE_NAME))
     }
 
-    @ContactDirective(name = "My Team Name", url = "https://myteam.slack.com/room", description = "Send emails to foo@myteamname.com")
-    class CustomSchema
-
     class FooQuery {
+        @RequiresScopesDirective(scopes = [Scopes([Scope("scope1"), Scope("scope2")]), Scopes([Scope("scope3")])])
         fun foo(): String = TODO()
     }
 }
