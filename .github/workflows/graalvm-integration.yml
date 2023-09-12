@@ -16,6 +16,7 @@ jobs:
       run:
         working-directory: integration/graalvm
     strategy:
+      max-parallel: 1
       matrix:
         server: ['ktor-graalvm-server', 'maven-graalvm-server', 'spring-graalvm-server']
 
