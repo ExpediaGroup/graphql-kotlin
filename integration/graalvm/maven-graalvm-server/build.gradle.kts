@@ -17,11 +17,11 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-}
-
 tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
+
     val kotlinJvmVersion: String by project
     /*
     integration test is run by invoking maven directly
@@ -45,7 +45,7 @@ tasks {
     val buildGraalVmNativeImage by register("buildGraalVmNativeImage") {
         dependsOn(gradle.includedBuild("graphql-kotlin").task(":resolveIntegrationTestDependencies"))
         dependsOn(":common-graalvm-server:publishToMavenLocal")
-        timeout.set(Duration.ofSeconds(500))
+        timeout.set(Duration.ofSeconds(1200))
         doLast {
             exec {
                 environment(mavenEnvironmentVariables)

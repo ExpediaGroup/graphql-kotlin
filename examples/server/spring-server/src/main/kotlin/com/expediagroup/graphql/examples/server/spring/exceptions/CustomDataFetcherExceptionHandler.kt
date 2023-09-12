@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,12 @@ import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CompletableFuture
 
 class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     private val log = LoggerFactory.getLogger(CustomDataFetcherExceptionHandler::class.java)
 
-    override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
+    override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters): CompletableFuture<DataFetcherExceptionHandlerResult> {
         val exception = handlerParameters.exception
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
@@ -49,8 +50,8 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         }
 
         log.warn(error.message, exception)
-
-        return DataFetcherExceptionHandlerResult.newResult().error(error).build()
+        val exceptionResult = DataFetcherExceptionHandlerResult.newResult().error(error).build()
+        return CompletableFuture.completedFuture(exceptionResult)
     }
 }
 

@@ -74,7 +74,6 @@ abstract class GraphQLGraalVmMetadataTask : SourceTask() {
 
     @TaskAction
     fun generateMetadata() {
-        println("executing task")
         val packages = packages.get()
         if (packages.isEmpty()) {
             throw RuntimeException("attempt to generate SDL failed - missing required supportedPackages property")
@@ -91,7 +90,7 @@ abstract class GraphQLGraalVmMetadataTask : SourceTask() {
             logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
         }
 
-        logger.debug("submitting work item to generate GraalVM for the schema included in packages = $packages")
+        logger.debug("submitting work item to generate GraalVM for the schema included in packages = {}", packages)
         workQueue.submit(GenerateGraalVmMetadataAction::class.java) { parameters ->
             parameters.supportedPackages.set(packages)
             parameters.mainClassName.set(mainClassName.orNull)

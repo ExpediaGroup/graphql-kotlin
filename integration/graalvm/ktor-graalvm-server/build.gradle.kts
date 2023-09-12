@@ -20,14 +20,14 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
+    test {
+        useJUnitPlatform()
+    }
 }
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-}
-
 application {
     mainClass.set("com.expediagroup.graalvm.ktor.ApplicationKt")
 }

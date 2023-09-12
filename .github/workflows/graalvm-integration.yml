@@ -10,12 +10,13 @@ on:
 
 jobs:
   graalvm-integration:
-    timeout-minutes: 20
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: integration/graalvm
     strategy:
+      max-parallel: 1
       matrix:
         server: ['ktor-graalvm-server', 'maven-graalvm-server', 'spring-graalvm-server']
 
@@ -29,8 +30,8 @@ jobs:
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
           java-version: '17'
+          distribution: 'graalvm'
           components: 'native-image'
           native-image-job-reports: 'true'
 
@@ -38,6 +39,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Build native image
+        timeout-minutes: 20
         id: build_server
         run: |
           ./gradlew :${server}:buildGraalVmNativeImage
