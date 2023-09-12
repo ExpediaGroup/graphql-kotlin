@@ -37,4 +37,7 @@ tasks {
             }
         }
     }
+    val dokkaJavadoc = getByName("dokkaJavadoc") {
+        dependsOn("kaptKotlin")
+    }
 }
