@@ -61,11 +61,11 @@ class KotlinDataLoaderRegistry(
      * @return list of current completable futures.
      */
     fun getCurrentFutures(): List<CompletableFuture<*>> =
-        synchronized(registry.dataLoaders) {
-            registry.dataLoaders.map { dataLoader ->
-                dataLoader.cacheMap.all
-            }.flatten()
-        }
+        registry.dataLoaders.map { dataLoader ->
+            synchronized(dataLoader) {
+                dataLoader.cacheMap.all.toList()
+            }
+        }.flatten()
 
     /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
