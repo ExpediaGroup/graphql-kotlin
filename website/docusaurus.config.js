@@ -28,7 +28,7 @@ module.exports = {
           versions: {
             current: {
               label: '7.x.x',
-              path: '7.x.x'
+              path: ''
             }
           }
         }
@@ -71,7 +71,7 @@ module.exports = {
     },
     footer: {
       links: [],
-      copyright: "Copyright © 2022 Expedia, Inc.",
+      copyright: "Copyright © 2023 Expedia, Inc.",
       logo: {
         src: "img/Expedia-Group-Logo_E-Stacked.png"
       }
