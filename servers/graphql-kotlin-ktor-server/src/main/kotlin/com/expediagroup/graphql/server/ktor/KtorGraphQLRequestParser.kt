@@ -34,7 +34,7 @@ internal const val REQUEST_PARAM_VARIABLES = "variables"
 /**
  * GraphQL Ktor [ApplicationRequest] parser.
  */
-class KtorGraphQLRequestParser(
+open class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
 ) : GraphQLRequestParser<ApplicationRequest> {
 
