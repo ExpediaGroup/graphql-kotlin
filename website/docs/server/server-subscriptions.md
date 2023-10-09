@@ -10,4 +10,4 @@ specific details on how to read incoming messages from the WebSocket session as 
 If you are using one of the official server implementations for GraphQL Kotlin, it will have subscription handling setup for you.
 
 -   See `graphql-kotlin-spring-server` [subscriptions](spring-server/spring-subscriptions.md)
--   See `graphql-kotlin-ktor-server` [subscriptions](spring-server/spring-subscriptions.md)
+-   See `graphql-kotlin-ktor-server` [subscriptions](ktor-server/ktor-subscriptions.md)
