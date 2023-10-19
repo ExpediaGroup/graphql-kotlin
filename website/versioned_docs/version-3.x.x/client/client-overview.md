@@ -74,8 +74,8 @@ Equivalent `pom.xml` Maven configuration
                     <execution>
                         <id>generate-graphql-client</id>
                         <goals>
-                            <goal>introspectSchema</goal>
-                            <goal>generateClient</goal>
+                            <goal>introspect-schema</goal>
+                            <goal>generate-client</goal>
                         </goals>
                         <configuration>
                             <endpoint>http://localhost:8080/graphql</endpoint>
