@@ -42,18 +42,9 @@ internal fun <T : Any?> List<CompletableFuture<out T>>.joinAll(): CompletableFut
 @Suppress("TooGenericExceptionCaught")
 internal fun <T : Any?> List<CompletableFuture<out T>>.allSettled(): CompletableFuture<List<Result<T>>> {
     val resultFutures = map { future ->
-        CompletableFuture.supplyAsync {
-            try {
-                Result.success(future.get())
-            } catch (e: Exception) {
-                Result.failure<T>(e)
-            }
-        }
+        future.thenApply { result -> Result.success(result) }
+            .exceptionally { exception -> Result.failure<T>(exception) }
     }
 
-    return CompletableFuture.allOf(
-        *resultFutures.toTypedArray()
-    ).thenApply {
-        resultFutures.map(CompletableFuture<Result<T>>::join)
-    }
+    return resultFutures.joinAll()
 }

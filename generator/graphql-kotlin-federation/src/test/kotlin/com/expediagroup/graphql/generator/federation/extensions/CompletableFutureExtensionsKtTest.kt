@@ -27,7 +27,6 @@ import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
-import java.util.concurrent.ExecutionException
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -101,7 +100,7 @@ class CompletableFutureExtensionsKtTest {
         assertEquals("first promise", result[0].getOrNull())
         assertEquals("second promise", result[1].getOrNull())
         assertTrue(result[2].isFailure)
-        assertIs<ExecutionException>(result[2].exceptionOrNull())
+        assertIs<CompletionException>(result[2].exceptionOrNull())
         assertEquals("async exception", result[2].exceptionOrNull()?.cause?.message)
     }
 }
