@@ -28,8 +28,7 @@ tasks {
         "kotlinVersion" to libs.versions.kotlin.get(),
         "ktorVersion" to libs.versions.ktor.get(),
         "logbackVersion" to libs.versions.logback.get(),
-        "nativeMavenPluginVersion" to libs.versions.graalvm.get(),
-        "MAVEN_OPTS" to "-Xmx6g"
+        "nativeMavenPluginVersion" to libs.versions.graalvm.get()
     )
 
     // copy native image to the same path as gradle builds to simplify testing
