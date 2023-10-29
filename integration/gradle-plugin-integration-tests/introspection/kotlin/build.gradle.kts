@@ -1,6 +1,5 @@
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: re
 plugins {
     id("com.expediagroup.it-conventions")
     id("com.expediagroup.graphql")

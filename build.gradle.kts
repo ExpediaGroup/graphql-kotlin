@@ -3,7 +3,6 @@ import java.time.Duration
 description = "Libraries for running a GraphQL server in Kotlin"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     alias(libs.plugins.nexus.publish)
 }

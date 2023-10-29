@@ -1,6 +1,5 @@
 import com.expediagroup.graphql.plugin.gradle.graphql
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
@@ -19,9 +18,6 @@ dependencies {
 }
 
 tasks {
-    kotlin {
-        jvmToolchain(17)
-    }
     test {
         useJUnitPlatform()
     }

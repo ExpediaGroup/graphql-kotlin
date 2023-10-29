@@ -2,7 +2,6 @@ import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 
 description = "Common code for running a GraphQL server in any HTTP server framework"
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.graphql.conventions")
     alias(libs.plugins.benchmark)

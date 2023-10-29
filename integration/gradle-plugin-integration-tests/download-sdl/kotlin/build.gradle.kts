@@ -1,6 +1,5 @@
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.it-conventions")
     id("com.expediagroup.graphql")

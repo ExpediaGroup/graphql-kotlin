@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.Duration
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     alias(libs.plugins.kotlin.jvm)
 }
@@ -18,10 +16,6 @@ dependencies {
 }
 
 tasks {
-    kotlin {
-        jvmToolchain(17)
-    }
-
     val kotlinJvmVersion: String by project
     /*
     integration test is run by invoking maven directly
@@ -34,7 +28,8 @@ tasks {
         "kotlinVersion" to libs.versions.kotlin.get(),
         "ktorVersion" to libs.versions.ktor.get(),
         "logbackVersion" to libs.versions.logback.get(),
-        "nativeMavenPluginVersion" to libs.versions.graalvm.get()
+        "nativeMavenPluginVersion" to libs.versions.graalvm.get(),
+        "MAVEN_OPTS" to "-Xmx6g"
     )
 
     // copy native image to the same path as gradle builds to simplify testing
