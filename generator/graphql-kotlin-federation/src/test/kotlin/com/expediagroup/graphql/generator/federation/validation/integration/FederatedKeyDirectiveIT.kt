@@ -30,6 +30,7 @@ import com.expediagroup.graphql.generator.federation.data.integration.key.succes
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._2.KeyWithMultipleFieldsQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._3.KeyWithNestedFieldsQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._4.MultipleKeyQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.success._6.EntityReferencingParent
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
@@ -215,5 +216,14 @@ class FederatedKeyDirectiveIT {
         val expected = "Invalid federated schema:\n" +
             " - @key(fields = \"upc\") directive on MultipleKeysOneInvalid specifies invalid field set - field set specifies field that does not exist, field=upc"
         assertEquals(expected, exception.message)
+    }
+
+    @Test
+    fun `verifies validations are skipped when processing GraphQL references`() {
+        val schema = toFederatedSchema(
+            config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.success._6"),
+            queries = listOf(TopLevelObject(EntityReferencingParent()))
+        )
+        validateTypeWasCreatedWithKeyDirective(schema, "Child")
     }
 }
