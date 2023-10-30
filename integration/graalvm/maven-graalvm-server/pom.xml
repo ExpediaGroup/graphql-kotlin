@@ -173,6 +173,9 @@
                                 <arg>--initialize-at-build-time=io.ktor,kotlin,ch.qos.logback,org.slf4j</arg>
                                 <arg>-H:+ReportExceptionStackTraces</arg>
                             </buildArgs>
+                            <jvmArgs>
+                                <arg>-Xmx6g</arg>
+                            </jvmArgs>
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>

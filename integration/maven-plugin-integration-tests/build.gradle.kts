@@ -10,7 +10,6 @@ buildscript {
     }
 }
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     alias(libs.plugins.kotlin.jvm)
 }

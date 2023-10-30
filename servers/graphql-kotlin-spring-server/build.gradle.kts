@@ -1,6 +1,5 @@
 description = "Spring Boot autoconfiguration library for creating reactive GraphQL server"
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.graphql.conventions")
     alias(libs.plugins.kotlin.spring)
