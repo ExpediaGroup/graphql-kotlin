@@ -34,6 +34,7 @@ graalvmNative {
             verbose.set(true)
             buildArgs.add("--initialize-at-build-time=io.ktor,kotlin,ch.qos.logback,org.slf4j")
             buildArgs.add("-H:+ReportExceptionStackTraces")
+            jvmArgs("-Xmx6g")
         }
         metadataRepository {
             enabled.set(true)

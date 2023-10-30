@@ -28,6 +28,7 @@ graalvmNative {
     binaries {
         named("main") {
             verbose.set(true)
+            jvmArgs("-Xmx6g")
         }
         metadataRepository {
             enabled.set(true)
