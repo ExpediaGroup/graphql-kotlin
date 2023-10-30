@@ -73,7 +73,7 @@ import com.expediagroup.graphql.generator.federation.types.SERVICE_FIELD_DEFINIT
 import com.expediagroup.graphql.generator.federation.types._Service
 import com.expediagroup.graphql.generator.federation.types.generateEntityFieldDefinition
 import com.expediagroup.graphql.generator.federation.validation.FederatedSchemaValidator
-import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
@@ -97,7 +97,7 @@ import kotlin.reflect.full.findAnnotation
 open class FederatedSchemaGeneratorHooks(
     private val resolvers: List<FederatedTypeResolver>,
     private val optInFederationV2: Boolean = true
-) : SchemaGeneratorHooks {
+) : FlowSubscriptionSchemaGeneratorHooks() {
     private val validator: FederatedSchemaValidator = FederatedSchemaValidator()
     data class LinkSpec(val namespace: String, val imports: Map<String, String>)
     private val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
