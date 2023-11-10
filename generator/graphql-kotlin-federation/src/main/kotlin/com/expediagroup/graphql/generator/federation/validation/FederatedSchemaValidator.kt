@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.federation.validation
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
@@ -44,16 +43,18 @@ internal class FederatedSchemaValidator {
      * - field sets cannot reference unions
      * - list and interfaces can only be referenced from `@requires` and `@provides`
      */
-    internal fun validateGraphQLType(type: GraphQLType) {
+    internal fun validateGraphQLType(type: GraphQLType): List<String> {
         val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
-        if (unwrappedType is GraphQLObjectType && unwrappedType.isFederatedType()) {
+        return if (unwrappedType is GraphQLObjectType && unwrappedType.isFederatedType()) {
             validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.allAppliedDirectivesByName)
         } else if (unwrappedType is GraphQLInterfaceType && unwrappedType.isFederatedType()) {
             validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.allAppliedDirectivesByName)
+        } else {
+            emptyList()
         }
     }
 
-    private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directiveMap: Map<String, List<GraphQLAppliedDirective>>) {
+    private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directiveMap: Map<String, List<GraphQLAppliedDirective>>): List<String> {
         val errors = mutableListOf<String>()
         val fieldMap = fields.associateBy { it.name }
 
@@ -82,10 +83,7 @@ internal class FederatedSchemaValidator {
                 }
             }
         }
-
-        if (errors.isNotEmpty()) {
-            throw InvalidFederatedSchema(errors)
-        }
+        return errors
     }
 
     private fun GraphQLDirectiveContainer.isFederatedType() = this.getAppliedDirectives(KEY_DIRECTIVE_NAME).isNotEmpty()
