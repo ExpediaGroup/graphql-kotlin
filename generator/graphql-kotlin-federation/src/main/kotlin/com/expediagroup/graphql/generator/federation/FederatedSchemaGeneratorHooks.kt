@@ -59,6 +59,7 @@ import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDir
 import com.expediagroup.graphql.generator.federation.directives.toAppliedRequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
 import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
+import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.exception.UnknownSpecificationException
 import com.expediagroup.graphql.generator.federation.execution.EntitiesDataFetcher
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
@@ -80,6 +81,7 @@ import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
@@ -264,11 +266,6 @@ open class FederatedSchemaGeneratorHooks(
         }
     }
 
-    override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
-        validator.validateGraphQLType(generatedType)
-        return super.didGenerateGraphQLType(type, generatedType)
-    }
-
     override fun didGenerateDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLDirective {
         if (optInFederationV2) {
             // namespace generated directive if needed
@@ -412,10 +409,19 @@ open class FederatedSchemaGeneratorHooks(
         } else {
             KEY_DIRECTIVE_NAME
         }
-        return originalSchema.allTypesAsList
-            .asSequence()
-            .filterIsInstance<GraphQLObjectType>()
+        val entities = originalSchema.allTypesAsList
+            .filterIsInstance<GraphQLDirectiveContainer>()
             .filter { type -> type.hasAppliedDirective(keyDirectiveName) }
+
+        val errors = entities
+            .filterIsInstance<GraphQLNamedType>()
+            .map { type -> validator.validateGraphQLType(type) }
+            .flatten()
+        if (errors.isNotEmpty()) {
+            throw InvalidFederatedSchema(errors)
+        }
+
+        return entities.filterIsInstance<GraphQLObjectType>()
             .map { it.name }
             .toSet()
     }

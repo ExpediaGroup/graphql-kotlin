@@ -21,13 +21,7 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNamedType
-import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-private val logger: Logger = LoggerFactory.getLogger("ValidateFieldSetSelection")
 
 internal fun validateFieldSetSelection(
     validatedDirective: DirectiveInfo,
@@ -42,27 +36,14 @@ internal fun validateFieldSetSelection(
             errors.add("$validatedDirective specifies invalid field set - field set specifies field that does not exist, field=${selection.field}")
         } else {
             val currentFieldType = currentField.type
-            if (currentFieldType.isReferenceType()) {
-                logger.warn("Unable to validate field set selection as one of the fields is a type reference.")
-            } else {
-                val isExternal = isExternalPath || GraphQLTypeUtil.unwrapAll(currentFieldType).isExternalPath() || currentField.isExternalType()
-                if (REQUIRES_DIRECTIVE_NAME == validatedDirective.directiveName && GraphQLTypeUtil.isLeaf(currentFieldType) && !isExternal) {
-                    errors.add("$validatedDirective specifies invalid field set - @requires should reference only @external fields, field=${selection.field}")
-                }
-                validateFieldSelection(validatedDirective, selection, currentFieldType, errors, isExternal)
+            val isExternal = isExternalPath || GraphQLTypeUtil.unwrapAll(currentFieldType).isExternalPath() || currentField.isExternalType()
+            if (REQUIRES_DIRECTIVE_NAME == validatedDirective.directiveName && GraphQLTypeUtil.isLeaf(currentFieldType) && !isExternal) {
+                errors.add("$validatedDirective specifies invalid field set - @requires should reference only @external fields, field=${selection.field}")
             }
+            validateFieldSelection(validatedDirective, selection, currentFieldType, errors, isExternal)
         }
     }
 }
 
 private fun GraphQLDirectiveContainer.isExternalType(): Boolean = this.getAppliedDirectives(EXTERNAL_DIRECTIVE_NAME).isNotEmpty()
 private fun GraphQLNamedType.isExternalPath(): Boolean = this is GraphQLDirectiveContainer && this.isExternalType()
-
-// workaround to GraphQLType.unwrapAll() which tries to cast GraphQLTypeReference to GraphQLUnmodifiedType
-private fun GraphQLType.isReferenceType(): Boolean {
-    var type = this
-    while (GraphQLTypeUtil.isWrapped(type)) {
-        type = GraphQLTypeUtil.unwrapOne(type)
-    }
-    return type is GraphQLTypeReference
-}

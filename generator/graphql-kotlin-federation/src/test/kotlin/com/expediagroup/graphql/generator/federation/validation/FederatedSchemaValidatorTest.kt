@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NA
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
-import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.externalDirective
 import com.expediagroup.graphql.generator.federation.getKeyDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
@@ -34,7 +33,7 @@ import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FederatedSchemaValidatorTest {
 
@@ -89,9 +88,10 @@ class FederatedSchemaValidatorTest {
             )
             .build()
 
-        assertFailsWith<InvalidFederatedSchema> {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
+        val errors = FederatedSchemaValidator().validateGraphQLType(typeToValidate)
+        assertTrue(errors.isNotEmpty())
+        assertEquals(1, errors.size)
+        assertEquals("@key directive on Foo is missing field information", errors[0])
     }
 
     /**
@@ -114,17 +114,10 @@ class FederatedSchemaValidatorTest {
             .withAppliedDirective(keyDirectiveType)
             .build()
 
-        val result = kotlin.runCatching {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
-
-        val expectedError =
-            """
-                Invalid federated schema:
-                 - @key directive on Foo is missing field information
-            """.trimIndent()
-
-        assertEquals(expectedError, result.exceptionOrNull()?.message)
+        val errors = FederatedSchemaValidator().validateGraphQLType(typeToValidate)
+        assertTrue(errors.isNotEmpty())
+        assertEquals(1, errors.size)
+        assertEquals("@key directive on Foo is missing field information", errors[0])
     }
 
     /**
@@ -155,17 +148,10 @@ class FederatedSchemaValidatorTest {
             .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
             .build()
 
-        val result = kotlin.runCatching {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
-
-        val expectedError =
-            """
-                Invalid federated schema:
-                 - @provides directive is specified on a Foo.bar field but it does not return an object type
-            """.trimIndent()
-
-        assertEquals(expectedError, result.exceptionOrNull()?.message)
+        val errors = FederatedSchemaValidator().validateGraphQLType(typeToValidate)
+        assertTrue(errors.isNotEmpty())
+        assertEquals(1, errors.size)
+        assertEquals("@provides directive is specified on a Foo.bar field but it does not return an object type", errors[0])
     }
 
     /**
@@ -196,16 +182,9 @@ class FederatedSchemaValidatorTest {
             .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
             .build()
 
-        val result = kotlin.runCatching {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
-
-        val expectedError =
-            """
-                Invalid federated schema:
-                 - @requires directive on Foo.bar is missing field information
-            """.trimIndent()
-
-        assertEquals(expectedError, result.exceptionOrNull()?.message)
+        val errors = FederatedSchemaValidator().validateGraphQLType(typeToValidate)
+        assertTrue(errors.isNotEmpty())
+        assertEquals(1, errors.size)
+        assertEquals("@requires directive on Foo.bar is missing field information", errors[0])
     }
 }
