@@ -38,9 +38,9 @@ fun Application.graphQLModule() {
             queries = listOf(
                 HelloWorldQuery()
             )
+            // mapping between interfaces/union KClass and their implementation KClasses
+            typeHierarchy = mapOf()
         }
-        // mapping between interfaces/union KClass and their implementation KClasses
-        typeHierarchy = mapOf()
     }
     install(Routing) {
         graphQLPostRoute()
