@@ -5,8 +5,8 @@ title: Exceptions and Partial Data
 ## Returning GraphQL Errors
 
 Exceptions thrown during execution of an operation will result in an empty data response and a GraphQLError that is added to a list of errors of the result.
-See [graphql-java documentation](https://www.graphql-java.com/documentation/v14/execution/) for more details on how to customize your exception handling.
-
+See [graphql-java documentation](https://www.graphql-java.com/documentation/execution#exceptions-while-fetching-data) for more details on how to customize your exception handling.
+                                 
 ```kotlin
 fun getRandomNumberOrError(): Int {
     val num = Random().nextInt(100)
