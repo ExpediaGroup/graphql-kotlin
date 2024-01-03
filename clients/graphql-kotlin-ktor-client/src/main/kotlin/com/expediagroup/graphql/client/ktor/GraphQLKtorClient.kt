@@ -18,7 +18,7 @@ package com.expediagroup.graphql.client.ktor
 
 import com.expediagroup.graphql.client.GraphQLClient
 import com.expediagroup.graphql.client.extensions.getQueryId
-import com.expediagroup.graphql.client.extensions.toExtentionsBodyMap
+import com.expediagroup.graphql.client.extensions.toExtensionsBodyMap
 import com.expediagroup.graphql.client.extensions.toQueryParamString
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
@@ -60,8 +60,8 @@ open class GraphQLKtorClient(
                 sha256Hash = queryId
             )
             val extensions = request.extensions?.let {
-                automaticPersistedQueriesExtension.toExtentionsBodyMap().plus(it)
-            } ?: automaticPersistedQueriesExtension.toExtentionsBodyMap()
+                automaticPersistedQueriesExtension.toExtensionsBodyMap().plus(it)
+            } ?: automaticPersistedQueriesExtension.toExtensionsBodyMap()
 
             val apqRawResultWithoutQuery: String = when (automaticPersistedQueriesSettings.httpMethod) {
                 is AutomaticPersistedQueriesSettings.HttpMethod.GET -> {
