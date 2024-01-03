@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
 internal const val APQ_EXTENSION_KEY: String = "persistedQuery"
-internal val MESSAGE_DIGEST: MessageDigest = MessageDigest.getInstance("SHA-256")
 
 @Suppress("UNCHECKED_CAST")
 fun ExecutionInput.getAutomaticPersistedQueriesExtension(): AutomaticPersistedQueriesExtension? =
@@ -34,13 +33,13 @@ fun ExecutionInput.getAutomaticPersistedQueriesExtension(): AutomaticPersistedQu
         null
     }
 
-fun ExecutionInput.getQueryId(): String =
-    String.format(
+fun ExecutionInput.getQueryId(): String {
+    val messageDigest = MessageDigest.getInstance("SHA-256")
+    return String.format(
         "%064x",
-        BigInteger(1, MESSAGE_DIGEST.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
-    ).also {
-        MESSAGE_DIGEST.reset()
-    }
+        BigInteger(1, messageDigest.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
+    )
+}
 
 fun ExecutionInput.isAutomaticPersistedQueriesExtensionInvalid(
     extension: AutomaticPersistedQueriesExtension
