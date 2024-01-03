@@ -5,7 +5,7 @@ dataloader = "3.2.0"
 federation = "4.1.0"
 graphql-java = "21.1"
 graalvm = "0.9.28"
-jackson = "2.15.2"
+jackson = "2.16.1"
 # kotlin version has to match the compile-testing compiler version
 kotlin = "1.8.22"
 # TODO kotlin 1.9 upgrade -> kotlinx-benchaamrk 0.4.9+ uses kotlin 1.9
