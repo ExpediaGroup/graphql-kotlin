@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
         executionInput: ExecutionInput,
         onCacheMiss: PersistedQueryCacheMiss
     ): CompletableFuture<PreparsedDocumentEntry> =
-        getOrElse(persistedQueryId.toString()) {
+        getOrElse(persistedQueryId.toString(), executionInput) {
             onCacheMiss.apply(executionInput.query)
         }
 
@@ -55,6 +55,7 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
      */
     fun getOrElse(
         key: String,
+        executionInput: ExecutionInput,
         supplier: () -> PreparsedDocumentEntry
     ): CompletableFuture<PreparsedDocumentEntry>
 }
