@@ -13,7 +13,7 @@ kotlinx-benchmark = "0.4.8"
 kotlinx-coroutines = "1.7.3"
 # TODO kotlin 1.9 upgrade -> kotlinx-serialization 1.6.0+ uses kotlin 1.9
 kotlinx-serialization = "1.5.1"
-ktor = "2.3.4"
+ktor = "2.3.7"
 maven-plugin-annotation = "3.9.0"
 maven-plugin-api = "3.9.4"
 maven-project = "2.2.1"
