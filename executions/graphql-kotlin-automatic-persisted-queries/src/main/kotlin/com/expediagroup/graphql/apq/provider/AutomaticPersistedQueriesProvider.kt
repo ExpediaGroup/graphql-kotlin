@@ -71,7 +71,7 @@ class AutomaticPersistedQueriesProvider(
             } ?: run {
                 // no apqExtension, not a persisted query,
                 // but we still want to cache the parsed and validated document
-                cache.getOrElse(executionInput.getQueryId()) {
+                cache.getOrElse(executionInput.getQueryId(), executionInput) {
                     parseAndValidateFunction.apply(executionInput)
                 }
             }
