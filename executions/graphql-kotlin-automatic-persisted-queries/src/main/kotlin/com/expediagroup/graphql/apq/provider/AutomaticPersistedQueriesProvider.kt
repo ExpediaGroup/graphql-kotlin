@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ class AutomaticPersistedQueriesProvider(
             } ?: run {
                 // no apqExtension, not a persisted query,
                 // but we still want to cache the parsed and validated document
-                cache.getOrElse(executionInput.getQueryId()) {
+                cache.getOrElse(executionInput.getQueryId(), executionInput) {
                     parseAndValidateFunction.apply(executionInput)
                 }
             }

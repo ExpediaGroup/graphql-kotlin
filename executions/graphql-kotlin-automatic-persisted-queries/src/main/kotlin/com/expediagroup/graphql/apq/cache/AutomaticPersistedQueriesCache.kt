@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
         executionInput: ExecutionInput,
         onCacheMiss: PersistedQueryCacheMiss
     ): CompletableFuture<PreparsedDocumentEntry> =
-        getOrElse(persistedQueryId.toString()) {
+        getOrElse(persistedQueryId.toString(), executionInput) {
             onCacheMiss.apply(executionInput.query)
         }
 
@@ -51,10 +51,12 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
      * and then it should be added to the cache.
      *
      * @param key The hash of the requested query.
+     * @param executionInput the resource that GraphQL operation.
      * @param supplier that will provide the document in case there is a cache miss.
      */
     fun getOrElse(
         key: String,
+        executionInput: ExecutionInput,
         supplier: () -> PreparsedDocumentEntry
     ): CompletableFuture<PreparsedDocumentEntry>
 }
