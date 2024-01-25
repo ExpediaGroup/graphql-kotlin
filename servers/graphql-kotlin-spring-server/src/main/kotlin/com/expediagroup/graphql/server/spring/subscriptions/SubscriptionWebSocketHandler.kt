@@ -21,7 +21,7 @@ import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCO
 import com.expediagroup.graphql.server.execution.subscription.GraphQLWebSocketServer
 import com.expediagroup.graphql.server.types.GraphQLSubscriptionStatus
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.flux
 import org.springframework.web.reactive.socket.CloseStatus
 import org.springframework.web.reactive.socket.WebSocketHandler
@@ -53,7 +53,7 @@ class SubscriptionWebSocketHandler(
     )
 
     override suspend fun closeSession(session: WebSocketSession, reason: GraphQLSubscriptionStatus) {
-        session.close(CloseStatus(reason.code, reason.reason)).awaitFirst()
+        session.close(CloseStatus(reason.code, reason.reason)).awaitFirstOrNull()
     }
 
     override suspend fun sendSubscriptionMessage(session: WebSocketSession, message: String): WebSocketMessage =
