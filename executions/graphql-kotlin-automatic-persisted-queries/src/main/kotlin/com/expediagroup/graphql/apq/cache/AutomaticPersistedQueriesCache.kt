@@ -51,6 +51,7 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
      * and then it should be added to the cache.
      *
      * @param key The hash of the requested query.
+     * @param executionInput the resource that GraphQL operation.
      * @param supplier that will provide the document in case there is a cache miss.
      */
     fun getOrElse(
