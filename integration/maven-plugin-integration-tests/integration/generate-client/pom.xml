@@ -81,6 +81,8 @@
                             <parserOptions>
                                 <maxTokens>15000</maxTokens>
                                 <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+                                <maxCharacters>1048576</maxCharacters>
+                                <maxRuleDepth>500</maxRuleDepth>
                                 <captureIgnoredChars>false</captureIgnoredChars>
                                 <captureLineComments>false</captureLineComments>
                                 <captureSourceLocation>true</captureSourceLocation>

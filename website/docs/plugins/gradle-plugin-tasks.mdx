@@ -148,6 +148,10 @@ graphql {
         maxTokens = 15000
         // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
         maxWhitespaceTokens = 200000
+        // Modify the maximum number of characters in a document to prevent malicious documents consuming CPU
+        maxCharacters = 1048576
+        // Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows
+        maxRuleDepth = 500
         // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
         captureLineComments = false
         // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
@@ -213,6 +217,10 @@ graphql {
             options.maxTokens = 15000
             // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
             options.maxWhitespaceTokens = 200000
+            // Modify the maximum number of characters in a document to prevent malicious documents consuming CPU
+            options.maxCharacters = 1048576
+            // Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows
+            options.maxRuleDepth = 500
             // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
             options.captureIgnoredChars = false
             // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
@@ -318,6 +326,10 @@ for details on how to update this process to use `kotlinx.serialization` instead
         maxTokens = 15000
         // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
         maxWhitespaceTokens = 200000
+        // Modify the maximum number of characters in a document to prevent malicious documents consuming CPU
+        maxCharacters = 1048576
+        // Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows
+        maxRuleDepth = 500
         // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
         captureIgnoredChars = false
         // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
@@ -388,6 +400,10 @@ for details on how to update this process to use `kotlinx.serialization` instead
         maxTokens = 15000
         // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
         maxWhitespaceTokens = 200000
+        // Modify the maximum number of characters in a document to prevent malicious documents consuming CPU
+        maxCharacters = 1048576
+        // Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows
+        maxRuleDepth = 500
         // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
         captureIgnoredChars = false
         // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
