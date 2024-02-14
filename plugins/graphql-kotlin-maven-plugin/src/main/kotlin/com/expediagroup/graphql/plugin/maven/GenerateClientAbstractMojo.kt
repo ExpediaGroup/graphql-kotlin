@@ -81,6 +81,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      * <parserOptions>
      *     <maxTokens>15000</maxTokens>
      *     <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+     *     <maxCharacters>1048576</maxCharacters>
+     *     <maxRuleDepth>500</maxRuleDepth>
      *     <captureIgnoredChars>false</captureIgnoredChars>
      *     <captureLineComments>false</captureLineComments>
      *     <captureSourceLocation>true</captureSourceLocation>
@@ -137,6 +139,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
             parserOptions?.apply {
                 maxTokens?.let { maxTokens(it) }
                 maxWhitespaceTokens?.let { maxWhitespaceTokens(it) }
+                maxCharacters?.let { maxCharacters(it) }
+                maxRuleDepth?.let { maxRuleDepth(it) }
                 captureIgnoredChars?.let { captureIgnoredChars(it) }
                 captureLineComments?.let { captureLineComments(it) }
                 captureSourceLocation?.let { captureSourceLocation(it) }
@@ -178,6 +182,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
             log.debug("  parserOptions")
             maxTokens?.let { log.debug("    maxTokens = $it") }
             maxWhitespaceTokens?.let { log.debug("    maxWhitespaceTokens = $it") }
+            maxCharacters?.let { log.debug("    maxCharacters = $it") }
+            maxRuleDepth?.let { log.debug("    maxRuleDepth = $it") }
             captureIgnoredChars?.let { log.debug("    captureIgnoredChars = $it") }
             captureLineComments?.let { log.debug("    captureLineComments = $it") }
             captureSourceLocation?.let { log.debug("    captureSourceLocation = $it") }
@@ -223,6 +229,14 @@ class ParserOptions {
     /** Modify the maximum number of whitespace tokens read to prevent processing extremely large queries */
     @Parameter
     var maxWhitespaceTokens: Int? = null
+
+    /** Modify the maximum number of characters in a document to prevent malicious documents consuming CPU */
+    @Parameter
+    val maxCharacters: Int? = null
+
+    /** Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows */
+    @Parameter
+    val maxRuleDepth: Int? = null
 
     /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
     @Parameter

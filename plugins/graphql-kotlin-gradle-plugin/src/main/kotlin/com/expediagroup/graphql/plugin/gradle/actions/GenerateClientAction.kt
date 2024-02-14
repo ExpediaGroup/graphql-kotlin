@@ -51,6 +51,8 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
             parserOptions = {
                 parserOptions.maxTokens?.let { maxTokens(it) }
                 parserOptions.maxWhitespaceTokens?.let { maxWhitespaceTokens(it) }
+                parserOptions.maxCharacters?.let { maxCharacters(it) }
+                parserOptions.maxRuleDepth?.let { maxRuleDepth(it) }
                 parserOptions.captureIgnoredChars?.let { captureIgnoredChars(it) }
                 parserOptions.captureSourceLocation?.let { captureSourceLocation(it) }
                 parserOptions.captureLineComments?.let { captureLineComments(it) }

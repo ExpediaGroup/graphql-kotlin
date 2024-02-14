@@ -101,6 +101,10 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
         <maxTokens>15000</maxTokens>
         <!-- Modify the maximum number of whitespace tokens read to prevent processing extremely large queries -->
         <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+        <!-- Modify the maximum number of characters in a document to prevent malicious documents consuming CPU -->
+        <maxCharacters>1048576</maxCharacters>
+        <!-- Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows -->
+        <maxRuleDepth>500</maxRuleDepth>
         <!-- Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing -->
         <captureIgnoredChars>false</captureIgnoredChars>
         <!-- Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored -->
@@ -209,6 +213,10 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
         <maxTokens>15000</maxTokens>
         <!-- Modify the maximum number of whitespace tokens read to prevent processing extremely large queries -->
         <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+        <!-- Modify the maximum number of characters in a document to prevent malicious documents consuming CPU -->
+        <maxCharacters>1048576</maxCharacters>
+        <!-- Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows -->
+        <maxRuleDepth>500</maxRuleDepth>
         <!-- Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing -->
         <captureIgnoredChars>false</captureIgnoredChars>
         <!-- Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored -->
