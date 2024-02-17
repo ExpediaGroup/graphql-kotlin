@@ -50,5 +50,5 @@ import graphql.introspection.Introspection
 )
 annotation class AuthenticatedDirective
 
-internal const val AUTHENTICATED_DIRECTIVE_NAME = "requiresScopes"
+internal const val AUTHENTICATED_DIRECTIVE_NAME = "authenticated"
 private const val AUTHENTICATED_DIRECTIVE_DESCRIPTION = "Indicates to composition that the target element is accessible only to the authenticated supergraph users"
