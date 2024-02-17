@@ -4,8 +4,8 @@
   "repository": "https://github.com/ExpediaGroup/graphql-kotlin",
   "private": true,
   "engines": {
-    "node": ">=18",
-    "npm": ">=8.6"
+    "node": ">=20",
+    "npm": ">=9.6"
   },
   "scripts": {
     "start": "docusaurus start",
@@ -16,8 +16,8 @@
     "swizzle": "docusaurus swizzle"
   },
   "dependencies": {
-    "@docusaurus/core": "2.4.1",
-    "@docusaurus/preset-classic": "2.4.1",
-    "@docusaurus/theme-mermaid": "^2.4.1"
+    "@docusaurus/core": "3.1.1",
+    "@docusaurus/preset-classic": "3.1.1",
+    "@docusaurus/theme-mermaid": "^3.1.1"
   }
 }

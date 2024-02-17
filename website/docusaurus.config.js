@@ -48,8 +48,8 @@ module.exports = {
     prism: {
       defaultLanguage: 'kotlin',
       additionalLanguages: ['kotlin', 'groovy'],
-      theme: require('prism-react-renderer/themes/github'),
-      darkTheme: require('prism-react-renderer/themes/dracula')
+      theme: require('prism-react-renderer').themes.github,
+      darkTheme: require('prism-react-renderer').themes.dracula
     },
     navbar: {
       title: "GraphQL Kotlin",

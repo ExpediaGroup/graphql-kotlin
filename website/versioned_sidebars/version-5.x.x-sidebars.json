@@ -1,5 +1,5 @@
 {
-  "version-5.x.x/docs": [
+  "docs": [
     {
       "collapsed": true,
       "type": "category",
@@ -7,19 +7,19 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-5.x.x/getting-started"
+          "id": "getting-started"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/examples"
+          "id": "examples"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/framework-comparison"
+          "id": "framework-comparison"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/blogs-and-videos"
+          "id": "blogs-and-videos"
         }
       ]
     },
@@ -30,7 +30,7 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-5.x.x/schema-generator/schema-generator-getting-started"
+          "id": "schema-generator/schema-generator-getting-started"
         },
         {
           "collapsed": true,
@@ -39,35 +39,35 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/nullability"
+              "id": "schema-generator/writing-schemas/nullability"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/arguments"
+              "id": "schema-generator/writing-schemas/arguments"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/scalars"
+              "id": "schema-generator/writing-schemas/scalars"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/enums"
+              "id": "schema-generator/writing-schemas/enums"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/lists"
+              "id": "schema-generator/writing-schemas/lists"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/interfaces"
+              "id": "schema-generator/writing-schemas/interfaces"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/unions"
+              "id": "schema-generator/writing-schemas/unions"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/writing-schemas/nested-arguments"
+              "id": "schema-generator/writing-schemas/nested-arguments"
             }
           ]
         },
@@ -78,43 +78,43 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/annotations"
+              "id": "schema-generator/customizing-schemas/annotations"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/generator-config"
+              "id": "schema-generator/customizing-schemas/generator-config"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/documenting-fields"
+              "id": "schema-generator/customizing-schemas/documenting-fields"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/excluding-fields"
+              "id": "schema-generator/customizing-schemas/excluding-fields"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/renaming-fields"
+              "id": "schema-generator/customizing-schemas/renaming-fields"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/directives"
+              "id": "schema-generator/customizing-schemas/directives"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/deprecating-schema"
+              "id": "schema-generator/customizing-schemas/deprecating-schema"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/custom-type-reference"
+              "id": "schema-generator/customizing-schemas/custom-type-reference"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/restricting-input-output"
+              "id": "schema-generator/customizing-schemas/restricting-input-output"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/customizing-schemas/advanced-features"
+              "id": "schema-generator/customizing-schemas/advanced-features"
             }
           ]
         },
@@ -125,35 +125,35 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/fetching-data"
+              "id": "schema-generator/execution/fetching-data"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/async-models"
+              "id": "schema-generator/execution/async-models"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/exceptions"
+              "id": "schema-generator/execution/exceptions"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/data-fetching-environment"
+              "id": "schema-generator/execution/data-fetching-environment"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/contextual-data"
+              "id": "schema-generator/execution/contextual-data"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/optional-undefined-arguments"
+              "id": "schema-generator/execution/optional-undefined-arguments"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/subscriptions"
+              "id": "schema-generator/execution/subscriptions"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/execution/introspection"
+              "id": "schema-generator/execution/introspection"
             }
           ]
         },
@@ -164,23 +164,23 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/federation/apollo-federation"
+              "id": "schema-generator/federation/apollo-federation"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/federation/federated-schemas"
+              "id": "schema-generator/federation/federated-schemas"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/federation/federated-directives"
+              "id": "schema-generator/federation/federated-directives"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/federation/type-resolution"
+              "id": "schema-generator/federation/type-resolution"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/schema-generator/federation/federation-tracing"
+              "id": "schema-generator/federation/federation-tracing"
             }
           ]
         }
@@ -193,27 +193,27 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-5.x.x/server/graphql-server"
+          "id": "server/graphql-server"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/server/graphql-request-parser"
+          "id": "server/graphql-request-parser"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/server/graphql-context-factory"
+          "id": "server/graphql-context-factory"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/server/graphql-request-handler"
+          "id": "server/graphql-request-handler"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/server/data-loaders"
+          "id": "server/data-loaders"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/server/server-subscriptions"
+          "id": "server/server-subscriptions"
         },
         {
           "collapsed": true,
@@ -222,31 +222,31 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-overview"
+              "id": "server/spring-server/spring-overview"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-schema"
+              "id": "server/spring-server/spring-schema"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-graphql-context"
+              "id": "server/spring-server/spring-graphql-context"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-http-request-response"
+              "id": "server/spring-server/spring-http-request-response"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-beans"
+              "id": "server/spring-server/spring-beans"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-properties"
+              "id": "server/spring-server/spring-properties"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/server/spring-server/spring-subscriptions"
+              "id": "server/spring-server/spring-subscriptions"
             }
           ]
         }
@@ -259,19 +259,19 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-5.x.x/client/client-overview"
+          "id": "client/client-overview"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/client/client-features"
+          "id": "client/client-features"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/client/client-customization"
+          "id": "client/client-customization"
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/client/client-serialization"
+          "id": "client/client-serialization"
         }
       ]
     },
@@ -287,11 +287,11 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/plugins/gradle-plugin-tasks"
+              "id": "plugins/gradle-plugin-tasks"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/plugins/gradle-plugin-usage"
+              "id": "plugins/gradle-plugin-usage"
             }
           ]
         },
@@ -302,17 +302,17 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-5.x.x/plugins/maven-plugin-goals"
+              "id": "plugins/maven-plugin-goals"
             },
             {
               "type": "doc",
-              "id": "version-5.x.x/plugins/maven-plugin-usage"
+              "id": "plugins/maven-plugin-usage"
             }
           ]
         },
         {
           "type": "doc",
-          "id": "version-5.x.x/plugins/hooks-provider"
+          "id": "plugins/hooks-provider"
         }
       ]
     }
