@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import com.expediagroup.graphql.generator.federation.directives.LinkDirective
 import com.expediagroup.graphql.generator.federation.directives.LinkImport
 import com.expediagroup.graphql.generator.federation.directives.LinkedSpec
 import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.POLICY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
@@ -52,10 +53,12 @@ import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECT
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.policyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresScopesDirectiveType
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
+import com.expediagroup.graphql.generator.federation.directives.toAppliedPolicyDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedRequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
 import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
@@ -69,6 +72,7 @@ import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_NAME
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.FieldSetTransformer
 import com.expediagroup.graphql.generator.federation.types.LINK_IMPORT_SCALAR_TYPE
+import com.expediagroup.graphql.generator.federation.types.POLICY_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.SCOPE_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.SERVICE_FIELD_DEFINITION
 import com.expediagroup.graphql.generator.federation.types._Service
@@ -143,6 +147,18 @@ open class FederatedSchemaGeneratorHooks(
             if (importScalarName != this.name) {
                 this.transform {
                     it.name(importScalarName)
+                }
+            } else {
+                this
+            }
+        }
+    }
+    private val policiesScalar: GraphQLScalarType by lazy {
+        POLICY_SCALAR_TYPE.run {
+            val policyScalarName = namespacedTypeName(FEDERATION_SPEC, this.name)
+            if (policyScalarName != this.name) {
+                this.transform {
+                    it.name(policyScalarName)
                 }
             } else {
                 this
@@ -252,6 +268,7 @@ open class FederatedSchemaGeneratorHooks(
         EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE_V2
         KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
         LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
+        POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar)
         PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
         REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
         REQUIRES_SCOPE_DIRECTIVE_NAME -> requiresScopesDirectiveType(scopesScalar)
@@ -259,10 +276,16 @@ open class FederatedSchemaGeneratorHooks(
     }
 
     override fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? {
-        return if (directiveInfo.effectiveName == REQUIRES_SCOPE_DIRECTIVE_NAME) {
-            directive.toAppliedRequiresScopesDirective(directiveInfo)
-        } else {
-            super.willApplyDirective(directiveInfo, directive)
+        return when (directiveInfo.effectiveName) {
+            REQUIRES_SCOPE_DIRECTIVE_NAME -> {
+                directive.toAppliedRequiresScopesDirective(directiveInfo)
+            }
+            POLICY_DIRECTIVE_NAME -> {
+                directive.toAppliedPolicyDirective(directiveInfo)
+            }
+            else -> {
+                super.willApplyDirective(directiveInfo, directive)
+            }
         }
     }
 

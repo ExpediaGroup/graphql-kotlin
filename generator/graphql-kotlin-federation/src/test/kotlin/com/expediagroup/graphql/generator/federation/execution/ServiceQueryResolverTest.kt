@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(url : "https://specs.apollo.dev/federation/v2.5"){
+schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
   query: Query
 }
 
@@ -118,7 +118,7 @@ scalar link__Import
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
+schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
   query: Query
 }
 

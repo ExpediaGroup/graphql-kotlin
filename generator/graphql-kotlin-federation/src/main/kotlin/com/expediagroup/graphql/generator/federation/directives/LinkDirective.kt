@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ const val LINK_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$LINK_SPEC"
 const val LINK_SPEC_LATEST_URL = "$LINK_SPEC_URL_PREFIX/v$LINK_SPEC_LATEST_VERSION"
 
 const val FEDERATION_SPEC = "federation"
-const val FEDERATION_SPEC_LATEST_VERSION = "2.5"
+const val FEDERATION_SPEC_LATEST_VERSION = "2.6"
 const val FEDERATION_SPEC_URL_PREFIX = "$APOLLO_SPEC_URL/$FEDERATION_SPEC"
 const val FEDERATION_SPEC_LATEST_URL = "$FEDERATION_SPEC_URL_PREFIX/v$FEDERATION_SPEC_LATEST_VERSION"
 

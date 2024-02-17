@@ -28,7 +28,7 @@ import kotlin.reflect.full.memberProperties
 
 /**
  * ```graphql
- * directive @requiresScopes(scopes: [[Scope!]!]!) on
+ * directive @policy(scopes: [[Policy!]!]!) on
  *     ENUM
  *   | FIELD_DEFINITION
  *   | INTERFACE
@@ -36,17 +36,18 @@ import kotlin.reflect.full.memberProperties
  *   | SCALAR
  * ```
  *
- * Directive that is used to indicate that the target element is accessible only to the authenticated supergraph users with the appropriate JWT scopes. Refer to the
- * <a href="https://www.apollographql.com/docs/router/configuration/authorization#requiresscopes">Apollo Router article</a> for additional details.
  *
- * @see <a href="https://www.apollographql.com/docs/federation/federated-types/federated-directives#requiresscopes">@requiresScope definition</a>
- * @see <a href="https://www.apollographql.com/docs/router/configuration/authorization#requiresscopes">Apollo Router @requiresScope documentation</a>
+ * Directive that is used to indicate that the target element is restricted based on authorization policies that are evaluated in a Rhai script or coprocessor.
+ * Refer to the <a href="https://www.apollographql.com/docs/router/configuration/authorization#policy">Apollo Router article</a> for additional details.
+ *
+ * @see <a href="https://www.apollographql.com/docs/federation/federated-types/federated-directives#policy">@policy definition</a>
+ * @see <a href="https://www.apollographql.com/docs/router/configuration/authorization#policy">Apollo Router @policy documentation</a>
  */
 @LinkedSpec(FEDERATION_SPEC)
 @Repeatable
 @GraphQLDirective(
-    name = REQUIRES_SCOPE_DIRECTIVE_NAME,
-    description = REQUIRES_SCOPE_DIRECTIVE_DESCRIPTION,
+    name = POLICY_DIRECTIVE_NAME,
+    description = POLICY_DIRECTIVE_DESCRIPTION,
     locations = [
         Introspection.DirectiveLocation.ENUM,
         Introspection.DirectiveLocation.FIELD_DEFINITION,
@@ -55,15 +56,15 @@ import kotlin.reflect.full.memberProperties
         Introspection.DirectiveLocation.SCALAR,
     ]
 )
-annotation class RequiresScopesDirective(val scopes: Array<Scopes>)
+annotation class PolicyDirective(val policies: Array<Policies>)
 
-internal const val REQUIRES_SCOPE_DIRECTIVE_NAME = "requiresScopes"
-private const val REQUIRES_SCOPE_DIRECTIVE_DESCRIPTION = "Indicates to composition that the target element is accessible only to the authenticated supergraph users with the appropriate JWT scopes"
-private const val SCOPES_ARGUMENT = "scopes"
+internal const val POLICY_DIRECTIVE_NAME = "policy"
+private const val POLICY_DIRECTIVE_DESCRIPTION = "Indicates to composition that the target element is restricted based on authorization policies that are evaluated in a Rhai script or coprocessor"
+private const val POLICIES_ARGUMENT = "policies"
 
-internal fun requiresScopesDirectiveType(scopes: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(REQUIRES_SCOPE_DIRECTIVE_NAME)
-    .description(REQUIRES_SCOPE_DIRECTIVE_DESCRIPTION)
+internal fun policyDirectiveDefinition(policies: GraphQLScalarType): graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(POLICY_DIRECTIVE_NAME)
+    .description(POLICY_DIRECTIVE_DESCRIPTION)
     .validLocations(
         Introspection.DirectiveLocation.ENUM,
         Introspection.DirectiveLocation.FIELD_DEFINITION,
@@ -73,13 +74,13 @@ internal fun requiresScopesDirectiveType(scopes: GraphQLScalarType): graphql.sch
     )
     .argument(
         GraphQLArgument.newArgument()
-            .name(SCOPES_ARGUMENT)
+            .name(POLICIES_ARGUMENT)
             .type(
                 GraphQLNonNull.nonNull(
                     GraphQLList.list(
                         GraphQLNonNull(
                             GraphQLList.list(
-                                scopes
+                                policies
                             )
                         )
                     )
@@ -89,19 +90,19 @@ internal fun requiresScopesDirectiveType(scopes: GraphQLScalarType): graphql.sch
     .build()
 
 @Suppress("UNCHECKED_CAST")
-internal fun graphql.schema.GraphQLDirective.toAppliedRequiresScopesDirective(directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
-    // we need to manually transform @requiresScopes directive definition as JVM does not support nested array as annotation arguments
-    val annotationScopes = directiveInfo.directive.annotationClass.memberProperties
-        .first { it.name == SCOPES_ARGUMENT }
-        .call(directiveInfo.directive) as? Array<Scopes> ?: emptyArray()
-    val scopes = annotationScopes.map { scopesAnnotation -> scopesAnnotation.value.toList() }
+internal fun graphql.schema.GraphQLDirective.toAppliedPolicyDirective(directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
+    // we need to manually transform @policy directive definition as JVM does not support nested array as annotation arguments
+    val annotationPolicies = directiveInfo.directive.annotationClass.memberProperties
+        .first { it.name == POLICIES_ARGUMENT }
+        .call(directiveInfo.directive) as? Array<Policies> ?: emptyArray()
+    val policies = annotationPolicies.map { policiesAnnotation -> policiesAnnotation.value.toList() }
 
     return this.toAppliedDirective()
         .transform { appliedDirectiveBuilder ->
-            this.getArgument(SCOPES_ARGUMENT)
+            this.getArgument(POLICIES_ARGUMENT)
                 .toAppliedArgument()
                 .transform { argumentBuilder ->
-                    argumentBuilder.valueProgrammatic(scopes)
+                    argumentBuilder.valueProgrammatic(policies)
                 }
                 .let {
                     appliedDirectiveBuilder.argument(it)
