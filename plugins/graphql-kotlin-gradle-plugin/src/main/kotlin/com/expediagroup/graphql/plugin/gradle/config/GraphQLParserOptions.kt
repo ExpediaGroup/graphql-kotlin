@@ -12,9 +12,9 @@ data class GraphQLParserOptions(
     /** Modify the maximum number of whitespace tokens read to prevent processing extremely large queries */
     var maxWhitespaceTokens: Int? = null,
     /** Modify the maximum number of characters in a document to prevent malicious documents consuming CPU */
-    val maxCharacters: Int? = null,
+    var maxCharacters: Int? = null,
     /** Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows */
-    val maxRuleDepth: Int? = null,
+    var maxRuleDepth: Int? = null,
     /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
     var captureIgnoredChars: Boolean? = null,
     /** Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored */
