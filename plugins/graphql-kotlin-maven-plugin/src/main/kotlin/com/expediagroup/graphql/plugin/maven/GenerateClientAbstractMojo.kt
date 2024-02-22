@@ -232,11 +232,11 @@ class ParserOptions {
 
     /** Modify the maximum number of characters in a document to prevent malicious documents consuming CPU */
     @Parameter
-    val maxCharacters: Int? = null
+    var maxCharacters: Int? = null
 
     /** Modify the maximum grammar rule depth to negate malicious documents that can cause stack overflows */
     @Parameter
-    val maxRuleDepth: Int? = null
+    var maxRuleDepth: Int? = null
 
     /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
     @Parameter
