@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class ComposeDirectiveTest {
     fun `verify we can generate valid schema with @composeDirective`() {
         val expectedSchema =
             """
-            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.5"){
+            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
               query: Query
             }
 

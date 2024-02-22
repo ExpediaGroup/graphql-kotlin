@@ -478,6 +478,21 @@ type Product @key(fields: "id") {
 }
 ```
 
+## `@policy` directive
+
+```graphql
+directive @policy(policies: [[Policy!]!]!) on
+    ENUM
+  | FIELD_DEFINITION
+  | INTERFACE
+  | OBJECT
+  | SCALAR
+```
+
+Directive that is used to indicate that access to the target element is restricted based on authorization policies that are evaluated in a Rhai script or coprocessor. Refer to the
+[Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#policy) for additional details.
+
+
 ## `@provides` directive
 
 ```graphql
