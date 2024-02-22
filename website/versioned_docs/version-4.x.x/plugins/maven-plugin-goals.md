@@ -34,7 +34,7 @@ input for the subsequent `generate-client` goal.
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
-| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request.
+| `headers` | `Map<String, Any>` | | Optional HTTP headers to be specified on a SDL request.
 | `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:**<br/>connect timeout = 5000<br/>read timeout = 15000.<br/> |
 | `schemaFile` | File | | Target schema file.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
@@ -176,7 +176,7 @@ instead should be used to generate input for the subsequent `generate-client` go
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
-| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
+| `headers` | `Map<String, Any>` | | Optional HTTP headers to be specified on an introspection query. |
 | `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:**<br/>connect timeout = 5000<br/>read timeout = 15000.<br/> |
 | `schemaFile` | File | | Target schema file.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
