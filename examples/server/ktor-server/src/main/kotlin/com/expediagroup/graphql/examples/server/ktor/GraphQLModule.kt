@@ -38,12 +38,21 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.Routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
+import java.lang.UnsupportedOperationException
 import java.time.Duration
 
 fun Application.graphQLModule() {
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(1)
         contentConverter = JacksonWebsocketContentConverter()
+    }
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            when (cause) {
+                is UnsupportedOperationException -> call.respond(HttpStatusCode.MethodNotAllowed)
+                else -> call.respond(HttpStatusCode.BadRequest)
+            }
+        }
     }
     install(CORS) {
         anyHost()
