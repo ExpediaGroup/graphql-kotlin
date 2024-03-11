@@ -15,11 +15,12 @@ import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
 @Fork(5)
-@Warmup(iterations = 2, time = 5, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 1, time = 5, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
-open class GraphQLServerRequestSerializationBenchmark {
-    private val objectMapper = jacksonObjectMapper()
+open class GraphQLServerRequestDeserializationBenchmark {
+    private val mapper = jacksonObjectMapper()
     private var request: String = ""
+    private var batchRequest: String = ""
 
     @Setup
     fun setUp() {
@@ -33,16 +34,26 @@ open class GraphQLServerRequestSerializationBenchmark {
                 "variables": $variables
             }
         """.trimIndent()
+        batchRequest = """
+            [
+                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
+                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
+                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
+                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables }
+            ]
+        """.trimIndent()
     }
 
     @Benchmark
-    fun JacksonDeserializeGraphQLRequest(): GraphQLServerRequest {
-        return objectMapper.readValue<GraphQLServerRequest>(request)
-    }
+    fun JacksonDeserializeGraphQLRequest(): GraphQLServerRequest = mapper.readValue(request)
 
     @Benchmark
-    fun KSerializationDeserializeGraphQLRequest(): GraphQLServerRequest {
-        return Json.decodeFromString<GraphQLServerRequest>(request)
-    }
+    fun JacksonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = mapper.readValue(batchRequest)
+
+    @Benchmark
+    fun KSerializationDeserializeGraphQLRequest(): GraphQLServerRequest = Json.decodeFromString(request)
+
+    @Benchmark
+    fun KSerializationDeserializeGraphQLBatchRequest(): GraphQLServerRequest = Json.decodeFromString(batchRequest)
 
 }

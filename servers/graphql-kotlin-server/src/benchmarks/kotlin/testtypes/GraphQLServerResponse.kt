@@ -67,7 +67,9 @@ data class GraphQLResponse(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
 @Serializable(with = GraphQLBatchResponseKSerializer::class)
-data class GraphQLBatchResponse @JsonCreator constructor(@get:JsonValue val responses: List<GraphQLResponse>) : GraphQLServerResponse()
+data class GraphQLBatchResponse @JsonCreator constructor(@get:JsonValue val responses: List<GraphQLResponse>) : GraphQLServerResponse() {
+    constructor(vararg responses: GraphQLResponse) : this(responses.toList())
+}
 
 class GraphQLServerResponseDeserializer : JsonDeserializer<GraphQLServerResponse>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): GraphQLServerResponse {
