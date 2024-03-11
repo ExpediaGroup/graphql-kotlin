@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.testtypes
 
 import com.expediagroup.graphql.server.types.serializers.AnyNullableKSerializer
-import com.expediagroup.graphql.server.types.serializers.GraphQLErrorPathKSerializer
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -38,7 +37,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
 
 @JsonDeserialize(using = GraphQLServerResponseDeserializer::class)
@@ -123,5 +124,32 @@ object GraphQLBatchResponseKSerializer : KSerializer<GraphQLBatchResponse> {
 
     override fun serialize(encoder: Encoder, value: GraphQLBatchResponse) {
         encoder.encodeSerializableValue(ListSerializer(GraphQLResponse.serializer()), value.responses)
+    }
+}
+
+class GraphQLErrorPathKSerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("GraphQLErrorPath")
+
+    override fun serialize(encoder: Encoder, value: Any) {
+        val jsonEncoder = encoder as JsonEncoder
+        val jsonElement = when (value) {
+            is Int -> JsonPrimitive(value)
+            is String -> JsonPrimitive(value)
+            else -> {
+                // should never be the case
+                JsonPrimitive(value.toString())
+            }
+        }
+        jsonEncoder.encodeJsonElement(jsonElement)
+    }
+
+    override fun deserialize(decoder: Decoder): Any {
+        val jsonDecoder = decoder as JsonDecoder
+        val element = jsonDecoder.decodeJsonElement() as JsonPrimitive
+        return if (!element.isString) {
+            element.content.toIntOrNull() ?: element.content
+        } else {
+            element.content
+        }
     }
 }

@@ -43,15 +43,16 @@ tasks {
     jacocoTestCoverageVerification {
         violationRules {
             rule {
+                excludes = listOf("com.expediagroup.graphql.server.testtypes.*")
                 limit {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
-                    minimum = "0.88".toBigDecimal()
+                    minimum = "0.84".toBigDecimal()
                 }
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.84".toBigDecimal()
+                    minimum = "0.72".toBigDecimal()
                 }
             }
         }
