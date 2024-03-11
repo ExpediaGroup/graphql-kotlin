@@ -71,5 +71,4 @@ open class GraphQLServerRequestDeserializationBenchmark {
 
     @Benchmark
     fun KSerializationDeserializeGraphQLBatchRequest(): GraphQLServerRequest = Json.decodeFromString(batchRequest)
-
 }
