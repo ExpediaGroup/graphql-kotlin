@@ -5,7 +5,7 @@ const targetUrl = 'http://localhost:8080/graphql';
 async function healthCheck() {
   let attempts = 100;
   while (attempts--) {
-    console.log("waiting for server")
+    console.log("waiting for server");
     try {
       const health = await fetch(targetUrl, {
         method: 'POST',
@@ -19,10 +19,12 @@ async function healthCheck() {
       })
       if (health.status === 200) {
         return true;
+      } else {
+          console.log(`Error status: ${health.status}`);
       }
 
     } catch (e) {
-      // continue
+      console.log(`Error: ${e}`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
