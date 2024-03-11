@@ -5,6 +5,7 @@ description = "Common code for running a GraphQL server in any HTTP server frame
 plugins {
     id("com.expediagroup.graphql.conventions")
     alias(libs.plugins.benchmark)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -12,6 +13,7 @@ dependencies {
     api(projects.graphqlKotlinDataloaderInstrumentation)
     api(projects.graphqlKotlinAutomaticPersistedQueries)
     api(libs.jackson)
+    api(libs.kotlinx.serialization.json)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.logback)
 }

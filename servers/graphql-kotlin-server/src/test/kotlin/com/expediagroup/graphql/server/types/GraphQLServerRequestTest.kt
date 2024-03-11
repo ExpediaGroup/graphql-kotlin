@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 
 package com.expediagroup.graphql.server.types
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class GraphQLServerRequestTest {
-
-    private val mapper = jacksonObjectMapper()
 
     @Test
     fun `verify simple serialization`() {
@@ -36,7 +34,7 @@ class GraphQLServerRequestTest {
         val expectedJson =
             """{"query":"{ foo }"}"""
 
-        assertEquals(expectedJson, mapper.writeValueAsString(request))
+        assertEquals(expectedJson, Json.encodeToString(request))
     }
 
     @Test
@@ -50,7 +48,7 @@ class GraphQLServerRequestTest {
         val expectedJson =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
-        assertEquals(expectedJson, mapper.writeValueAsString(request))
+        assertEquals(expectedJson, Json.encodeToString(request))
     }
 
     @Test
@@ -69,7 +67,7 @@ class GraphQLServerRequestTest {
         )
         val expectedJson =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
-        assertEquals(expectedJson, mapper.writeValueAsString(request))
+        assertEquals(expectedJson, Json.encodeToString(request))
     }
 
     @Test
@@ -77,7 +75,7 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"{ foo }"}"""
 
-        val request = mapper.readValue<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(input)
 
         assertTrue(request is GraphQLRequest)
         assertEquals("{ foo }", request.query)
@@ -90,7 +88,7 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
-        val request = mapper.readValue<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(input)
 
         assertTrue(request is GraphQLRequest)
         assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
@@ -103,7 +101,7 @@ class GraphQLServerRequestTest {
         val input =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
 
-        val request = mapper.readValue<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(input)
 
         assertTrue(request is GraphQLBatchRequest)
         assertEquals(2, request.requests.size)

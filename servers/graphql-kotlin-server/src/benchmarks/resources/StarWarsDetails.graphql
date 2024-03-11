@@ -1,0 +1,1156 @@
+query StarWarsDetails {
+    person1: person(id: $personId1) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person2: person(id: $personId2) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person3: person(id: $personId3) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person4: person(id: $personId4) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person5: person(id: $personId5) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person6: person(id: $personId6) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person7: person(id: $personId7) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person8: person(id: $personId8) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person9: person(id: $personId9) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    person10: person(id: $personId10) {
+        ... on Person {
+            name
+            birthYear
+            eyeColor
+            gender
+            hairColor
+            height
+            mass
+            skinColor
+            starships {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            homeworld {
+                ... on Planet {
+                    name
+                    diameter
+                    rotationPeriod
+                    orbitalPeriod
+                    gravity
+                    population
+                    climates
+                    terrains
+                    surfaceWater
+                }
+            }
+            filmConnection {
+                edges {
+                    node {
+                        title
+                    }
+                }
+            }
+        }
+    }
+    film1: film(id: $filmId1) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+    film2: film(id: $filmId2) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+    film3: film(id: $filmId3) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+    film4: film(id: $filmId4) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+    film5: film(id: $filmId5) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+    film6: film(id: $filmId6) {
+        ... on Film {
+            title
+            episodeID
+            director
+            producers
+            releaseDate
+            characterConnection {
+                edges {
+                    node {
+                        ... on Person {
+                            name
+                            birthYear
+                            eyeColor
+                            gender
+                            hairColor
+                            height
+                            mass
+                            skinColor
+                            starships {
+                                edges {
+                                    node {
+                                        ... on Starship {
+                                            name
+                                            model
+                                            starshipClass
+                                            manufacturers
+                                            costInCredits
+                                            length
+                                            crew
+                                            passengers
+                                            maxAtmospheringSpeed
+                                            hyperdriveRating
+                                            MGLT
+                                            cargoCapacity
+                                            consumables
+                                        }
+                                    }
+                                }
+                            }
+                            homeworld {
+                                ... on Planet {
+                                    name
+                                    diameter
+                                    rotationPeriod
+                                    orbitalPeriod
+                                    gravity
+                                    population
+                                    climates
+                                    terrains
+                                    surfaceWater
+                                }
+                            }
+                            filmConnection {
+                                edges {
+                                    node {
+                                        title
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            starshipConnection {
+                edges {
+                    node {
+                        ... on Starship {
+                            name
+                            model
+                            starshipClass
+                            manufacturers
+                            costInCredits
+                            length
+                            crew
+                            passengers
+                            maxAtmospheringSpeed
+                            hyperdriveRating
+                            MGLT
+                            cargoCapacity
+                            consumables
+                        }
+                    }
+                }
+            }
+            planetConnection {
+                edges {
+                    node {
+                        ... on Planet {
+                            name
+                            diameter
+                            rotationPeriod
+                            orbitalPeriod
+                            gravity
+                            population
+                            climates
+                            terrains
+                            surfaceWater
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
