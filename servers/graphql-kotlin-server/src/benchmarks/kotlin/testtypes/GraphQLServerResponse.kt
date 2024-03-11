@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.testtypes
 
 import com.expediagroup.graphql.server.types.serializers.AnyNullableKSerializer
+import com.expediagroup.graphql.server.types.serializers.GraphQLErrorPathKSerializer
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -40,16 +41,10 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-/**
- * GraphQL server response abstraction that provides a convenient way to handle both single and batch responses.
- */
 @JsonDeserialize(using = GraphQLServerResponseDeserializer::class)
 @Serializable(with = GraphQLServerResponseKSerializer::class)
 sealed class GraphQLServerResponse
 
-/**
- * Wrapper that holds single GraphQLResponse to an HTTP request.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
@@ -60,9 +55,6 @@ data class GraphQLResponse(
     val extensions: Map<String, @Serializable(with = AnyNullableKSerializer::class) Any?>? = null
 ) : GraphQLServerResponse()
 
-/**
- * Wrapper that holds list of GraphQLResponses that were processed together within a single HTTP request.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
@@ -70,6 +62,23 @@ data class GraphQLResponse(
 data class GraphQLBatchResponse @JsonCreator constructor(@get:JsonValue val responses: List<GraphQLResponse>) : GraphQLServerResponse() {
     constructor(vararg responses: GraphQLResponse) : this(responses.toList())
 }
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Serializable
+data class GraphQLServerError(
+    val message: String,
+    val locations: List<GraphQLSourceLocation>? = null,
+    val path: List<@Serializable(with = GraphQLErrorPathKSerializer::class) Any>? = null,
+    val extensions: Map<String, @Serializable(with = AnyNullableKSerializer::class) Any?>? = null
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Serializable
+data class GraphQLSourceLocation(
+    val line: Int,
+    val column: Int
+)
 
 class GraphQLServerResponseDeserializer : JsonDeserializer<GraphQLServerResponse>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): GraphQLServerResponse {

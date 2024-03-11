@@ -17,6 +17,15 @@
 package com.expediagroup.graphql.server.types
 
 import com.expediagroup.graphql.server.types.serializers.AnyNullableKSerializer
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -34,12 +43,16 @@ import kotlinx.serialization.json.decodeFromJsonElement
 /**
  * GraphQL server request abstraction that provides a convenient way to handle both single and batch requests.
  */
+@JsonDeserialize(using = GraphQLServerRequestDeserializer::class)
 @Serializable(with = GraphQLServerRequestKSerializer::class)
 sealed class GraphQLServerRequest
 
 /**
  * Wrapper that holds single GraphQLRequest to be processed within an HTTP request.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonDeserialize(using = JsonDeserializer.None::class)
 @Serializable
 data class GraphQLRequest(
     val query: String = "",
@@ -51,9 +64,24 @@ data class GraphQLRequest(
 /**
  * Wrapper that holds list of GraphQLRequests to be processed together within a single HTTP request.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonDeserialize(using = JsonDeserializer.None::class)
 @Serializable(with = GraphQLBatchRequestKSerializer::class)
-data class GraphQLBatchRequest(val requests: List<GraphQLRequest>) : GraphQLServerRequest() {
+data class GraphQLBatchRequest @JsonCreator constructor(@get:JsonValue val requests: List<GraphQLRequest>) : GraphQLServerRequest() {
     constructor(vararg requests: GraphQLRequest) : this(requests.toList())
+}
+
+class GraphQLServerRequestDeserializer : JsonDeserializer<GraphQLServerRequest>() {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): GraphQLServerRequest {
+        val codec = parser.codec
+        val jsonNode = codec.readTree<JsonNode>(parser)
+        return if (jsonNode.isArray) {
+            codec.treeToValue(jsonNode, GraphQLBatchRequest::class.java)
+        } else {
+            codec.treeToValue(jsonNode, GraphQLRequest::class.java)
+        }
+    }
 }
 
 object GraphQLServerRequestKSerializer : KSerializer<GraphQLServerRequest> {
