@@ -121,6 +121,22 @@
     "queryAllDeclaredMethods": true
   },
   {
+    "name":"com.expediagroup.graphql.server.types.GraphQLRequest",
+    "fields":[{"name":"Companion"}]
+  },
+  {
+    "name":"com.expediagroup.graphql.server.types.GraphQLRequest$Companion",
+    "methods":[{"name":"serializer","parameterTypes":[] }]
+  },
+  {
+    "name":"com.expediagroup.graphql.server.types.GraphQLBatchRequest",
+    "fields":[{"name":"Companion"}]
+  },
+  {
+    "name":"com.expediagroup.graphql.server.types.GraphQLBatchRequest$Companion",
+    "methods":[{"name":"serializer","parameterTypes":[] }]
+  },
+  {
     "name": "com.expediagroup.graphql.server.types.GraphQLServerRequestDeserializer",
     "methods": [
       {
