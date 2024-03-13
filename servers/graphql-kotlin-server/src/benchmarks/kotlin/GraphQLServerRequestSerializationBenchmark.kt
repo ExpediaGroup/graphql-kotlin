@@ -16,9 +16,11 @@
 
 package com.expediagroup.graphql.server
 
-import com.expediagroup.graphql.server.testtypes.GraphQLServerRequest
+import com.expediagroup.graphql.server.testtypes.GraphQLBatchRequest
+import com.expediagroup.graphql.server.testtypes.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
@@ -32,43 +34,37 @@ import java.util.concurrent.TimeUnit
 @State(Scope.Benchmark)
 @Fork(5)
 @Warmup(iterations = 1, time = 5, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
-open class GraphQLServerRequestDeserializationBenchmark {
+@Measurement(iterations = 5, time = 10, timeUnit = TimeUnit.SECONDS)
+open class GraphQLServerRequestSerializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var request: String
-    private lateinit var batchRequest: String
+    private lateinit var request: GraphQLRequest
+    private lateinit var batchRequest: GraphQLBatchRequest
 
     @Setup
     fun setUp() {
         val loader = this::class.java.classLoader
         val operation = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
-        val variables = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
-        request = """
-            {
-                "operationName": "StarWarsDetails",
-                "query": "$operation",
-                "variables": $variables
-            }
-        """.trimIndent()
-        batchRequest = """
-            [
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables }
-            ]
-        """.trimIndent()
+        val variables = mapper.readValue<Map<String, Any?>>(
+            loader.getResourceAsStream("StarWarsDetailsVariables.json")!!
+        )
+        request = GraphQLRequest(operation, "StarWarsDetails", variables)
+        batchRequest = GraphQLBatchRequest(
+            GraphQLRequest(operation, "StarWarsDetails", variables),
+            GraphQLRequest(operation, "StarWarsDetails", variables),
+            GraphQLRequest(operation, "StarWarsDetails", variables),
+            GraphQLRequest(operation, "StarWarsDetails", variables)
+        )
     }
 
     @Benchmark
-    fun JacksonDeserializeGraphQLRequest(): GraphQLServerRequest = mapper.readValue(request)
+    fun JacksonSerializeGraphQLRequest(): String = mapper.writeValueAsString(request)
 
     @Benchmark
-    fun JacksonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = mapper.readValue(batchRequest)
+    fun JacksonSerializeGraphQLBatchRequest(): String = mapper.writeValueAsString(batchRequest)
 
     @Benchmark
-    fun KSerializationDeserializeGraphQLRequest(): GraphQLServerRequest = Json.decodeFromString(request)
+    fun KSerializationSerializeGraphQLRequest(): String = Json.encodeToString(request)
 
     @Benchmark
-    fun KSerializationDeserializeGraphQLBatchRequest(): GraphQLServerRequest = Json.decodeFromString(batchRequest)
+    fun KSerializationSerializeGraphQLBatchRequest(): String = Json.encodeToString(batchRequest)
 }

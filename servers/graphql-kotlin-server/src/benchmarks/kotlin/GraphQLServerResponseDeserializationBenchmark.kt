@@ -16,11 +16,9 @@
 
 package com.expediagroup.graphql.server
 
-import com.expediagroup.graphql.server.testtypes.GraphQLBatchResponse
-import com.expediagroup.graphql.server.testtypes.GraphQLResponse
+import com.expediagroup.graphql.server.testtypes.GraphQLServerResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
@@ -35,38 +33,33 @@ import java.util.concurrent.TimeUnit
 @Fork(5)
 @Warmup(iterations = 1, time = 5, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 10, timeUnit = TimeUnit.SECONDS)
-open class GraphQLServerResponseSerializationBenchmark {
+open class GraphQLServerResponseDeserializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var response: GraphQLResponse
-    private lateinit var batchResponse: GraphQLBatchResponse
+    private lateinit var response: String
+    private lateinit var batchResponse: String
 
     @Setup
     fun setUp() {
-        val data = mapper.readValue<Map<String, Any?>>(
-            this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
-        )
-        response = GraphQLResponse(
-            mapper.readValue<Map<String, Any?>>(
-                this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
-            )
-        )
-        batchResponse = GraphQLBatchResponse(
-            GraphQLResponse(data),
-            GraphQLResponse(data),
-            GraphQLResponse(data),
-            GraphQLResponse(data)
-        )
+        response = this::class.java.classLoader.getResource("StarWarsDetailsResponse.json")!!.readText()
+        batchResponse = """
+            [
+                $response,
+                $response,
+                $response,
+                $response
+            ]
+        """.trimIndent()
     }
 
     @Benchmark
-    fun JacksonSerializeGraphQLResponse(): String = mapper.writeValueAsString(response)
+    fun JacksonDeserializeGraphQLResponse(): GraphQLServerResponse = mapper.readValue(response)
 
     @Benchmark
-    fun JacksonSerializeGraphQLBatchResponse(): String = mapper.writeValueAsString(batchResponse)
+    fun JacksonDeserializeGraphQLBatchResponse(): GraphQLServerResponse = mapper.readValue(batchResponse)
 
     @Benchmark
-    fun KSerializationSerializeGraphQLResponse(): String = Json.encodeToString(response)
+    fun KSerializationDeserializeGraphQLResponse(): GraphQLServerResponse = Json.decodeFromString(response)
 
     @Benchmark
-    fun KSerializationSerializeGraphQLBatchResponse(): String = Json.encodeToString(batchResponse)
+    fun KSerializationDeserializeGraphQLBatchResponse(): GraphQLServerResponse = Json.decodeFromString(batchResponse)
 }
