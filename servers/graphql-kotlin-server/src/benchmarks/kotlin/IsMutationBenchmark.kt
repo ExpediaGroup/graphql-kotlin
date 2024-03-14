@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server
 
 import com.expediagroup.graphql.server.extensions.isMutation
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.Scope
@@ -32,7 +31,7 @@ import kotlin.random.Random
 @Fork(1)
 @Warmup(iterations = 2)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-open class GraphQLRequestBenchmark {
+open class IsMutationBenchmark {
     private val requests = mutableListOf<GraphQLRequest>()
 
     @Setup
@@ -68,7 +67,7 @@ open class GraphQLRequestBenchmark {
         requests.add(GraphQLRequest(mutation))
     }
 
-    @Benchmark
+    // @Benchmark
     fun isMutationBenchmark(): Boolean {
         return requests.any(GraphQLRequest::isMutation)
     }
