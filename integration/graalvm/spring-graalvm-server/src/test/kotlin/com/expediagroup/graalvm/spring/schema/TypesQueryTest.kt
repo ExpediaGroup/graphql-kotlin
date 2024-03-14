@@ -15,7 +15,6 @@
  */
 package com.expediagroup.graalvm.spring.schema
 
-import com.expediagroup.graalvm.schema.model.InputOnly
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -35,7 +34,7 @@ class TypesQueryTest(@Autowired private val testClient: WebTestClient) {
         val request = GraphQLRequest(
             query = "query InputOnlyQuery(\$inputArg: InputOnlyInput){ inputTypeQuery(arg: \$inputArg) }",
             operationName = "InputOnlyQuery",
-            variables = mapOf("inputArg" to InputOnly(id = 123))
+            variables = mapOf("inputArg" to mapOf("id" to 123))
         )
 
         testClient.post()

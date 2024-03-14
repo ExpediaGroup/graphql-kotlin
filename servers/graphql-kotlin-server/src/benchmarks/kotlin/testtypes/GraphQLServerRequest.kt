@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.types
+package com.expediagroup.graphql.server.testtypes
 
 import com.expediagroup.graphql.server.types.serializers.AnyNullableKSerializer
 import com.fasterxml.jackson.annotation.JsonCreator
@@ -40,16 +40,10 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-/**
- * GraphQL server request abstraction that provides a convenient way to handle both single and batch requests.
- */
 @JsonDeserialize(using = GraphQLServerRequestDeserializer::class)
 @Serializable(with = GraphQLServerRequestKSerializer::class)
 sealed class GraphQLServerRequest
 
-/**
- * Wrapper that holds single GraphQLRequest to be processed within an HTTP request.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
@@ -61,9 +55,6 @@ data class GraphQLRequest(
     val extensions: Map<String, @Serializable(with = AnyNullableKSerializer::class) Any?>? = null
 ) : GraphQLServerRequest()
 
-/**
- * Wrapper that holds list of GraphQLRequests to be processed together within a single HTTP request.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
@@ -90,16 +81,27 @@ object GraphQLServerRequestKSerializer : KSerializer<GraphQLServerRequest> {
     override fun deserialize(decoder: Decoder): GraphQLServerRequest {
         val jsonDecoder = decoder as JsonDecoder
         return when (val jsonElement = jsonDecoder.decodeJsonElement()) {
-            is JsonObject -> Json.decodeFromJsonElement<GraphQLRequest>(jsonElement)
-            is JsonArray -> GraphQLBatchRequest(Json.decodeFromJsonElement<List<GraphQLRequest>>(jsonElement))
+            is JsonObject -> {
+                Json.decodeFromJsonElement<GraphQLRequest>(jsonElement)
+            }
+            is JsonArray -> {
+                GraphQLBatchRequest(Json.decodeFromJsonElement<List<GraphQLRequest>>(jsonElement))
+            }
             else -> throw SerializationException("Unknown JSON element found")
         }
     }
 
-    override fun serialize(encoder: Encoder, value: GraphQLServerRequest) {
+    override fun serialize(
+        encoder: Encoder,
+        value: GraphQLServerRequest,
+    ) {
         when (value) {
-            is GraphQLRequest -> encoder.encodeSerializableValue(GraphQLRequest.serializer(), value)
-            is GraphQLBatchRequest -> encoder.encodeSerializableValue(ListSerializer(GraphQLRequest.serializer()), value.requests)
+            is GraphQLRequest -> {
+                encoder.encodeSerializableValue(GraphQLRequest.serializer(), value)
+            }
+            is GraphQLBatchRequest -> {
+                encoder.encodeSerializableValue(ListSerializer(GraphQLRequest.serializer()), value.requests)
+            }
         }
     }
 }
