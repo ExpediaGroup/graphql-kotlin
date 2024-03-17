@@ -22,12 +22,15 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevel
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.GraphQLContext
@@ -38,24 +41,32 @@ import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderFactory
-import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
+import org.junit.jupiter.api.Test
 
 class GraphQLRequestHandlerTest {
 
     private val testSchema: GraphQLSchema = toSchema(
-        config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.server.execution")),
+        config = SchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.server.execution"),
+            hooks = FlowSubscriptionSchemaGeneratorHooks(),
+        ),
         queries = listOf(TopLevelObject(BasicQuery())),
-        mutations = listOf(TopLevelObject(BasicMutation()))
+        mutations = listOf(TopLevelObject(BasicMutation())),
+        subscriptions = listOf(TopLevelObject(BasicSubscription())),
     )
-    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
+    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy()).build()
     private val graphQLRequestHandler = GraphQLRequestHandler(testGraphQL)
 
     private fun getBatchingRequestHandler(instrumentation: Instrumentation): GraphQLRequestHandler =
@@ -317,6 +328,59 @@ class GraphQLRequestHandlerTest {
         }
     }
 
+    @Test
+    fun `execute graphQL subscription`() {
+        val response = runBlocking {
+            val context = emptyMap<String, Any>().toGraphQLContext()
+            val request = GraphQLRequest(
+                query = "subscription { users(name: \"Jane Doe\") { name } }",
+            )
+            graphQLRequestHandler.executeSubscription(request, context).first()
+        }
+
+        assertNotNull(response.data as? Map<*, *>) { data ->
+            assertNotNull(data["users"] as? Map<*, *>) { user ->
+                assertEquals("Jane Doe", user["name"])
+            }
+        }
+        assertNull(response.errors)
+        assertNull(response.extensions)
+    }
+
+    @Test
+    fun `execute graphQL subscription with error`() {
+        val response = runBlocking {
+            val context = emptyMap<String, Any>().toGraphQLContext()
+            val request = GraphQLRequest(
+                query = "subscription { withFlowError { name } }",
+            )
+            graphQLRequestHandler.executeSubscription(request, context).first()
+        }
+
+        assertNotNull(response.errors as List<GraphQLServerError>) { errors ->
+            assertNotNull(errors[0]) { error ->
+                assertEquals("Subscription failure", error.message)
+            }
+        }
+    }
+
+    @Test
+    fun `execute graphQL subscription with error on init`() {
+        val response = runBlocking {
+            val context = emptyMap<String, Any>().toGraphQLContext()
+            val request = GraphQLRequest(
+                query = "subscription { withInitError { name } }",
+            )
+            graphQLRequestHandler.executeSubscription(request, context).first()
+        }
+
+        assertNotNull(response.errors as List<GraphQLServerError>) { errors ->
+            assertNotNull(errors[0]) { error ->
+                assertEquals("Exception while fetching data (/withInitError) : Subscription failure", error.message)
+            }
+        }
+    }
+
     data class User(val id: Int, val name: String)
 
     class BasicQuery {
@@ -337,5 +401,17 @@ class GraphQLRequestHandlerTest {
 
     class BasicMutation {
         fun addUser(name: String): User = User(Random.nextInt(), name)
+    }
+
+    class BasicSubscription {
+        fun users(name: String): Flow<User> = flowOf(User(Random.nextInt(), name))
+
+        fun withFlowError(): Flow<User> = flow {
+            throw Exception("Subscription failure")
+        }
+
+        fun withInitError(): Flow<User> {
+            throw Exception("Subscription failure")
+        }
     }
 }

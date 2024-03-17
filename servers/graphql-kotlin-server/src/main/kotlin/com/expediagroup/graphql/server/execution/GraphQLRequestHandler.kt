@@ -44,6 +44,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.supervisorScope
@@ -61,6 +62,7 @@ open class GraphQLRequestHandler(
                         .firstOrNull(Instrumentation::isBatchDataLoaderInstrumentation)
                         ?.javaClass
                 }
+
                 instrumentation.isBatchDataLoaderInstrumentation() -> instrumentation.javaClass
                 else -> null
             }
@@ -81,6 +83,7 @@ open class GraphQLRequestHandler(
                 val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
                 execute(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
             }
+
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
                     val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
@@ -145,9 +148,11 @@ open class GraphQLRequestHandler(
             DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
                 ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(batchSize)
             )
+
             DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
                 SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
             )
+
             else -> emptyMap<Any, Any>()
         }
         return batchContext
@@ -162,9 +167,12 @@ open class GraphQLRequestHandler(
     ): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
         val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
+        val executionResult = graphQL.execute(input)
 
-        return graphQL.execute(input)
-            .getData<Flow<ExecutionResult>>()
+        val resultFlow: Flow<ExecutionResult> = executionResult
+            .getData<Flow<ExecutionResult>?>() ?: flowOf(executionResult)
+
+        return resultFlow
             .map { result -> result.toGraphQLResponse() }
             .catch { throwable ->
                 val error = throwable.toGraphQLError()
