@@ -7,7 +7,7 @@ graphql-java = "21.1"
 graalvm = "0.9.28"
 jackson = "2.15.2"
 # kotlin version has to match the compile-testing compiler version
-kotlin = "1.8.22"
+kotlin = "1.9.10"
 # TODO kotlin 1.9 upgrade -> kotlinx-benchaamrk 0.4.9+ uses kotlin 1.9
 kotlinx-benchmark = "0.4.8"
 kotlinx-coroutines = "1.7.3"
