@@ -195,6 +195,4 @@ internal suspend inline fun KtorGraphQLServer.executeRequest(call: ApplicationCa
     } ?: call.respond(HttpStatusCode.BadRequest)
 } catch (e: UnsupportedOperationException) {
     call.respond(HttpStatusCode.MethodNotAllowed)
-} catch (e: Exception) {
-    call.respond(HttpStatusCode.BadRequest)
 }
