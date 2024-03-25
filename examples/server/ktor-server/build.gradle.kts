@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.statuspages)
     implementation(libs.logback)
     implementation(libs.kotlinx.coroutines.jdk8)
 }

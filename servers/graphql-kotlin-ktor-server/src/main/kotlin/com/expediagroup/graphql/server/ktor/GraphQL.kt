@@ -189,12 +189,7 @@ internal fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {
     TopLevelObject(it)
 }
 
-internal suspend inline fun KtorGraphQLServer.executeRequest(call: ApplicationCall) = try {
+internal suspend inline fun KtorGraphQLServer.executeRequest(call: ApplicationCall) =
     execute(call.request)?.let {
         call.respond(it)
     } ?: call.respond(HttpStatusCode.BadRequest)
-} catch (e: UnsupportedOperationException) {
-    call.respond(HttpStatusCode.MethodNotAllowed)
-} catch (e: Exception) {
-    call.respond(HttpStatusCode.BadRequest)
-}
