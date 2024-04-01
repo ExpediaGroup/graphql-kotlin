@@ -75,7 +75,7 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"{ foo }"}"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(GraphQLServerRequestKSerializer, input)
 
         assertTrue(request is GraphQLRequest)
         assertEquals("{ foo }", request.query)
@@ -88,7 +88,7 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(GraphQLServerRequestKSerializer, input)
 
         assertTrue(request is GraphQLRequest)
         assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
@@ -101,7 +101,7 @@ class GraphQLServerRequestTest {
         val input =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
+        val request = Json.decodeFromString<GraphQLServerRequest>(GraphQLServerRequestKSerializer, input)
 
         assertTrue(request is GraphQLBatchRequest)
         assertEquals(2, request.requests.size)
