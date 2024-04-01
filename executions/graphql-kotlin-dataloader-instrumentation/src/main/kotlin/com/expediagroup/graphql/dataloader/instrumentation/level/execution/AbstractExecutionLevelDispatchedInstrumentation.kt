@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.ExecutionContext
+import graphql.execution.ExecutionId
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
-import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
@@ -34,7 +35,7 @@ import graphql.schema.DataFetcher
 /**
  * Represents the signature of a callback that will be executed when a [Level] is dispatched
  */
-internal typealias OnLevelDispatchedCallback = (Level, List<ExecutionInput>) -> Unit
+internal typealias OnLevelDispatchedCallback = (Level, List<ExecutionId>) -> Unit
 /**
  * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
  * of all queries sharing the same GraphQLContext map
@@ -52,13 +53,13 @@ abstract class AbstractExecutionLevelDispatchedInstrumentation : SimplePerforman
         parameters: ExecutionLevelDispatchedInstrumentationParameters
     ): OnLevelDispatchedCallback
 
-    override fun beginExecuteOperation(
-        parameters: InstrumentationExecuteOperationParameters,
+    override fun beginExecution(
+        parameters: InstrumentationExecutionParameters,
         state: InstrumentationState?
     ): InstrumentationContext<ExecutionResult>? =
-        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
+        parameters.executionInput
             ?.graphQLContext?.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
-            ?.beginExecuteOperation(parameters)
+            ?.beginExecution(parameters)
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,

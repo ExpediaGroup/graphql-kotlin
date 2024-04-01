@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,8 @@ import org.dataloader.DataLoader
 class DataLoaderLevelDispatchedInstrumentation : AbstractExecutionLevelDispatchedInstrumentation() {
     override fun getOnLevelDispatchedCallback(
         parameters: ExecutionLevelDispatchedInstrumentationParameters
-    ): OnLevelDispatchedCallback = { _, executions: List<ExecutionInput> ->
-        executions
-            .getOrNull(0)
+    ): OnLevelDispatchedCallback = { _, _ ->
+        parameters.executionContext.executionInput
             ?.dataLoaderRegistry
             ?.dispatchAll()
     }

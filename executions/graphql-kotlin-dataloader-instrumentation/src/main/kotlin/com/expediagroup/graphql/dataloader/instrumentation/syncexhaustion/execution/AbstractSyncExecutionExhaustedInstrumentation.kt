@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,20 @@ import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
 import graphql.execution.ExecutionContext
+import graphql.execution.ExecutionId
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
-import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 
 /**
  * typealias that represents the signature of a callback that will be executed when sync execution is exhausted
  */
-internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionInput>) -> Unit
+internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionId>) -> Unit
 
 /**
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
@@ -52,13 +53,13 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
         parameters: SyncExecutionExhaustedInstrumentationParameters
     ): OnSyncExecutionExhaustedCallback
 
-    override fun beginExecuteOperation(
-        parameters: InstrumentationExecuteOperationParameters,
+    override fun beginExecution(
+        parameters: InstrumentationExecutionParameters,
         state: InstrumentationState?
     ): InstrumentationContext<ExecutionResult>? =
-        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
-            ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginExecuteOperation(parameters)
+        parameters.graphQLContext
+            ?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
+            ?.beginExecution(parameters)
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
