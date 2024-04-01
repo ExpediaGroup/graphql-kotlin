@@ -1,0 +1,411 @@
+{
+  "data": {
+    "person1": {
+      "name": "Luke Skywalker",
+      "birthYear": "19BBY",
+      "eyeColor": "blue",
+      "gender": "male",
+      "hairColor": "blond",
+      "height": 172,
+      "mass": 77,
+      "skinColor": "fair",
+      "starships": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing",
+              "model": "T-65 X-wing",
+              "starshipClass": "Starfighter",
+              "manufacturers": ["Incom Corporation"],
+              "costInCredits": 149999,
+              "length": 13.4,
+              "crew": 1,
+              "passengers": 0,
+              "maxAtmospheringSpeed": 1050,
+              "hyperdriveRating": 1.0,
+              "MGLT": 100,
+              "cargoCapacity": 110,
+              "consumables": "1 week"
+            }
+          }
+        ]
+      },
+      "homeworld": {
+        "name": "Tatooine",
+        "diameter": 10465,
+        "rotationPeriod": 23,
+        "orbitalPeriod": 304,
+        "gravity": "1 standard",
+        "population": 200000,
+        "climates": ["arid"],
+        "terrains": ["desert"],
+        "surfaceWater": 1
+      },
+      "filmConnection": {
+        "edges": [
+          {
+            "node": {
+              "title": "A New Hope"
+            }
+          }
+        ]
+      }
+    },
+    "person2": {
+      "name": "Leia Organa",
+      "birthYear": "19BBY",
+      "eyeColor": "brown",
+      "gender": "female",
+      "hairColor": "brown",
+      "height": 150,
+      "mass": 49,
+      "skinColor": "light",
+      "starships": {
+        "edges": []
+      },
+      "homeworld": {
+        "name": "Alderaan",
+        "diameter": 12500,
+        "rotationPeriod": 24,
+        "orbitalPeriod": 364,
+        "gravity": "1 standard",
+        "population": 2000000000,
+        "climates": ["temperate"],
+        "terrains": ["grasslands", "mountains"],
+        "surfaceWater": 40
+      },
+      "filmConnection": {
+        "edges": [
+          {
+            "node": {
+              "title": "The Empire Strikes Back"
+            }
+          }
+        ]
+      }
+    },
+    "person3": {
+      "name": "Luke Skywalker",
+      "birthYear": "19BBY",
+      "eyeColor": "blue",
+      "gender": "male",
+      "hairColor": "blond",
+      "height": 172,
+      "mass": 77,
+      "skinColor": "fair",
+      "starships": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing",
+              "model": "T-65 X-wing",
+              "starshipClass": "Starfighter",
+              "manufacturers": ["Incom Corporation"],
+              "costInCredits": 149999,
+              "length": 13.4,
+              "crew": 1,
+              "passengers": 0,
+              "maxAtmospheringSpeed": 1050,
+              "hyperdriveRating": 1.0,
+              "MGLT": 100,
+              "cargoCapacity": 110,
+              "consumables": "1 week"
+            }
+          }
+        ]
+      },
+      "homeworld": {
+        "name": "Tatooine",
+        "diameter": 10465,
+        "rotationPeriod": 23,
+        "orbitalPeriod": 304,
+        "gravity": "1 standard",
+        "population": 200000,
+        "climates": ["arid"],
+        "terrains": ["desert"],
+        "surfaceWater": 1
+      },
+      "filmConnection": {
+        "edges": [
+          {
+            "node": {
+              "title": "A New Hope"
+            }
+          }
+        ]
+      }
+    },
+    "person4": {
+      "name": "Luke Skywalker",
+      "birthYear": "19BBY",
+      "eyeColor": "blue",
+      "gender": "male",
+      "hairColor": "blond",
+      "height": 172,
+      "mass": 77,
+      "skinColor": "fair",
+      "starships": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing",
+              "model": "T-65 X-wing",
+              "starshipClass": "Starfighter",
+              "manufacturers": ["Incom Corporation"],
+              "costInCredits": 149999,
+              "length": 13.4,
+              "crew": 1,
+              "passengers": 0,
+              "maxAtmospheringSpeed": 1050,
+              "hyperdriveRating": 1.0,
+              "MGLT": 100,
+              "cargoCapacity": 110,
+              "consumables": "1 week"
+            }
+          }
+        ]
+      },
+      "homeworld": {
+        "name": "Tatooine",
+        "diameter": 10465,
+        "rotationPeriod": 23,
+        "orbitalPeriod": 304,
+        "gravity": "1 standard",
+        "population": 200000,
+        "climates": ["arid"],
+        "terrains": ["desert"],
+        "surfaceWater": 1
+      },
+      "filmConnection": {
+        "edges": [
+          {
+            "node": {
+              "title": "A New Hope"
+            }
+          }
+        ]
+      }
+    },
+    "person5": {
+      "name": "Luke Skywalker",
+      "birthYear": "19BBY",
+      "eyeColor": "blue",
+      "gender": "male",
+      "hairColor": "blond",
+      "height": 172,
+      "mass": 77,
+      "skinColor": "fair",
+      "starships": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing",
+              "model": "T-65 X-wing",
+              "starshipClass": "Starfighter",
+              "manufacturers": ["Incom Corporation"],
+              "costInCredits": 149999,
+              "length": 13.4,
+              "crew": 1,
+              "passengers": 0,
+              "maxAtmospheringSpeed": 1050,
+              "hyperdriveRating": 1.0,
+              "MGLT": 100,
+              "cargoCapacity": 110,
+              "consumables": "1 week"
+            }
+          }
+        ]
+      },
+      "homeworld": {
+        "name": "Tatooine",
+        "diameter": 10465,
+        "rotationPeriod": 23,
+        "orbitalPeriod": 304,
+        "gravity": "1 standard",
+        "population": 200000,
+        "climates": ["arid"],
+        "terrains": ["desert"],
+        "surfaceWater": 1
+      },
+      "filmConnection": {
+        "edges": [
+          {
+            "node": {
+              "title": "A New Hope"
+            }
+          }
+        ]
+      }
+    },
+    "film1": {
+      "title": "A New Hope",
+      "episodeID": 4,
+      "director": "George Lucas",
+      "producers": ["Gary Kurtz", "Rick McCallum"],
+      "releaseDate": "1977-05-25",
+      "characterConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          }
+        ]
+      },
+      "starshipConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing"
+            }
+          }
+        ]
+      },
+      "planetConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Tatooine"
+            }
+          }
+        ]
+      }
+    },
+    "film2": {
+      "title": "A New Hope",
+      "episodeID": 4,
+      "director": "George Lucas",
+      "producers": ["Gary Kurtz", "Rick McCallum"],
+      "releaseDate": "1977-05-25",
+      "characterConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          }
+        ]
+      },
+      "starshipConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing"
+            }
+          }
+        ]
+      },
+      "planetConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Tatooine"
+            }
+          }
+        ]
+      }
+    },
+    "film3": {
+      "title": "A New Hope",
+      "episodeID": 4,
+      "director": "George Lucas",
+      "producers": ["Gary Kurtz", "Rick McCallum"],
+      "releaseDate": "1977-05-25",
+      "characterConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          }
+        ]
+      },
+      "starshipConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing"
+            }
+          }
+        ]
+      },
+      "planetConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Tatooine"
+            }
+          }
+        ]
+      }
+    },
+    "film4": {
+      "title": "A New Hope",
+      "episodeID": 4,
+      "director": "George Lucas",
+      "producers": ["Gary Kurtz", "Rick McCallum"],
+      "releaseDate": "1977-05-25",
+      "characterConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          }
+        ]
+      },
+      "starshipConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing"
+            }
+          }
+        ]
+      },
+      "planetConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Tatooine"
+            }
+          }
+        ]
+      }
+    },
+    "film5": {
+      "title": "A New Hope",
+      "episodeID": 4,
+      "director": "George Lucas",
+      "producers": ["Gary Kurtz", "Rick McCallum"],
+      "releaseDate": "1977-05-25",
+      "characterConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          }
+        ]
+      },
+      "starshipConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "X-wing"
+            }
+          }
+        ]
+      },
+      "planetConnection": {
+        "edges": [
+          {
+            "node": {
+              "name": "Tatooine"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
