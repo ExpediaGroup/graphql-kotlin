@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +29,30 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same graphQLContext map,
  * when a certain state is reached will invoke [OnLevelDispatchedCallback]
  */
 class ExecutionLevelDispatchedState(
-    private val totalExecutions: Int
+    totalOperations: Int
 ) {
+    private val totalExecutions: AtomicReference<Int> = AtomicReference(totalOperations)
     val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
+
+    /**
+     * Remove an [ExecutionInput] from the state in case operation does not qualify for execution,
+     * for example:
+     * parsing, validation, execution errors
+     * persisted query errors
+     */
+    fun removeExecution(executionInput: ExecutionInput) {
+        if (executions.containsKey(executionInput)) {
+            executions.remove(executionInput)
+            totalExecutions.set(totalExecutions.get() - 1)
+        }
+    }
 
     /**
      * Initialize the [ExecutionBatchState] of this [ExecutionInput]
@@ -180,9 +195,11 @@ class ExecutionLevelDispatchedState(
      * @param level that execution state will be calculated
      * @return Boolean for allExecutionsDispatched statement
      */
-    fun allExecutionsDispatched(level: Level): Boolean =
-        executions
-            .takeIf { executions -> executions.size == totalExecutions }
-            ?.all { (_, executionState) -> executionState.isLevelDispatched(level) }
-            ?: false
+    fun allExecutionsDispatched(level: Level): Boolean = synchronized(executions) {
+        val operationsToExecute = totalExecutions.get()
+        when {
+            executions.size < operationsToExecute -> false
+            else -> executions.all { (_, executionState) -> executionState.isLevelDispatched(level) }
+        }
+    }
 }

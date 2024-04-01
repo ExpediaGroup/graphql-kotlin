@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,10 @@ import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
+import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
@@ -51,6 +53,22 @@ abstract class AbstractExecutionLevelDispatchedInstrumentation : SimplePerforman
     abstract fun getOnLevelDispatchedCallback(
         parameters: ExecutionLevelDispatchedInstrumentationParameters
     ): OnLevelDispatchedCallback
+
+    override fun beginExecution(
+        parameters: InstrumentationExecutionParameters,
+        state: InstrumentationState?
+    ): InstrumentationContext<ExecutionResult> =
+        object : SimpleInstrumentationContext<ExecutionResult>() {
+            override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
+                result?.let {
+                    if (result.errors.size > 0) {
+                        parameters.graphQLContext
+                            .get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+                            ?.removeExecution(parameters.executionInput)
+                    }
+                }
+            }
+        }
 
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters,
