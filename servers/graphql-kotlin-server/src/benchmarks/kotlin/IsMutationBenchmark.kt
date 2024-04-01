@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server
 
 import com.expediagroup.graphql.server.extensions.isMutation
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.Scope
@@ -67,7 +68,7 @@ open class IsMutationBenchmark {
         requests.add(GraphQLRequest(mutation))
     }
 
-    // @Benchmark
+    @Benchmark
     fun isMutationBenchmark(): Boolean {
         return requests.any(GraphQLRequest::isMutation)
     }

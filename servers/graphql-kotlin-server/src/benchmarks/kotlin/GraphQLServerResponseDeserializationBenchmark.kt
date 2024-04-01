@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server
 
 import com.expediagroup.graphql.server.testtypes.GraphQLServerResponse
+import com.expediagroup.graphql.server.testtypes.GraphQLServerResponseKSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.serialization.json.Json
@@ -58,8 +59,8 @@ open class GraphQLServerResponseDeserializationBenchmark {
     fun JacksonDeserializeGraphQLBatchResponse(): GraphQLServerResponse = mapper.readValue(batchResponse)
 
     @Benchmark
-    fun KSerializationDeserializeGraphQLResponse(): GraphQLServerResponse = Json.decodeFromString(response)
+    fun KSerializationDeserializeGraphQLResponse(): GraphQLServerResponse = Json.decodeFromString(GraphQLServerResponseKSerializer, response)
 
     @Benchmark
-    fun KSerializationDeserializeGraphQLBatchResponse(): GraphQLServerResponse = Json.decodeFromString(batchResponse)
+    fun KSerializationDeserializeGraphQLBatchResponse(): GraphQLServerResponse = Json.decodeFromString(GraphQLServerResponseKSerializer, batchResponse)
 }
