@@ -52,6 +52,11 @@ tasks {
                     value = "COVEREDRATIO"
                     minimum = "0.84".toBigDecimal()
                 }
+                limit {
+                    counter = "BRANCH"
+                    value = "COVEREDRATIO"
+                    minimum = "0.72".toBigDecimal()
+                }
             }
         }
     }
