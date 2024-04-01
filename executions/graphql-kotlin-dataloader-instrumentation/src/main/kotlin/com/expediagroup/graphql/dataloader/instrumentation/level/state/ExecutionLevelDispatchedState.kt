@@ -20,10 +20,12 @@ import com.expediagroup.graphql.dataloader.instrumentation.extensions.getExpecte
 import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatchedCallback
 import graphql.ExecutionInput
 import graphql.ExecutionResult
+import graphql.execution.ExecutionId
 import graphql.execution.FieldValueInfo
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
-import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.SimpleInstrumentationContext
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
@@ -39,17 +41,17 @@ class ExecutionLevelDispatchedState(
     totalOperations: Int
 ) {
     private val totalExecutions: AtomicReference<Int> = AtomicReference(totalOperations)
-    val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
+    val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
 
     /**
-     * Remove an [ExecutionInput] from the state in case operation does not qualify for execution,
+     * Remove an [ExecutionBatchState] from the state in case operation does not qualify for execution,
      * for example:
      * parsing, validation, execution errors
      * persisted query errors
      */
-    fun removeExecution(executionInput: ExecutionInput) {
-        if (executions.containsKey(executionInput)) {
-            executions.remove(executionInput)
+    private fun removeExecution(executionId: ExecutionId) {
+        if (executions.containsKey(executionId)) {
+            executions.remove(executionId)
             totalExecutions.set(totalExecutions.get() - 1)
         }
     }
@@ -60,13 +62,21 @@ class ExecutionLevelDispatchedState(
      * @param parameters contains information of which [ExecutionInput] will start his execution
      * @return a nullable [InstrumentationContext]
      */
-    fun beginExecuteOperation(
-        parameters: InstrumentationExecuteOperationParameters
-    ): InstrumentationContext<ExecutionResult>? {
-        executions.computeIfAbsent(parameters.executionContext.executionInput) {
+    fun beginExecution(
+        parameters: InstrumentationExecutionParameters
+    ): InstrumentationContext<ExecutionResult> {
+        executions.computeIfAbsent(parameters.executionInput.executionId) {
             ExecutionBatchState()
         }
-        return null
+        return object : SimpleInstrumentationContext<ExecutionResult>() {
+            override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
+                result?.let {
+                    if (result.errors.size > 0) {
+                        removeExecution(parameters.executionInput.executionId)
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -79,11 +89,11 @@ class ExecutionLevelDispatchedState(
         parameters: InstrumentationExecutionStrategyParameters,
         onLevelDispatched: OnLevelDispatchedCallback
     ): ExecutionStrategyInstrumentationContext {
-        val executionInput = parameters.executionContext.executionInput
+        val executionId = parameters.executionContext.executionInput.executionId
         val level = Level(parameters.executionStrategyParameters.path.level + 1)
         val fieldCount = parameters.executionStrategyParameters.fields.size()
 
-        executions.computeIfPresent(executionInput) { _, executionState ->
+        executions.computeIfPresent(executionId) { _, executionState ->
             executionState.also {
                 it.initializeLevelStateIfNeeded(level)
                 it.increaseExpectedFetches(level, fieldCount)
@@ -101,7 +111,7 @@ class ExecutionLevelDispatchedState(
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
 
-                executions.computeIfPresent(executionInput) { _, executionState ->
+                executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.also {
                         it.increaseOnFieldValueInfos(level)
                         it.increaseExpectedExecutionStrategies(
@@ -119,7 +129,7 @@ class ExecutionLevelDispatchedState(
             }
 
             override fun onFieldValuesException() {
-                executions.computeIfPresent(executionInput) { _, executionState ->
+                executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.also {
                         it.increaseOnFieldValueInfos(level)
                     }
@@ -138,14 +148,13 @@ class ExecutionLevelDispatchedState(
         parameters: InstrumentationFieldFetchParameters,
         onLevelDispatched: OnLevelDispatchedCallback
     ): InstrumentationContext<Any> {
-        val executionInput = parameters.executionContext.executionInput
+        val executionId = parameters.executionContext.executionInput.executionId
         val path = parameters.executionStepInfo.path
         val level = Level(path.level)
 
-        return object : InstrumentationContext<Any> {
+        return object : SimpleInstrumentationContext<Any>() {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-
-                executions.computeIfPresent(executionInput) { _, executionState ->
+                executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.also { it.increaseDispatchedFetches(level) }
                 }
 
@@ -154,9 +163,6 @@ class ExecutionLevelDispatchedState(
                     onLevelDispatched.invoke(level, executions.keys().toList())
                     executions.forEach { (_, executionState) -> executionState.completeDataFetchers(level) }
                 }
-            }
-
-            override fun onCompleted(result: Any?, t: Throwable?) {
             }
         }
     }
@@ -176,7 +182,7 @@ class ExecutionLevelDispatchedState(
         parameters: InstrumentationFieldFetchParameters
     ): DataFetcher<*> {
         var manuallyCompletableDataFetcher: DataFetcher<*> = dataFetcher
-        executions.computeIfPresent(parameters.executionContext.executionInput) { _, executionState ->
+        executions.computeIfPresent(parameters.executionContext.executionInput.executionId) { _, executionState ->
             executionState.also {
                 manuallyCompletableDataFetcher = it.toManuallyCompletableDataFetcher(
                     Level(parameters.executionStepInfo.path.level),

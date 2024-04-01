@@ -22,6 +22,7 @@ import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
 import graphql.execution.ExecutionContext
+import graphql.execution.ExecutionId
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
@@ -34,7 +35,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 /**
  * typealias that represents the signature of a callback that will be executed when sync execution is exhausted
  */
-internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionInput>) -> Unit
+internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionId>) -> Unit
 
 /**
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
