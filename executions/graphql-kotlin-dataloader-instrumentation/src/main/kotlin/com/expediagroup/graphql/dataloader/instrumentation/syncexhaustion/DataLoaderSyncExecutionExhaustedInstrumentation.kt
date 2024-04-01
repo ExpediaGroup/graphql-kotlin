@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execut
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExecutionExhaustedInstrumentationParameters
 import graphql.ExecutionInput
 import graphql.GraphQLContext
+import graphql.execution.ExecutionId
 import graphql.execution.instrumentation.Instrumentation
 import graphql.schema.DataFetcher
 import org.dataloader.DataLoader
@@ -37,10 +38,10 @@ import java.util.concurrent.CompletableFuture
 class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExhaustedInstrumentation() {
     override fun getOnSyncExecutionExhaustedCallback(
         parameters: SyncExecutionExhaustedInstrumentationParameters
-    ): OnSyncExecutionExhaustedCallback = { executions: List<ExecutionInput> ->
-        executions
-            .getOrNull(0)
-            ?.dataLoaderRegistry
-            ?.dispatchAll()
+    ): OnSyncExecutionExhaustedCallback = { _: List<ExecutionId> ->
+        parameters
+            .executionContext.executionInput
+            .dataLoaderRegistry
+            .dispatchAll()
     }
 }
