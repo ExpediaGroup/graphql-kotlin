@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -577,6 +577,37 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(1, results.size)
         verify {
             dataLoaderSyncExecutionExhaustedInstrumentation.getOnSyncExecutionExhaustedCallback(ofType()) wasNot Called
+        }
+    }
+
+    @Test
+    fun `Instrumentation should not account for invalid operations`() {
+        val queries = listOf(
+            "invalid query{ astronaut(id: 1) {",
+            "{ astronaut(id: 2) { id name } }",
+            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 4) { designation } }"
+        )
+
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(4, results.size)
+
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        assertEquals(1, astronautStatistics?.batchLoadCount)
+
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        assertEquals(2, missionStatistics?.batchLoadCount)
+
+        verify(exactly = 2) {
+            kotlinDataLoaderRegistry.dispatchAll()
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,43 @@ import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execut
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
+import graphql.execution.ExecutionId
 import graphql.execution.MergedField
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
-import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.SimpleInstrumentationContext
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
  * when a certain state is reached will invoke [OnSyncExecutionExhaustedCallback]
  */
 class SyncExecutionExhaustedState(
-    private val totalExecutions: Int,
+    totalOperations: Int,
     private val dataLoaderRegistry: KotlinDataLoaderRegistry
 ) {
-    val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
+
+    private val totalExecutions: AtomicReference<Int> = AtomicReference(totalOperations)
+    val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
+
+    /**
+     * Remove an [ExecutionBatchState] from the state in case operation does not qualify for starting an execution,
+     * for example:
+     * - parsing, validation errors
+     * - persisted query errors
+     */
+    private fun removeExecution(executionId: ExecutionId) {
+        if (executions.containsKey(executionId)) {
+            executions.remove(executionId)
+            totalExecutions.set(totalExecutions.get() - 1)
+        }
+    }
 
     /**
      * Create the [ExecutionBatchState] When a specific [ExecutionInput] starts his execution
@@ -47,13 +65,21 @@ class SyncExecutionExhaustedState(
      * @param parameters contains information of which [ExecutionInput] will start his execution
      * @return a non null [InstrumentationContext] object
      */
-    fun beginExecuteOperation(
-        parameters: InstrumentationExecuteOperationParameters
-    ): InstrumentationContext<ExecutionResult>? {
-        executions.computeIfAbsent(parameters.executionContext.executionInput) {
+    fun beginExecution(
+        parameters: InstrumentationExecutionParameters
+    ): InstrumentationContext<ExecutionResult> {
+        executions.computeIfAbsent(parameters.executionInput.executionId) {
             ExecutionBatchState()
         }
-        return null
+        return object : SimpleInstrumentationContext<ExecutionResult>() {
+            override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
+                result?.let {
+                    if (result.errors.size > 0) {
+                        removeExecution(parameters.executionInput.executionId)
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -66,9 +92,9 @@ class SyncExecutionExhaustedState(
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext? {
-        val executionInput = parameters.executionContext.executionInput
+        val executionId = parameters.executionContext.executionInput.executionId
 
-        executions.computeIfPresent(executionInput) { _, executionState ->
+        executions.computeIfPresent(executionId) { _, executionState ->
             val executionStrategyParameters = parameters.executionStrategyParameters
 
             val field = executionStrategyParameters.field?.singleField
@@ -95,14 +121,14 @@ class SyncExecutionExhaustedState(
         parameters: InstrumentationFieldFetchParameters,
         onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
     ): InstrumentationContext<Any> {
-        val executionInput = parameters.executionContext.executionInput
+        val executionId = parameters.executionContext.executionInput.executionId
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                executions.computeIfPresent(executionInput) { _, executionState ->
+                executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, result)
                     executionState
                 }
@@ -113,7 +139,7 @@ class SyncExecutionExhaustedState(
                 }
             }
             override fun onCompleted(result: Any?, t: Throwable?) {
-                executions.computeIfPresent(executionInput) { _, executionState ->
+                executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToCompletedState(field, fieldExecutionStrategyPath, result)
                     executionState
                 }
@@ -132,9 +158,12 @@ class SyncExecutionExhaustedState(
      * a scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
      */
     fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
+        val operationsToExecute = totalExecutions.get()
         when {
-            executions.size < totalExecutions || !dataLoaderRegistry.onDispatchFuturesHandled() -> false
-            else -> executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)
+            executions.size < operationsToExecute || !dataLoaderRegistry.onDispatchFuturesHandled() -> false
+            else -> {
+                executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)
+            }
         }
     }
 }
