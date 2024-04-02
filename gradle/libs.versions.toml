@@ -3,7 +3,7 @@ android-plugin = "8.1.1"
 classgraph = "4.8.162"
 dataloader = "3.2.0"
 federation = "4.1.0"
-graphql-java = "21.1"
+graphql-java = "21.5"
 graalvm = "0.9.28"
 jackson = "2.15.2"
 # kotlin version has to match the compile-testing compiler version
