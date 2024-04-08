@@ -44,4 +44,30 @@ Then the following query would return `"The parentField was foo and the childFie
 ```
 
 You can also use this to retrieve arguments and query information from higher up the query chain. You can see a working
-example in the `graphql-kotlin-spring-example` module [[link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/EnvironmentQuery.kt)].
+example in the `graphql-kotlin-spring-example` module [[link]([https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/EnvironmentQuery.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/EnvironmentQuery.kt))].
+
+```kotlin
+class ProductQueryService : Query {
+
+  fun products(environment: DataFetchingEnvironment): Product {
+      environment.selectionSet.fields.forEach { println("field: ${it.name}") }
+
+    return Product(1, "Product title", 100)
+  }
+}
+
+```
+
+```graphql
+{
+  product {
+    id
+    title
+    price
+  }
+}
+```
+
+You can also use `selectionSet` to retrieve sub field information a client wants. It can be useful to know
+what selection has been asked for so the data fetcher can optimise the data access queries.
+For example an SQL backed system may be able to use the field selection to only retrieve the columns that have been asked for.
