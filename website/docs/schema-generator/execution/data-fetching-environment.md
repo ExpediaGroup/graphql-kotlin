@@ -44,7 +44,7 @@ Then the following query would return `"The parentField was foo and the childFie
 ```
 
 You can also use this to retrieve arguments and query information from higher up the query chain. You can see a working
-example in the `graphql-kotlin-spring-example` module [[link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/EnvironmentQuery.kt)].
+example in the `graphql-kotlin-spring-example` module [[link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/EnvironmentQuery.kt)].
 
 ```kotlin
 class ProductQueryService : Query {
