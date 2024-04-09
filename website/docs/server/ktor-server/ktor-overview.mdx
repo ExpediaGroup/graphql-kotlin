@@ -99,6 +99,13 @@ GraphQL plugin provides following `Route` extension functions
 - `Route#graphQLSDLRoute` - GraphQL route for exposing schema in Schema Definition Language (SDL) format
 - `Route#graphiQLRoute` - GraphQL route for exposing [an official IDE](https://github.com/graphql/graphiql) from the GraphQL Foundation
 
+## StatusPages
+
+`graphql-kotlin-ktor-server` plugin differs from Spring as it relies on Ktor's StatusPages plugin to perform error handling.
+It is recommended to use the default settings, however, if you would like to customize your error handling you can create
+your own handler. One example might be if you need to catch a custom Authorization error to return a 401 status code.
+Please see [Ktor's Official Documentation for StatusPages](https://ktor.io/docs/server-status-pages.html)
+
 ## GraalVm Native Image Support
 
 GraphQL Kotlin Ktor Server can be compiled to a [native image](https://www.graalvm.org/latest/reference-manual/native-image/)

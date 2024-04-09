@@ -11,11 +11,11 @@ dependencies {
     api(libs.ktor.server.core)
     api(libs.ktor.server.content)
     api(libs.ktor.server.websockets)
+    api(libs.ktor.server.statuspages)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.content)
     testImplementation(libs.ktor.client.websockets)
     testImplementation(libs.ktor.server.cio)
-    testImplementation(libs.ktor.server.statuspages)
     testImplementation(libs.ktor.server.test.host)
 }
 

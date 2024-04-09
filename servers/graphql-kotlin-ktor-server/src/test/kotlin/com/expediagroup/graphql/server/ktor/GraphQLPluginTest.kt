@@ -182,7 +182,17 @@ class GraphQLPluginTest {
     }
 
     @Test
-    fun `server should return Unsupported Media Type for invalid POST requests`() {
+    fun `server should return Bad Request for invalid POST requests with correct content type`() {
+        testApplication {
+            val response = client.post("/graphql") {
+                contentType(ContentType.Application.Json)
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+    }
+
+    @Test
+    fun `server should return Unsupported Media Type for POST requests with invalid content type`() {
         testApplication {
             val response = client.post("/graphql")
             assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
@@ -234,12 +244,7 @@ class GraphQLPluginTest {
 
 fun Application.testGraphQLModule() {
     install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            when (cause) {
-                is UnsupportedOperationException -> call.respond(HttpStatusCode.MethodNotAllowed)
-                else -> call.respond(HttpStatusCode.BadRequest)
-            }
-        }
+        defaultGraphQLStatusPages()
     }
     install(GraphQL) {
         schema {

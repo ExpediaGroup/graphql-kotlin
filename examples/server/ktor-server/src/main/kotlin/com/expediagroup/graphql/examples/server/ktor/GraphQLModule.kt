@@ -47,12 +47,7 @@ fun Application.graphQLModule() {
         contentConverter = JacksonWebsocketContentConverter()
     }
     install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            when (cause) {
-                is UnsupportedOperationException -> call.respond(HttpStatusCode.MethodNotAllowed)
-                else -> call.respond(HttpStatusCode.BadRequest)
-            }
-        }
+        defaultGraphQLStatusPages()
     }
     install(CORS) {
         anyHost()
