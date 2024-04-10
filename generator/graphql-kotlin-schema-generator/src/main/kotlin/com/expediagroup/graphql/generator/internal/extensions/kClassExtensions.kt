@@ -84,12 +84,12 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
-    val name = this.getGraphQLName()
-        ?: this.simpleName
-        ?: throw CouldNotGetNameOfKClassException(this)
-
+    val gqlAnnotatedName = this.getGraphQLName()
+    val name = gqlAnnotatedName ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
     return when {
-        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+        isInputClass -> if (name.equals(gqlAnnotatedName, true)) gqlAnnotatedName!!
+        else if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+
         else -> name
     }
 }

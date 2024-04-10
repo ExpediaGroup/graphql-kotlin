@@ -332,7 +332,7 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test input class name with GraphQLName`() {
-        assertEquals("MyTestClassRenamedInput", MyTestClassCustomName::class.getSimpleName(true))
+        assertEquals("MyTestClassRenamed", MyTestClassCustomName::class.getSimpleName(true))
         assertEquals("MyClassRenamedInput", MyClassCustomNameInput::class.getSimpleName(true))
     }
 

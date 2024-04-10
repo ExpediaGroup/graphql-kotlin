@@ -68,7 +68,7 @@ class GenerateInputObjectTest : TypeTestHelper() {
     @Test
     fun `Test custom naming on classes`() {
         val result = generateInputObject(generator, InputClassCustomName::class)
-        assertEquals("InputClassRenamedInput", result.name)
+        assertEquals("InputClassRenamed", result.name)
     }
 
     @Test
