@@ -31,6 +31,8 @@ fun StatusPagesConfig.defaultGraphQLStatusPages(): StatusPagesConfig {
     exception<Throwable> { call, cause ->
         when (cause) {
             is UnsupportedOperationException -> call.respond(HttpStatusCode.MethodNotAllowed)
-            else -> call.respond(HttpStatusCode.BadRequest) } }
+            else -> call.respond(HttpStatusCode.BadRequest)
+        }
+    }
     return this
 }
