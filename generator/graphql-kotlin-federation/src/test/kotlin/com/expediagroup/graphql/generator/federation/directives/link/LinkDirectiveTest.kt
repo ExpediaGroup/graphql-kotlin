@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,9 @@ class LinkDirectiveTest {
 
             "Space separated list of primary keys needed to access federated object"
             directive @myKey(fields: fed__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(

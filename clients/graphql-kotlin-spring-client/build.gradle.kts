@@ -12,7 +12,7 @@ dependencies {
     api(libs.spring.webflux)
     api(libs.spring.boot.netty)
     testImplementation(projects.graphqlKotlinClientSerialization)
-    testImplementation(libs.wiremock.jre8)
+    testImplementation(libs.wiremock.lib)
 }
 
 tasks {

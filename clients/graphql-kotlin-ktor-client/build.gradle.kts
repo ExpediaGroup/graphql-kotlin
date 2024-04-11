@@ -13,7 +13,7 @@ dependencies {
     testImplementation(projects.graphqlKotlinClientJackson)
     testImplementation(libs.ktor.client.logging)
     testImplementation(libs.ktor.client.okhttp)
-    testImplementation(libs.wiremock.jre8)
+    testImplementation(libs.wiremock.lib)
 }
 
 tasks {

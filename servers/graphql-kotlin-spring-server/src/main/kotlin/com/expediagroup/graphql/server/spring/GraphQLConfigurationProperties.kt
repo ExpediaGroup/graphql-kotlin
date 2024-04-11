@@ -98,11 +98,6 @@ data class GraphQLConfigurationProperties(
         val protocol: SubscriptionProtocol = SubscriptionProtocol.GRAPHQL_WS
     )
 
-    enum class SubscriptionProtocol {
-        APOLLO_SUBSCRIPTIONS_WS,
-        GRAPHQL_WS
-    }
-
     /**
      * Playground configuration properties.
      */
@@ -142,11 +137,6 @@ data class GraphQLConfigurationProperties(
     )
 
     /**
-     * Approaches for batching transactions of a set of GraphQL Operations.
-     */
-    enum class BatchingStrategy { LEVEL_DISPATCHED, SYNC_EXHAUSTION }
-
-    /**
      * Batching configuration properties.
      */
     data class BatchingConfigurationProperties(
@@ -160,4 +150,20 @@ data class GraphQLConfigurationProperties(
         /** Boolean flag to enable or disable Automatic Persisted Queries. */
         val enabled: Boolean = false
     )
+}
+
+// workaround to Spring GraalVM native issue
+// when using nested configuration enum classes Spring Boot is unable to bind them correctly
+
+enum class SubscriptionProtocol {
+    APOLLO_SUBSCRIPTIONS_WS,
+    GRAPHQL_WS
+}
+
+/**
+ * Approaches for batching transactions of a set of GraphQL Operations.
+ */
+enum class BatchingStrategy {
+    LEVEL_DISPATCHED,
+    SYNC_EXHAUSTION
 }
