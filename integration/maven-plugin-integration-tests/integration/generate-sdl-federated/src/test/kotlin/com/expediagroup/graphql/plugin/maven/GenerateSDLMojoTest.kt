@@ -55,6 +55,9 @@ class GenerateSDLMojoTest {
             "Links definitions within the document to external schemas."
             directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
+
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
                 "Skipped when true."

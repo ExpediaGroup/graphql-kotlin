@@ -15,7 +15,7 @@ dependencies {
     compileOnly(projects.graphqlKotlinSdlGenerator)
     compileOnly(projects.graphqlKotlinGraalvmMetadataGenerator)
 
-    testImplementation(libs.wiremock.jre8)
+    testImplementation(libs.wiremock.lib)
     testImplementation(libs.junit.params)
 }
 

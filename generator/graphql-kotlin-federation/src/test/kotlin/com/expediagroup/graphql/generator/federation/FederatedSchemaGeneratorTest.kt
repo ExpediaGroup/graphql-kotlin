@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,9 @@ class FederatedSchemaGeneratorTest {
 
             "Space separated list of primary keys needed to access federated object"
             directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
             "Specifies the base type field set that will be selectable by the gateway"
             directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
@@ -178,6 +181,9 @@ class FederatedSchemaGeneratorTest {
 
             "Space separated list of primary keys needed to access federated object"
             directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
             "Specifies the base type field set that will be selectable by the gateway"
             directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
