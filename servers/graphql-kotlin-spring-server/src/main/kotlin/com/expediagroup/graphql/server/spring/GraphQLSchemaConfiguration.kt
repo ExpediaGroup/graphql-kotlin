@@ -91,8 +91,8 @@ class GraphQLSchemaConfiguration {
                     builder.doNotAddDefaultInstrumentations()
                     instrumentations.add(
                         when (config.batching.strategy) {
-                            GraphQLConfigurationProperties.BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
-                            GraphQLConfigurationProperties.BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
+                            BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
+                            BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
                         }
                     )
                 }

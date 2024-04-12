@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.slf4j)
     testImplementation(projects.graphqlKotlinClientJackson)
     testImplementation(projects.graphqlKotlinClientSerialization)
-    testImplementation(libs.wiremock.jre8)
+    testImplementation(libs.wiremock.lib)
     testImplementation(libs.compile.testing) {
         // there is no kotlin compile testing release supporting kotlin 1.8.22
         // explicitly downgrading kotlin version to match project version

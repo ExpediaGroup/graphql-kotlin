@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,9 @@ class FederatedSchemaV2GeneratorTest {
 
             "Links definitions within the document to external schemas."
             directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
+
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
             "Specifies the base type field set that will be selectable by the gateway"
             directive @provides(fields: FieldSet!) on FIELD_DEFINITION
