@@ -36,6 +36,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.routing.Routing
 import io.ktor.server.testing.testApplication
 import io.ktor.websocket.Frame
@@ -183,10 +184,20 @@ class GraphQLPluginTest {
     }
 
     @Test
-    fun `server should return Bad Request for invalid POST requests`() {
+    fun `server should return Bad Request for invalid POST requests with correct content type`() {
+        testApplication {
+            val response = client.post("/graphql") {
+                contentType(ContentType.Application.Json)
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+    }
+
+    @Test
+    fun `server should return Unsupported Media Type for POST requests with invalid content type`() {
         testApplication {
             val response = client.post("/graphql")
-            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
         }
     }
 
@@ -234,6 +245,9 @@ class GraphQLPluginTest {
 }
 
 fun Application.testGraphQLModule() {
+    install(StatusPages) {
+        defaultGraphQLStatusPages()
+    }
     install(GraphQL) {
         schema {
             // packages property is read from application.conf

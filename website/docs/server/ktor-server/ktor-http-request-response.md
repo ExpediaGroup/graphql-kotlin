@@ -24,6 +24,7 @@ fun Application.myModule() {
     // install additional plugins
     install(CORS) { ... }
     install(Authentication) { ... }
+    install(StatusPages) { ... }
 
     // install graphql plugin
     install(GraphQL) {
