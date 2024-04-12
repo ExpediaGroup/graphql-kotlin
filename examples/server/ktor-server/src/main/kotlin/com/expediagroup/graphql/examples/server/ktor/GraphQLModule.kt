@@ -26,6 +26,7 @@ import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookData
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.ktor.GraphQL
+import com.expediagroup.graphql.server.ktor.defaultGraphQLStatusPages
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
 import com.expediagroup.graphql.server.ktor.graphQLSDLRoute
