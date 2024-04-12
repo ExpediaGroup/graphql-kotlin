@@ -68,6 +68,6 @@ class ProductQueryService : Query {
 }
 ```
 
-You can also use `selectionSet` to retrieve sub field information a client wants. It can be useful to know
+You can also use `selectionSet` to access the selected fields of the current field. It can be useful to know which selections have been requested so the data fetcher can optimize the data access queries. For example, in an SQL-backed system, the data fetcher can access the database and use the field selection criteria to specifically retrieve only the columns that have been requested by the client.
 what selection has been asked for so the data fetcher can optimise the data access queries.
 For example an SQL backed system may be able to use the field selection to only retrieve the columns that have been asked for.
