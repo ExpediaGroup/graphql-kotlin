@@ -64,8 +64,7 @@ internal fun KClass<*>.isUnion(fieldAnnotations: List<Annotation> = emptyList())
 
 private fun KClass<*>.isDeclaredUnion() = this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
 
-internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = (this.isInstance(Any::class) || this.isAnnotation()) &&
-    fieldAnnotations.getUnionAnnotation() != null
+internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = (this.isInstance(Any::class) || this.isAnnotation()) && fieldAnnotations.getUnionAnnotation() != null
 
 internal fun KClass<*>.isAnnotation(): Boolean = this.isSubclassOf(Annotation::class)
 
@@ -84,14 +83,18 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
-    val gqlAnnotatedName = this.getGraphQLName()
-    val name = gqlAnnotatedName ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
-    return when {
-        isInputClass -> if (name.equals(gqlAnnotatedName, true)) gqlAnnotatedName!!
-        else if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+    val name = this.getGraphQLName()
+        ?: this.simpleName
+        ?: throw CouldNotGetNameOfKClassException(this)
 
+    return when {
+        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
         else -> name
     }
+}
+@Throws(CouldNotGetNameOfKClassException::class)
+internal fun KClass<*>.getInputClassSimpleName(): String {
+    return this.getGraphQLInputName() ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
 }
 
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()

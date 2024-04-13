@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLInputName
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
@@ -40,7 +41,14 @@ class GenerateInputObjectTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("InputClassRenamed")
-    class InputClassCustomName {
+    class CustomClassName {
+        @GraphQLName("myFieldRenamed")
+        val myField: String = "car"
+    }
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLInputName("InputClassRenamed")
+    class InputCustomClassName {
         @GraphQLName("myFieldRenamed")
         val myField: String = "car"
     }
@@ -67,13 +75,19 @@ class GenerateInputObjectTest : TypeTestHelper() {
 
     @Test
     fun `Test custom naming on classes`() {
-        val result = generateInputObject(generator, InputClassCustomName::class)
+        val result = generateInputObject(generator, CustomClassName::class)
+        assertEquals("InputClassRenamedInput", result.name)
+    }
+
+    @Test
+    fun `Test custom naming on input classes`() {
+        val result = generateInputObject(generator, InputCustomClassName::class)
         assertEquals("InputClassRenamed", result.name)
     }
 
     @Test
     fun `Test custom naming on arguments`() {
-        val result = generateInputObject(generator, InputClassCustomName::class)
+        val result = generateInputObject(generator, CustomClassName::class)
         assertEquals(expected = 1, actual = result.fields.size)
         assertEquals("myFieldRenamed", result.fields.first().name)
     }

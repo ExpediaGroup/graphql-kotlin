@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLInputName
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLType
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
@@ -53,3 +54,5 @@ internal fun Deprecated.getReason(): String = when {
     replaceWith.expression.isBlank() -> message
     else -> "$message, replace with ${replaceWith.expression}"
 }
+
+internal fun KAnnotatedElement.getGraphQLInputName(): String? = this.findAnnotation<GraphQLInputName>()?.value
