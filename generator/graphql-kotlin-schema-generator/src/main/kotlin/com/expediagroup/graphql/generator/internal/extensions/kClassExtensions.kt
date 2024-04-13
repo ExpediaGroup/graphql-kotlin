@@ -83,6 +83,9 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
+    if (this.getGraphQLInputName() != null)
+        return getInputClassSimpleName()
+
     val name = this.getGraphQLName()
         ?: this.simpleName
         ?: throw CouldNotGetNameOfKClassException(this)
@@ -93,7 +96,7 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
     }
 }
 @Throws(CouldNotGetNameOfKClassException::class)
-internal fun KClass<*>.getInputClassSimpleName(): String {
+private fun KClass<*>.getInputClassSimpleName(): String {
     return this.getGraphQLInputName() ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
 }
 
