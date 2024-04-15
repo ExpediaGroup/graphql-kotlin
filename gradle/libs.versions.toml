@@ -40,7 +40,7 @@ wiremock = "3.5.2"
 
 # plugins
 # TODO kotlin 1.9 upgrade -> detekt 1.23.1+ uses kotlin 1.9
-detekt = "1.23.0"
+detekt = "1.23.6"
 dokka = "1.8.20"
 jacoco = "0.8.12"
 # klint gradle plugin breaks with 0.46.x+
