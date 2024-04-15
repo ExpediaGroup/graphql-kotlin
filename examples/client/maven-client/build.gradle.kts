@@ -14,7 +14,7 @@ tasks {
     val kotlinJvmVersion: String by project
     /* Gradle is used to invoke maven wrapper */
     val mavenEnvironmentVariables = mapOf(
-        "graphqlKotlinVersion" to project.version,
+        "graphqlKotlinVersion" to project.ext["version"],
         "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to libs.versions.kotlin.get(),
         "kotlinxCoroutinesVersion" to libs.versions.kotlinx.coroutines.get(),
