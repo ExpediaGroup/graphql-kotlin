@@ -26,6 +26,7 @@ import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookData
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.ktor.GraphQL
+import com.expediagroup.graphql.server.ktor.defaultGraphQLStatusPages
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
 import com.expediagroup.graphql.server.ktor.graphQLSDLRoute
@@ -35,6 +36,7 @@ import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.routing.Routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
@@ -44,6 +46,9 @@ fun Application.graphQLModule() {
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(1)
         contentConverter = JacksonWebsocketContentConverter()
+    }
+    install(StatusPages) {
+        defaultGraphQLStatusPages()
     }
     install(CORS) {
         anyHost()
