@@ -18,11 +18,14 @@ package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLNameTarget
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLTypeException
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -69,6 +72,18 @@ open class KClassExtensionsTest {
 
     @GraphQLName("MyTestClassRenamed")
     private class MyTestClassCustomName
+
+    @GraphQLName("MyInputTestClass", target = GraphQLNameTarget.INPUT)
+    private class MyInputTestClassCustomName
+
+    @GraphQLName("MyOutputTestClass", target = GraphQLNameTarget.OUTPUT)
+    private class MyOutputTestClassCustomName
+
+    @GraphQLName("MyOutputTestClass", target = GraphQLNameTarget.INPUT)
+    private class MyOutputTestClassWithInputTarget
+
+    @GraphQLName("MyInputTestClass", target = GraphQLNameTarget.OUTPUT)
+    private class MyInputTestClassWithOutputTarget
 
     internal class MyInternalClass
 
@@ -377,5 +392,29 @@ open class KClassExtensionsTest {
         assertFalse(IgnoredSecondLevelInterface::class.isValidAdditionalType(false))
         assertFalse(IgnoredClass::class.isValidAdditionalType(true))
         assertFalse(IgnoredClass::class.isValidAdditionalType(false))
+    }
+
+    @Test
+    fun `test class name with GraphQLName And GraphQLNameTarget INPUT`() {
+        assertEquals("MyInputTestClass", MyInputTestClassCustomName::class.getSimpleName(true))
+    }
+
+    @Test
+    fun `test class name with GraphQLName And GraphQLNameTarget OUTPUT`() {
+        assertEquals("MyOutputTestClass", MyOutputTestClassCustomName::class.getSimpleName())
+    }
+
+    @Test
+    fun `test Input class name with GraphQLName And GraphQLNameTarget OUTPUT expect InvalidGraphQLTypeException`() {
+        assertThrows<InvalidGraphQLTypeException> {
+            MyInputTestClassWithOutputTarget::class.getSimpleName(true)
+        }
+    }
+
+    @Test
+    fun `test Output class name with GraphQLName And GraphQLNameTarget INPUT expect InvalidGraphQLTypeException`() {
+        assertThrows<InvalidGraphQLTypeException> {
+            MyOutputTestClassWithInputTarget::class.getSimpleName()
+        }
     }
 }

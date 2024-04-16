@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLNameTarget
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLTypeException
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.filters.functionFilters
 import com.expediagroup.graphql.generator.internal.filters.propertyFilters
@@ -86,12 +87,38 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
 
     val name = this.getGraphQLName() ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+    val target = this.getGraphQLNameTarget()
 
-    this.getGraphQLNameTarget().takeIf { it == GraphQLNameTarget.INPUT }?.let { return name }
+    when (target) {
+        GraphQLNameTarget.INPUT -> {
+            if (isInputClass) {
+                return name
+            } else {
+                throw InvalidGraphQLTypeException("Class $name is marked as an input type but is not an input class and suggest to change it to target INPUT/ BOTH")
+            }
+        }
 
-    return when {
-        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
-        else -> name
+        GraphQLNameTarget.OUTPUT -> {
+            if (!isInputClass) {
+                return name
+            } else {
+                throw InvalidGraphQLTypeException("Class $name is marked as an output type but is not an output class and suggest to change it to target OUTPUT/ BOTH")
+            }
+        }
+
+        GraphQLNameTarget.BOTH -> {
+            if (isInputClass) {
+                return if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+            } else {
+                return name
+            }
+        }
+
+        else -> return if (isInputClass) {
+            if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+        } else {
+            name
+        }
     }
 }
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()
