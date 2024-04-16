@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.types
 
+import com.expediagroup.graphql.generator.scalars.ID
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -47,6 +48,20 @@ class GraphQLServerRequestTest {
 
         val expectedJson =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
+
+        assertEquals(expectedJson, Json.encodeToString(request))
+    }
+
+    @Test
+    fun `verify complete serialization including ID`() {
+        val request = GraphQLRequest(
+            query = "query FooQuery(\$input: ID) { foo(\$input) }",
+            operationName = "FooQuery",
+            variables = mapOf("input" to ID("1"))
+        )
+
+        val expectedJson =
+            """{"query":"query FooQuery(${'$'}input: ID) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":"1"}}"""
 
         assertEquals(expectedJson, Json.encodeToString(request))
     }
