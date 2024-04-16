@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLNameTarget
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.filters.functionFilters
@@ -83,23 +84,16 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
-    if (this.getGraphQLInputName() != null)
-        return getInputClassSimpleName()
 
-    val name = this.getGraphQLName()
-        ?: this.simpleName
-        ?: throw CouldNotGetNameOfKClassException(this)
+    val name = this.getGraphQLName() ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+
+    this.getGraphQLNameTarget().takeIf { it == GraphQLNameTarget.INPUT }?.let { return name }
 
     return when {
         isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
         else -> name
     }
 }
-@Throws(CouldNotGetNameOfKClassException::class)
-private fun KClass<*>.getInputClassSimpleName(): String {
-    return this.getGraphQLInputName() ?: this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
-}
-
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()
 
 internal fun KClass<*>.isPublic(): Boolean = this.visibility == KVisibility.PUBLIC

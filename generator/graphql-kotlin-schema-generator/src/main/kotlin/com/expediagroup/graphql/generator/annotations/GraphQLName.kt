@@ -20,4 +20,10 @@ package com.expediagroup.graphql.generator.annotations
  * Set the GraphQL name to be picked up by the schema generator.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
-annotation class GraphQLName(val value: String)
+annotation class GraphQLName(val value: String, val target: GraphQLNameTarget = GraphQLNameTarget.BOTH)
+
+enum class GraphQLNameTarget {
+    INPUT,
+    OUTPUT,
+    BOTH
+}

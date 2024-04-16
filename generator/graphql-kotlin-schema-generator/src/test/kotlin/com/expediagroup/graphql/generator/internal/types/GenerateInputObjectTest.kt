@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.generator.annotations.GraphQLInputName
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLNameTarget
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
@@ -47,7 +47,7 @@ class GenerateInputObjectTest : TypeTestHelper() {
     }
 
     @Suppress("Detekt.UnusedPrivateClass")
-    @GraphQLInputName("InputClassRenamed")
+    @GraphQLName("InputClassRenamed", target = GraphQLNameTarget.INPUT)
     class InputCustomClassName {
         @GraphQLName("myFieldRenamed")
         val myField: String = "car"
