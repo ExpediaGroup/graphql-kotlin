@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.server.types.serializers
 
+import com.expediagroup.graphql.generator.scalars.ID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -41,6 +42,7 @@ object AnyNullableKSerializer : KSerializer<Any?> {
             is Number -> JsonPrimitive(value)
             is Boolean -> JsonPrimitive(value)
             is String -> JsonPrimitive(value)
+            is ID -> JsonPrimitive(value.value)
             else -> JsonNull
         }
 
