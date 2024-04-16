@@ -32,6 +32,7 @@ import kotlin.reflect.KClass
 internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInputObjectType {
     validateObjectLocation(kClass, GraphQLValidObjectLocations.Locations.INPUT_OBJECT)
     validatePrimaryConstructorExists(kClass)
+
     val name = kClass.getSimpleName(isInputClass = true)
     validateGraphQLName(name, kClass)
 
