@@ -16,7 +16,14 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
-import com.expediagroup.graphql.generator.annotations.*
+
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLNameTarget
+import com.expediagroup.graphql.generator.annotations.GraphQLType
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
