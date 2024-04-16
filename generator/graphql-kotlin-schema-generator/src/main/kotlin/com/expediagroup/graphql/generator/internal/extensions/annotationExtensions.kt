@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
-
 import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
