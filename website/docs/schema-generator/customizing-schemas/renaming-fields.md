@@ -22,8 +22,8 @@ type MyCustomName {
 
 :::info
 By default, in order to differentiate between input and output types, all input type names are auto generated with additional
-`Input` suffix. If you would like to change this behavior and avoid extra suffix, you need to explicitly specify that this
-is an input only type.
+`Input` suffix. Suffix is appended only if input type name does not already end with `Input`. If you would like to change this 
+behavior and avoid extra suffix, you need to explicitly specify that this is an input only type.
 
 ```kotlin
 // GraphQL input object type name: MyInputType
