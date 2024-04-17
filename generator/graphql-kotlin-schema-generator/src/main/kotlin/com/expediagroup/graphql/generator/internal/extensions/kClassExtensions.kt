@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.filters.functionFilters
@@ -28,6 +29,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberFunctions
@@ -84,12 +86,16 @@ internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
+    val isInputOnlyLocation = this.findAnnotation<GraphQLValidObjectLocations>().let {
+        it != null && it.locations.size == 1 && it.locations.contains(GraphQLValidObjectLocations.Locations.INPUT_OBJECT)
+    }
+
     val name = this.getGraphQLName()
         ?: this.simpleName
         ?: throw CouldNotGetNameOfKClassException(this)
 
     return when {
-        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
+        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true) || isInputOnlyLocation) name else "$name$INPUT_SUFFIX"
         else -> name
     }
 }
