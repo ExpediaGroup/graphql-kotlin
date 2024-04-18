@@ -29,7 +29,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
     private val graphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderLevelDispatchedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
-        .doNotAddDefaultInstrumentations()
+        .doNotAutomaticallyDispatchDataLoader()
         .build()
 
     @BeforeEach

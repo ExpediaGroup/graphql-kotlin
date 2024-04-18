@@ -127,9 +127,9 @@ class SyncExecutionExhaustedState(
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : InstrumentationContext<Any> {
-            override fun onDispatched(result: CompletableFuture<Any?>) {
+            override fun onDispatched() {
                 executions.computeIfPresent(executionId) { _, executionState ->
-                    executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, result)
+                    executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, CompletableFuture.completedFuture("todo"))
                     executionState
                 }
 

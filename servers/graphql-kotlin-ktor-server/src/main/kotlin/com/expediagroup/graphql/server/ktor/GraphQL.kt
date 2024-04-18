@@ -135,7 +135,7 @@ class GraphQL(config: GraphQLConfiguration) {
 
             val instrumentations = mutableListOf<Instrumentation>()
             if (config.engine.batching.enabled) {
-                builder.doNotAddDefaultInstrumentations()
+                builder.doNotAutomaticallyDispatchDataLoader()
                 instrumentations.add(
                     when (config.engine.batching.strategy) {
                         GraphQLConfiguration.BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()

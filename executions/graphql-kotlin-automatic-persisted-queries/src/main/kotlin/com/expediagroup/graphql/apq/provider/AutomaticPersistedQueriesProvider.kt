@@ -33,20 +33,6 @@ import java.util.function.Function
 class AutomaticPersistedQueriesProvider(
     private val cache: AutomaticPersistedQueriesCache
 ) : PreparsedDocumentProvider {
-
-    @Deprecated(
-        "deprecated in favor of async retrieval of Document",
-        ReplaceWith("this.getDocumentAsync(executionInput, parseAndValidateFunction).get()")
-    )
-    override fun getDocument(
-        executionInput: ExecutionInput,
-        parseAndValidateFunction: Function<ExecutionInput, PreparsedDocumentEntry>
-    ): PreparsedDocumentEntry =
-        this.getDocumentAsync(
-            executionInput,
-            parseAndValidateFunction
-        ).get()
-
     override fun getDocumentAsync(
         executionInput: ExecutionInput,
         parseAndValidateFunction: Function<ExecutionInput, PreparsedDocumentEntry>

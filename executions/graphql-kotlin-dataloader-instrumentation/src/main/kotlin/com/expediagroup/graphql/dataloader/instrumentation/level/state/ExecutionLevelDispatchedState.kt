@@ -29,7 +29,6 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
@@ -102,7 +101,7 @@ class ExecutionLevelDispatchedState(
         }
 
         return object : ExecutionStrategyInstrumentationContext {
-            override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
+            override fun onDispatched() {
             }
 
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
@@ -153,7 +152,7 @@ class ExecutionLevelDispatchedState(
         val level = Level(path.level)
 
         return object : SimpleInstrumentationContext<Any>() {
-            override fun onDispatched(result: CompletableFuture<Any?>) {
+            override fun onDispatched() {
                 executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.also { it.increaseDispatchedFetches(level) }
                 }

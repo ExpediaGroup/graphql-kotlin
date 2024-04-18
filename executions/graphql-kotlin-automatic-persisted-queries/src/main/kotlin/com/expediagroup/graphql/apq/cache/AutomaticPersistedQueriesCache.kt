@@ -23,18 +23,6 @@ import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
 import java.util.concurrent.CompletableFuture
 
 interface AutomaticPersistedQueriesCache : PersistedQueryCache {
-
-    @Deprecated(
-        message = "deprecated in favor of async retrieval of PreparsedDocumentEntry",
-        replaceWith = ReplaceWith("getPersistedQueryDocumentAsync(persistedQueryId, executionInput, onCacheMiss)")
-    )
-    override fun getPersistedQueryDocument(
-        persistedQueryId: Any,
-        executionInput: ExecutionInput,
-        onCacheMiss: PersistedQueryCacheMiss
-    ): PreparsedDocumentEntry =
-        getPersistedQueryDocumentAsync(persistedQueryId, executionInput, onCacheMiss).get()
-
     override fun getPersistedQueryDocumentAsync(
         persistedQueryId: Any,
         executionInput: ExecutionInput,

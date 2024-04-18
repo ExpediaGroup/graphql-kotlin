@@ -31,13 +31,13 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     private val graphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
-        .doNotAddDefaultInstrumentations()
+        .doNotAutomaticallyDispatchDataLoader()
         .build()
 
     private val productGraphQL = ProductGraphQL.builder
         .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
-        .doNotAddDefaultInstrumentations()
+        .doNotAutomaticallyDispatchDataLoader()
         .build()
 
     @BeforeEach
