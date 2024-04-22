@@ -24,7 +24,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.coroutineScope
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -91,7 +90,7 @@ class FunctionDataFetcherTest {
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { getSource<Any>() } returns null
         }
-        assertNull(dataFetcher.get(mockEnvironment))
+        assertNull(dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -102,7 +101,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("string" to "hello")
             every { containsArgument("string") } returns true
         }
-        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -112,7 +111,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("string" to "hello")
             every { containsArgument("string") } returns true
         }
-        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -127,7 +126,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns emptyMap()
             every { containsArgument(any()) } returns false
         }
-        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -138,7 +137,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("string" to "hello")
             every { containsArgument("string") } returns true
         }
-        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -149,7 +148,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns emptyMap()
             every { containsArgument(any()) } returns false
         }
-        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -160,7 +159,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("string" to "foo")
             every { containsArgument("string") } returns true
         }
-        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -171,7 +170,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("string" to null)
             every { containsArgument("string") } returns true
         }
-        assertNull(dataFetcher.get(mockEnvironment))
+        assertNull(dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -182,7 +181,7 @@ class FunctionDataFetcherTest {
             every { containsArgument("items") } returns true
         }
 
-        assertEquals(expected = "foo:bar", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "foo:bar", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -195,7 +194,7 @@ class FunctionDataFetcherTest {
                 every { name } returns "fooBarBaz"
             }
         }
-        assertEquals(expected = "fooBarBaz", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "fooBarBaz", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -209,12 +208,11 @@ class FunctionDataFetcherTest {
 
         val result = dataFetcher.get(mockEnvironment)
 
-        assertTrue(result is CompletableFuture<*>)
         assertEquals(expected = "hello", actual = result.get())
     }
 
     @Test
-    fun `throwException function propagates the original exception`() {
+    fun `throwException function returns CompletableFuture with exception`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::throwException)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { arguments } returns emptyMap()
@@ -225,7 +223,7 @@ class FunctionDataFetcherTest {
             dataFetcher.get(mockEnvironment)
             assertFalse(true, "Should not be here")
         } catch (e: Exception) {
-            assertEquals(e.message, "Test Exception")
+            assertEquals("graphql.GraphQLException: Test Exception", e.message)
         }
     }
 
@@ -240,7 +238,6 @@ class FunctionDataFetcherTest {
 
         try {
             val result = dataFetcher.get(mockEnvironment)
-            assertTrue(result is CompletableFuture<*>)
             result.get()
             assertFalse(true, "Should not be here")
         } catch (e: Exception) {
@@ -257,7 +254,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("myCustomArgument" to mapOf("jacksonField" to "foo"))
             every { containsArgument("myCustomArgument") } returns true
         }
-        assertEquals(expected = "You sent foo", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "You sent foo", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -267,7 +264,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("input" to "hello")
             every { containsArgument("input") } returns true
         }
-        assertEquals(expected = "input was hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "input was hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -277,7 +274,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("input" to null)
             every { containsArgument("input") } returns true
         }
-        assertEquals(expected = "input was null", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "input was null", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -287,7 +284,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns emptyMap()
             every { containsArgument(any()) } returns false
         }
-        assertEquals(expected = "input was UNDEFINED", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "input was UNDEFINED", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -297,7 +294,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("input" to listOf(linkedMapOf("jacksonField" to "foo")))
             every { containsArgument("input") } returns true
         }
-        val result = dataFetcher.get(mockEnvironment)
+        val result = dataFetcher.get(mockEnvironment).get()
         assertEquals(expected = "first input was foo", actual = result)
     }
 
@@ -308,7 +305,7 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("input" to mapOf("required" to "hello", "optional" to "hello"))
             every { containsArgument("input") } returns true
         }
-        assertEquals(expected = "optional was hello", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "optional was hello", actual = dataFetcher.get(mockEnvironment).get())
     }
 
     @Test
@@ -318,6 +315,6 @@ class FunctionDataFetcherTest {
             every { arguments } returns mapOf("input" to mapOf("required" to "hello"))
             every { containsArgument("input") } returns true
         }
-        assertEquals(expected = "optional was UNDEFINED", actual = dataFetcher.get(mockEnvironment))
+        assertEquals(expected = "optional was UNDEFINED", actual = dataFetcher.get(mockEnvironment).get())
     }
 }
