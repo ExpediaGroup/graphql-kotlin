@@ -36,8 +36,8 @@ import kotlin.reflect.full.valueParameters
 /**
  * Simple DataFetcher that invokes target function on the given object.
  *
- * @param target The target object that performs the data fetching, if not specified then this data fetcher will attempt
- *   to use source object from the environment
+ * @param target The target object that performs the data fetching, if not specified, then this data fetcher will attempt
+ *   to use a source object from the environment
  * @param fn The Kotlin function being invoked
  */
 @Suppress("Detekt.SpreadOperator")
@@ -49,7 +49,7 @@ open class FunctionDataFetcher(
     /**
      * Invoke a suspend function or blocking function, passing in the [target] if not null or default to using the source from the environment.
      */
-    override fun get(environment: DataFetchingEnvironment): Any? {
+    override fun get(environment: DataFetchingEnvironment): CompletableFuture<Any?> {
         val instance: Any? = target ?: environment.getSource<Any?>()
         val instanceParameter = fn.instanceParameter
 
@@ -63,7 +63,7 @@ open class FunctionDataFetcher(
                 runBlockingFunction(parameterValues)
             }
         } else {
-            null
+            CompletableFuture.completedFuture(null)
         }
     }
 
@@ -82,10 +82,10 @@ open class FunctionDataFetcher(
      * Retrieves the provided parameter value in the operation input to pass to the function to execute.
      *
      * If the argument is missing in the input, and the type is not an [OptionalInput], do not return a mapping.
-     * This allows for default Kotlin values to be used when executing the function. If you need logic when a value
+     * This allows for default Kotlin values to be used when executing the function. Otherwise, if you need logic when a value
      * is missing, use the [OptionalInput] wrapper instead.
      *
-     * If the parameter is of a special type then we do not read the input and instead just pass on that value.
+     * If the parameter is of a special type, then we do not read the input and instead just pass on that value.
      * The special values include:
      *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]
      */
@@ -120,12 +120,15 @@ open class FunctionDataFetcher(
         }
 
     /**
-     * Once all parameters values are properly converted, this function will be called to run a simple blocking function.
-     * If you need to override the exception handling you can override this method.
+     * Once all parameter values are properly converted, this function will be called to run a simple blocking function.
+     * If you need to override the exception handling, you can override this method.
      */
-    protected open fun runBlockingFunction(parameterValues: Map<KParameter, Any?>): Any? = try {
-        fn.callBy(parameterValues)
-    } catch (exception: InvocationTargetException) {
-        throw exception.cause ?: exception
-    }
+    protected open fun runBlockingFunction(parameterValues: Map<KParameter, Any?>): CompletableFuture<Any?>  =
+        CompletableFuture<Any?>().apply {
+            try {
+                complete(fn.callBy(parameterValues))
+            } catch (exception: InvocationTargetException) {
+                completeExceptionally(exception.cause ?: exception)
+            }
+        }
 }
