@@ -569,7 +569,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.execute(
             graphQL,
             queries,
-            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)

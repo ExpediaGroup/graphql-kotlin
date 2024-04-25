@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import com.expediagroup.graphql.generator.extensions.plus
@@ -140,22 +138,13 @@ open class GraphQLRequestHandler(
         batchSize: Int,
         dataLoaderRegistry: KotlinDataLoaderRegistry?
     ): Map<*, Any> {
-        if (dataLoaderRegistry == null) {
-            return emptyMap<Any, Any>()
-        }
-
-        val batchContext = when (batchDataLoaderInstrumentationType) {
-            DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
-                ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(batchSize)
-            )
-
+        dataLoaderRegistry ?: return emptyMap<Any, Any>()
+        return when (batchDataLoaderInstrumentationType) {
             DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
                 SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
             )
-
             else -> emptyMap<Any, Any>()
         }
-        return batchContext
     }
 
     /**

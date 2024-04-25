@@ -71,7 +71,7 @@ type Query @extends
 
 type Review {
   body: String!
-  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+  content: String
   customScalar: CustomScalar!
   id: String!
 }
@@ -173,7 +173,7 @@ type Query {
 
 type Review {
   body: String! @custom
-  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+  content: String
   customScalar: CustomScalar!
   id: String!
 }

@@ -108,20 +108,19 @@ class ExecutionStrategyState(
          * of the [Field] [DataFetcher] in order to calculate the [Field] [FieldFetchType].
          *
          * @param graphQLType [GraphQLType] of the [Field] which [DataFetcher] was dispatched.
-         * @param result [CompletableFuture] result of the [DataFetcher.get] call.
+         * @param result the [DataFetcher] polymorphic result, either a nullable materialized object or a CompletableFuture.
          * @return this [FieldState].
          */
         fun toDispatchedState(
             graphQLType: GraphQLType,
-            result: CompletableFuture<Any?>
+            result: Any?
         ): FieldState = this.also {
             this.fetchState = FieldFetchState.DISPATCHED
             this.graphQLType = graphQLType
             this.fetchType = when {
-                result.isDone -> FieldFetchType.SYNC
-                else -> FieldFetchType.ASYNC
+                result is CompletableFuture<*> -> FieldFetchType.ASYNC
+                else -> FieldFetchType.SYNC
             }
-
             this@ExecutionStrategyState.dispatchedFields.updateAndGet { current -> current + 1 }
         }
 

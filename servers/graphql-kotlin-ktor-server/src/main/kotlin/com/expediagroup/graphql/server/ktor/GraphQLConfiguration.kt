@@ -235,7 +235,7 @@ class GraphQLConfiguration(config: ApplicationConfig) {
     /**
      * Approaches for batching transactions of a set of GraphQL Operations.
      */
-    enum class BatchingStrategy { LEVEL_DISPATCHED, SYNC_EXHAUSTION }
+    enum class BatchingStrategy { SYNC_EXHAUSTION }
 
     /**
      * Batching configuration properties.
@@ -288,4 +288,4 @@ class GraphQLConfiguration(config: ApplicationConfig) {
 }
 
 private fun String?.toBatchingStrategy(): GraphQLConfiguration.BatchingStrategy =
-    GraphQLConfiguration.BatchingStrategy.values().firstOrNull { strategy -> strategy.name == this } ?: GraphQLConfiguration.BatchingStrategy.LEVEL_DISPATCHED
+    GraphQLConfiguration.BatchingStrategy.values().firstOrNull { strategy -> strategy.name == this } ?: GraphQLConfiguration.BatchingStrategy.SYNC_EXHAUSTION

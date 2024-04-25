@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Nasa
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -216,10 +215,6 @@ object AstronautGraphQL {
                     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
                         queries.size,
                         kotlinDataLoaderRegistry
-                    )
-                DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED ->
-                    ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                        queries.size
                     )
             }
         )
