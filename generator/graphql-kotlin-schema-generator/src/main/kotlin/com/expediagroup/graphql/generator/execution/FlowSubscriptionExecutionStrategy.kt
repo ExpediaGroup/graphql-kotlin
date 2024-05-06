@@ -111,26 +111,22 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
     ): CompletableFuture<Flow<*>?> {
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
 
-        val fieldFetched = fetchField(executionContext, newParameters)
-        return if (fieldFetched is CompletableFuture<*>) {
-            val promiseFieldFetched = fieldFetched as CompletableFuture<FetchedValue>
-            promiseFieldFetched.thenApply { fetchedValue ->
-                when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
-                    is Publisher<*> -> publisherOrFlow.asFlow()
-                    // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
-                    is Flow<*> -> publisherOrFlow
-                    else -> null
-                }
+
+        val fieldFetched: CompletableFuture<FetchedValue> = fetchField(executionContext, newParameters).let { fetchedValue ->
+            if (fetchedValue is CompletableFuture<*>) {
+                fetchedValue as CompletableFuture<FetchedValue>
+            } else {
+                CompletableFuture.completedFuture(fetchedValue as FetchedValue)
             }
-        } else {
-            val fetchedValue = fieldFetched as FetchedValue
+        }
+        return fieldFetched.thenApply { fetchedValue ->
             val flow = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
                 is Publisher<*> -> publisherOrFlow.asFlow()
                 // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
                 is Flow<*> -> publisherOrFlow
                 else -> null
             }
-            CompletableFuture.completedFuture(flow)
+            flow
         }
     }
 
