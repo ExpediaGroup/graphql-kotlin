@@ -111,7 +111,6 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
     ): CompletableFuture<Flow<*>?> {
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
 
-
         val fieldFetched: CompletableFuture<FetchedValue> = fetchField(executionContext, newParameters).let { fetchedValue ->
             if (fetchedValue is CompletableFuture<*>) {
                 fetchedValue as CompletableFuture<FetchedValue>
