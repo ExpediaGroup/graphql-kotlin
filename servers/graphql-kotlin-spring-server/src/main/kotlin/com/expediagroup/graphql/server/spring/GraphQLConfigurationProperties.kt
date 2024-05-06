@@ -143,7 +143,7 @@ data class GraphQLConfigurationProperties(
         /** Boolean flag to enable or disable batching for a set of GraphQL Operations. */
         val enabled: Boolean = false,
         /** configure the [BatchingStrategy] that will be used when batching is enabled for a set of GraphQL Operations. */
-        val strategy: BatchingStrategy = BatchingStrategy.LEVEL_DISPATCHED
+        val strategy: BatchingStrategy = BatchingStrategy.SYNC_EXHAUSTION
     )
 
     data class AutomaticPersistedQueriesConfigurationProperties(
@@ -164,6 +164,5 @@ enum class SubscriptionProtocol {
  * Approaches for batching transactions of a set of GraphQL Operations.
  */
 enum class BatchingStrategy {
-    LEVEL_DISPATCHED,
     SYNC_EXHAUSTION
 }

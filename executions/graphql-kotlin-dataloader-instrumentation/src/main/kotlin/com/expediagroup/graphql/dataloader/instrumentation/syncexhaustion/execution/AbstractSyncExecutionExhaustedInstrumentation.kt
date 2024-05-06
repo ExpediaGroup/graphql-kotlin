@@ -23,7 +23,9 @@ import graphql.ExecutionResult
 import graphql.GraphQLContext
 import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionId
+import graphql.execution.instrumentation.ExecuteObjectInstrumentationContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import graphql.execution.instrumentation.FieldFetchingInstrumentationContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
@@ -64,18 +66,30 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
         state: InstrumentationState?
-    ): ExecutionStrategyInstrumentationContext? =
+    ): ExecutionStrategyInstrumentationContext? {
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginExecutionStrategy(parameters)
+            ?.beginRecursiveExecution(parameters)
+        return null
+    }
 
-    override fun beginFieldFetch(
+    override fun beginExecuteObject(
+        parameters: InstrumentationExecutionStrategyParameters,
+        state: InstrumentationState?
+    ): ExecuteObjectInstrumentationContext? {
+        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
+            ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
+            ?.beginRecursiveExecution(parameters)
+        return null
+    }
+
+    override fun beginFieldFetching(
         parameters: InstrumentationFieldFetchParameters,
         state: InstrumentationState?
-    ): InstrumentationContext<Any>? =
+    ): FieldFetchingInstrumentationContext? =
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginFieldFetch(
+            ?.beginFieldFetching(
                 parameters,
                 this.getOnSyncExecutionExhaustedCallback(
                     SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext)

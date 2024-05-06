@@ -33,6 +33,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
+import graphql.parser.ParserEnvironment
 import graphql.parser.ParserOptions
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
@@ -94,9 +95,14 @@ class GraphQLClientGenerator(
      */
     internal fun generate(queryFile: File): List<FileSpec> {
         val queryConst = queryFile.readText().trim()
-        val queryDocument = documentParser.parseDocument(queryConst, parserOptions)
+        val queryDocument = documentParser.parseDocument(
+            ParserEnvironment.newParserEnvironment()
+                .document(queryConst)
+                .parserOptions(parserOptions)
+                .build()
+        )
 
-        val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
+        val operationDefinitions = queryDocument.definitions.filterIsInstance<OperationDefinition>()
         if (operationDefinitions.size > 1) {
             throw MultipleOperationsInFileException(queryFile)
         }

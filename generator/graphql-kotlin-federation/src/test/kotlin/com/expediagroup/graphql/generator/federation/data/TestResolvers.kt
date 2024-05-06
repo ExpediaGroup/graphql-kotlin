@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture
 internal class BookResolver : FederatedTypeSuspendResolver<Book> {
     override val typeName: String = "Book"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Book? {
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Book {
         val book = Book(representation["id"].toString())
         representation["weight"]?.toString()?.toDoubleOrNull()?.let {
             book.weight = it
@@ -39,7 +39,7 @@ internal class BookResolver : FederatedTypeSuspendResolver<Book> {
 internal class UserResolver : FederatedTypeSuspendResolver<User> {
     override val typeName: String = "User"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): User? {
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): User {
         val id = representation["userId"].toString().toInt()
         val name = representation["name"].toString()
         return User(id, name)

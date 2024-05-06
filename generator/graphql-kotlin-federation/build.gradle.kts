@@ -6,7 +6,10 @@ plugins {
 
 dependencies {
     api(projects.graphqlKotlinSchemaGenerator)
-    api(libs.federation)
+    api(libs.federation) {
+        exclude(group = "com.graphql-java", module = "graphql-java")
+    }
+    api(libs.graphql.java)
     testImplementation(libs.reactor.core)
     testImplementation(libs.reactor.extensions)
     testImplementation(libs.junit.params)

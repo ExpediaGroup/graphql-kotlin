@@ -24,7 +24,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -124,10 +123,6 @@ object ProductGraphQL {
                     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
                         queries.size,
                         kotlinDataLoaderRegistry
-                    )
-                DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED ->
-                    ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                        queries.size
                     )
             }
         )

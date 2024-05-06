@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
@@ -88,10 +87,9 @@ class GraphQLSchemaConfiguration {
 
                 val instrumentations = mutableListOf<Instrumentation>()
                 if (config.batching.enabled) {
-                    builder.doNotAddDefaultInstrumentations()
+                    builder.doNotAutomaticallyDispatchDataLoader()
                     instrumentations.add(
                         when (config.batching.strategy) {
-                            BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
                             BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
                         }
                     )

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import org.slf4j.LoggerFactory
@@ -37,7 +38,7 @@ class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
 
     private val logger = LoggerFactory.getLogger(TrackTimesInvokedInstrumentation::class.java)
 
-    override fun createState(): InstrumentationState = TrackTimesInvokedInstrumenationState()
+    override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = TrackTimesInvokedInstrumenationState()
 
     override fun beginFieldFetch(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState?): InstrumentationContext<Any> {
         if (parameters.field.getDirective(TRACK_TIMES_INVOKED_DIRECTIVE_NAME) != null) {

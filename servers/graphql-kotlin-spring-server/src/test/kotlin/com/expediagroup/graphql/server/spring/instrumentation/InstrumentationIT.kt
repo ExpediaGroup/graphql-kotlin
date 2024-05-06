@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
 import graphql.execution.instrumentation.Instrumentation
-import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.InstrumentationState
+import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -59,8 +60,8 @@ class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
         fun helloWorld(name: String) = "Hello $name!"
     }
 
-    class OrderedInstrumentation(private val instrumentationOrder: Int, private val counter: AtomicInteger) : SimpleInstrumentation(), Ordered {
-        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters): CompletableFuture<ExecutionResult> {
+    class OrderedInstrumentation(private val instrumentationOrder: Int, private val counter: AtomicInteger) : SimplePerformantInstrumentation(), Ordered {
+        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
             val currentExt: MutableMap<Any, Any> = executionResult.extensions?.toMutableMap() ?: mutableMapOf()
             currentExt[instrumentationOrder] = counter.getAndIncrement()
 
@@ -76,7 +77,7 @@ class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
             .uri("/graphql")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(GraphQLRequest("query { helloWorld(name: \"World\") }"))
+            .bodyValue(GraphQLRequest("""query { helloWorld(name: "World") }"""))
             .exchange()
             .expectBody()
             .jsonPath("$.data.helloWorld").isEqualTo("Hello World!")

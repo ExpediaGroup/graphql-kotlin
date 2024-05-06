@@ -31,4 +31,4 @@ details on the supported configuration properties.
 | graphql.subscriptions.keepAliveInterval     | **Deprecated**. Keep the websocket alive and send a message to the client every interval in ms. Defaults to not sending messages | null                          |
 | graphql.subscriptions.protocol              | WebSocket based subscription protocol. Supported protocols: APOLLO_SUBSCRIPTIONS_WS / GRAPHQL_WS                                 | GRAPHQL_WS                    |
 | graphql.batching.enabled                    | Boolean flag indicating whether to enable custom dataloader instrumentations for 1 or more GraphQL Operations                    | false                         |
-| graphql.batching.strategy                   | Configure which custom dataloader instrumentation will be used (LEVEL_DISPATCHED or SYNC_EXHAUSTION)                             | LEVEL_DISPATCHED              |
+| graphql.batching.strategy                   | Configure which custom dataloader instrumentation will be used                                                                   | SYNC_EXHAUSTION               |

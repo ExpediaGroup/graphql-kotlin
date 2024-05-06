@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.ktor
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
-import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.ClasspathTypeResolver
 import com.expediagroup.graphql.generator.SchemaGenerator
@@ -135,10 +134,9 @@ class GraphQL(config: GraphQLConfiguration) {
 
             val instrumentations = mutableListOf<Instrumentation>()
             if (config.engine.batching.enabled) {
-                builder.doNotAddDefaultInstrumentations()
+                builder.doNotAutomaticallyDispatchDataLoader()
                 instrumentations.add(
                     when (config.engine.batching.strategy) {
-                        GraphQLConfiguration.BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
                         GraphQLConfiguration.BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
                     }
                 )

@@ -24,6 +24,7 @@ import graphql.GraphQLContext
 import graphql.execution.ExecutionId
 import graphql.execution.MergedField
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import graphql.execution.instrumentation.FieldFetchingInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
@@ -83,17 +84,16 @@ class SyncExecutionExhaustedState(
     }
 
     /**
-     * Add [ExecutionStrategyState] into operation [ExecutionBatchState] for the field that
+     * Add [ExecutionStrategyState] into operation [ExecutionBatchState] for the object that
      * just started an ExecutionStrategy
      *
      * @param parameters contains information of which [ExecutionInput] started an executionStrategy
      * @return a noop [ExecutionStrategyInstrumentationContext]
      */
-    fun beginExecutionStrategy(
+    fun beginRecursiveExecution(
         parameters: InstrumentationExecutionStrategyParameters
-    ): ExecutionStrategyInstrumentationContext? {
+    ) {
         val executionId = parameters.executionContext.executionInput.executionId
-
         executions.computeIfPresent(executionId) { _, executionState ->
             val executionStrategyParameters = parameters.executionStrategyParameters
 
@@ -105,8 +105,6 @@ class SyncExecutionExhaustedState(
             executionState.addExecutionStrategyState(field, path, selectionFields, parentGraphQLType)
             executionState
         }
-
-        return null
     }
 
     /**
@@ -117,19 +115,19 @@ class SyncExecutionExhaustedState(
      * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
      * dispatches and completes
      */
-    fun beginFieldFetch(
+    fun beginFieldFetching(
         parameters: InstrumentationFieldFetchParameters,
         onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
-    ): InstrumentationContext<Any> {
+    ): FieldFetchingInstrumentationContext {
         val executionId = parameters.executionContext.executionInput.executionId
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
-        return object : InstrumentationContext<Any> {
-            override fun onDispatched(result: CompletableFuture<Any?>) {
+        return object : FieldFetchingInstrumentationContext {
+            override fun onFetchedValue(fetchedValue: Any?) {
                 executions.computeIfPresent(executionId) { _, executionState ->
-                    executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, result)
+                    executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, fetchedValue)
                     executionState
                 }
 
@@ -138,6 +136,7 @@ class SyncExecutionExhaustedState(
                     onSyncExecutionExhausted(executions.keys().toList())
                 }
             }
+
             override fun onCompleted(result: Any?, t: Throwable?) {
                 executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToCompletedState(field, fieldExecutionStrategyPath, result)
@@ -148,6 +147,9 @@ class SyncExecutionExhaustedState(
                 if (allSyncExecutionsExhausted) {
                     onSyncExecutionExhausted(executions.keys().toList())
                 }
+            }
+
+            override fun onDispatched() {
             }
         }
     }

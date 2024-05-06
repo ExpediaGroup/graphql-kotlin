@@ -22,7 +22,6 @@ import graphql.language.Field
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil.isList
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -143,13 +142,13 @@ class ExecutionBatchState {
      * @param field the [Field] that will transition to dispatched state.
      * @param fieldExecutionStrategyPath the [ResultPath] associated to the ExecutionStrategy that dispatched the [field].
      * @param fieldGraphQLType the [GraphQLType] of the [field].
-     * @param result the [DataFetcher] [CompletableFuture] result.
+     * @param result the [DataFetcher] polymorphic result, either a nullable materialized object or a CompletableFuture.
      */
     fun fieldToDispatchedState(
         field: Field,
         fieldExecutionStrategyPath: ResultPath,
         fieldGraphQLType: GraphQLType,
-        result: CompletableFuture<Any?>
+        result: Any?
     ) {
         val fieldExecutionStrategyPathString = fieldExecutionStrategyPath.toString()
         executionStrategiesState[fieldExecutionStrategyPathString]?.let { executionStrategyState ->

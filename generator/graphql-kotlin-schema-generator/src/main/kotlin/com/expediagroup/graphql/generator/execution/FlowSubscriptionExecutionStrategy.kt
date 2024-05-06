@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionStepInfo
 import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
+import graphql.execution.FetchedValue
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
@@ -84,7 +85,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         }
 
         // dispatched the subscription query
-        executionStrategyCtx.onDispatched(overallResult)
+        executionStrategyCtx.onDispatched()
         overallResult.whenComplete(executionStrategyCtx::onCompleted)
 
         return overallResult
@@ -103,13 +104,20 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
             Let {fieldStream} be the result of running {ResolveFieldEventStream(subscriptionType, initialValue, rootField, argumentValues)}.
             Return {fieldStream}.
      */
+    @Suppress("UNCHECKED_CAST")
     private fun createSourceEventStream(
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
     ): CompletableFuture<Flow<*>?> {
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
 
-        val fieldFetched = fetchField(executionContext, newParameters)
+        val fieldFetched: CompletableFuture<FetchedValue> = fetchField(executionContext, newParameters).let { fetchedValue ->
+            if (fetchedValue is CompletableFuture<*>) {
+                fetchedValue as CompletableFuture<FetchedValue>
+            } else {
+                CompletableFuture.completedFuture(fetchedValue as FetchedValue)
+            }
+        }
         return fieldFetched.thenApply { fetchedValue ->
             val flow = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
                 is Publisher<*> -> publisherOrFlow.asFlow()
@@ -163,12 +171,12 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
             .thenApply { executionResult -> wrapWithRootFieldName(newParameters, executionResult) }
 
         // dispatch instrumentation so they can know about each subscription event
-        subscribedFieldCtx.onDispatched(overallResult)
+        subscribedFieldCtx.onDispatched()
         overallResult.whenComplete(subscribedFieldCtx::onCompleted)
 
         // allow them to instrument each ER should they want to
         val i13nExecutionParameters = InstrumentationExecutionParameters(
-            executionContext.executionInput, executionContext.graphQLSchema, executionContext.instrumentationState
+            executionContext.executionInput, executionContext.graphQLSchema
         )
 
         return overallResult.thenCompose { executionResult ->
