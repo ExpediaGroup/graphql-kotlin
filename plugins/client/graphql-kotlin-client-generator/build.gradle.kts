@@ -22,12 +22,7 @@ dependencies {
     testImplementation(projects.graphqlKotlinClientJackson)
     testImplementation(projects.graphqlKotlinClientSerialization)
     testImplementation(libs.wiremock.lib)
-    testImplementation(libs.compile.testing) {
-        // there is no kotlin compile testing release supporting kotlin 1.8.22
-        // explicitly downgrading kotlin version to match project version
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-annotation-processing-embeddable")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-compiler-embeddable")
-    }
+    testImplementation(libs.compile.testing)
     testImplementation(libs.icu)
     testImplementation(libs.junit.params)
     // compile testing workaround -> explicit dependencies for compiler/annotation-processing

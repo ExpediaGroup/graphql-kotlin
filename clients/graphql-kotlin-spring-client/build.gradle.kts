@@ -10,6 +10,7 @@ dependencies {
     api(projects.graphqlKotlinClientJackson)
     api(libs.kotlinx.coroutines.reactor)
     api(libs.spring.webflux)
+    api(libs.spring.context)
     api(libs.spring.boot.netty)
     testImplementation(projects.graphqlKotlinClientSerialization)
     testImplementation(libs.wiremock.lib)
