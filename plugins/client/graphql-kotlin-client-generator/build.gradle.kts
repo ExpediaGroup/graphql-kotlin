@@ -24,11 +24,15 @@ dependencies {
     testImplementation(libs.wiremock.lib)
     testImplementation(libs.compile.testing)
     testImplementation(libs.icu)
-    testImplementation(libs.junit.params)
     // compile testing workaround -> explicit dependencies for compiler/annotation-processing
     testImplementation(libs.kotlin.annotation.processing)
     testImplementation(libs.kotlin.compiler)
     testImplementation(libs.kotlin.serialization)
+    constraints {
+        implementation(libs.commons.codec) {
+            because("Cxeb68d52e-5509: Apache commons-codec before 1.13 is vulnerable to information exposure. https://devhub.checkmarx.com/cve-details/Cxeb68d52e-5509/")
+        }
+    }
 }
 
 tasks {

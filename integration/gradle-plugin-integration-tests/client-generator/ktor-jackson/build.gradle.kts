@@ -18,8 +18,6 @@ dependencies {
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.netty)
     implementation(libs.logback)
-    testImplementation(libs.junit.api)
-    testImplementation(libs.junit.engine)
     testImplementation(libs.kotlin.junit.test)
     testImplementation(libs.ktor.server.test.host)
 }

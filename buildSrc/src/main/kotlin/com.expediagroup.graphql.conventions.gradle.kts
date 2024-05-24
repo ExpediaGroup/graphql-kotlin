@@ -35,7 +35,7 @@ tasks {
     }
     detekt {
         toolVersion = libs.versions.detekt.get()
-        config = files("${rootProject.projectDir}/detekt.yml")
+        config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
     }
     ktlint {
         version.set(libs.versions.ktlint.core.get())
@@ -70,7 +70,7 @@ tasks {
     val dokka = named("dokkaJavadoc", DokkaTask::class)
     val javadocJar by registering(Jar::class) {
         archiveClassifier.set("javadoc")
-        from("$buildDir/dokka/javadoc")
+        from("${layout.buildDirectory}/dokka/javadoc")
         dependsOn(dokka)
     }
     publishing {
@@ -143,8 +143,9 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.jdk8)
     testImplementation(libs.kotlin.test)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.kotlin.junit.test)
-    testImplementation(libs.junit.api)
-    testImplementation(libs.junit.engine)
     testImplementation(libs.mockk)
 }

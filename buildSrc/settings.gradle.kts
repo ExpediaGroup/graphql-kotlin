@@ -1,3 +1,5 @@
+rootProject.name = "graphql-kotlin"
+
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

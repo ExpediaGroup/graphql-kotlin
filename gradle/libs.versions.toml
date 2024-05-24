@@ -24,6 +24,9 @@ slf4j = "2.0.13"
 spring = "6.1.10"
 spring-boot = "3.3.1"
 
+# security vulnerabilities overrides
+commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
+
 # test dependencies
 compile-testing = "0.5.0"
 icu = "75.1"
@@ -31,7 +34,7 @@ junit = "5.10.2"
 logback = "1.5.6"
 mockk = "1.13.11"
 rxjava = "3.1.8"
-wiremock = "3.6.0"
+wiremock = "3.7.0"
 
 # plugins
 detekt = "1.23.6"
@@ -84,13 +87,16 @@ spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-
 spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
 
+# security vulnerabilities overrides
+commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
+
 # test dependencies
 compile-testing = { group = "dev.zacsweers.kctfork", name = "core", version.ref = "compile-testing" }
 icu = { group = "com.ibm.icu", name = "icu4j", version.ref = "icu" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
 junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
-junit-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 kotlin-junit-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
 kotlin-annotation-processing = { group = "org.jetbrains.kotlin", name = "kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
 kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }

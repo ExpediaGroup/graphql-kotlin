@@ -475,7 +475,7 @@ class GraphQLWebClientTest {
                 client.execute(HelloWorldQuery())
             }
         }
-        assertEquals(500, error.rawStatusCode)
+        assertEquals(500, error.statusCode.value())
         assertEquals("Internal server error", error.responseBodyAsString)
     }
 

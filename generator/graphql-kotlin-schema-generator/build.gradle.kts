@@ -10,7 +10,6 @@ dependencies {
     implementation(libs.classgraph)
     implementation(libs.slf4j)
     testImplementation(libs.rxjava)
-    testImplementation(libs.junit.params)
 }
 
 tasks {
