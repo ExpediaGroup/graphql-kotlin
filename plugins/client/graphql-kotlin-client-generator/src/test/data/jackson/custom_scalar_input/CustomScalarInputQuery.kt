@@ -48,6 +48,7 @@ public class CustomScalarInputQuery(
     /**
      * Query that accepts a custom scalar input
      */
+    @get:JsonProperty(value = "inputCustomScalarQuery")
     public val inputCustomScalarQuery: Boolean,
   )
 }
