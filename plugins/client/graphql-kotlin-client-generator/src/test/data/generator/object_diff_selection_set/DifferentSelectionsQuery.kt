@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.differentselectionsquery.ComplexObject
 import com.expediagroup.graphql.generated.differentselectionsquery.ComplexObject2
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -24,10 +25,12 @@ public class DifferentSelectionsQuery : GraphQLClientRequest<DifferentSelections
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "first")
     public val first: ComplexObject,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "second")
     public val second: ComplexObject2,
   )
 }

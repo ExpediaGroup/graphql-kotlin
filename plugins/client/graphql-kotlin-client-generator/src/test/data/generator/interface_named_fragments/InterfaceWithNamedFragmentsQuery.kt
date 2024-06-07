@@ -3,6 +3,7 @@ package com.expediagroup.graphql.generated
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.interfacewithnamedfragmentsquery.BasicInterface
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -24,6 +25,7 @@ public class InterfaceWithNamedFragmentsQuery :
     /**
      * Query returning an interface
      */
+    @get:JsonProperty(value = "interfaceQuery")
     public val interfaceQuery: BasicInterface,
   )
 }

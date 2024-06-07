@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -31,6 +32,7 @@ public data class BasicObject2(
   /**
    * Object name
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
 ) : BasicUnion2
 
@@ -44,6 +46,7 @@ public data class ComplexObject2(
   /**
    * Some object name
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
 ) : BasicUnion2
 

@@ -32,6 +32,7 @@ public class SimpleMutation(
     /**
      * Example of a muation
      */
+    @get:JsonProperty(value = "simpleMutation")
     public val simpleMutation: BasicObject,
   )
 }

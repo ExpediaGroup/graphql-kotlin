@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.aliasnestedquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 
 /**
@@ -13,5 +14,6 @@ public data class ComplexObject(
   /**
    * Some object name
    */
+  @get:JsonProperty(value = "nameA")
   public val nameA: String,
 )

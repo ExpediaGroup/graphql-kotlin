@@ -2,6 +2,7 @@ package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -23,6 +24,7 @@ public class HardCodedInputQuery : GraphQLClientRequest<HardCodedInputQuery.Resu
     /**
      * Query that accepts some input arguments
      */
+    @get:JsonProperty(value = "inputObjectQuery")
     public val inputObjectQuery: Boolean,
   )
 }

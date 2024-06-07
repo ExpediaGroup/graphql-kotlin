@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -27,6 +28,7 @@ public interface BasicInterface2 {
   /**
    * Name field
    */
+  @get:JsonProperty(value = "name")
   public val name: String
 }
 
@@ -38,10 +40,12 @@ public data class FirstInterfaceImplementation2(
   /**
    * Name of the first implementation
    */
+  @get:JsonProperty(value = "name")
   override val name: String,
   /**
    * Custom field integer value
    */
+  @get:JsonProperty(value = "intValue")
   public val intValue: Int,
 ) : BasicInterface2
 
@@ -53,10 +57,12 @@ public data class SecondInterfaceImplementation2(
   /**
    * Name of the second implementation
    */
+  @get:JsonProperty(value = "name")
   override val name: String,
   /**
    * Custom field float value
    */
+  @get:JsonProperty(value = "floatValue")
   public val floatValue: Double,
 ) : BasicInterface2
 
@@ -69,5 +75,6 @@ public data class DefaultBasicInterface2Implementation(
   /**
    * Name field
    */
+  @get:JsonProperty(value = "name")
   override val name: String,
 ) : BasicInterface2

@@ -3,6 +3,7 @@ package com.expediagroup.graphql.generated
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.anonymousquery.ScalarWrapper
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -19,6 +20,7 @@ public class AnonymousQuery : GraphQLClientRequest<AnonymousQuery.Result> {
     /**
      * Query that returns wrapper object with all supported scalar types
      */
+    @get:JsonProperty(value = "scalarQuery")
     public val scalarQuery: ScalarWrapper,
   )
 }

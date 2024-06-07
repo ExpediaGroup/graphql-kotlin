@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicUnion
 import com.expediagroup.graphql.generated.differentselectionsetquery.ComplexObject2
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -24,10 +25,12 @@ public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectio
     /**
      * Query returning union
      */
+    @get:JsonProperty(value = "unionQuery")
     public val unionQuery: BasicUnion,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "complexObjectQuery")
     public val complexObjectQuery: ComplexObject2,
   )
 }
