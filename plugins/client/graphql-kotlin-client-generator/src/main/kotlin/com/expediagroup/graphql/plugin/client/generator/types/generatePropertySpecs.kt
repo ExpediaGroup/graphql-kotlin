@@ -17,10 +17,12 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.DeprecatedFieldsSelectedException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingArgumentException
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -95,6 +97,16 @@ internal fun generatePropertySpecs(
         }
         fieldDefinition.description?.content?.let { kdoc ->
             propertySpecBuilder.addKdoc("%L", kdoc)
+        }
+        if (context.serializer == GraphQLSerializer.JACKSON) {
+            // always add @get:JsonProperty annotation as a workaround to Jackson limitations
+            // related to JavaBean naming conventions
+            propertySpecBuilder.addAnnotation(
+                AnnotationSpec.builder(JsonProperty::class)
+                    .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+                    .addMember("value = \"$fieldName\"")
+                    .build()
+            )
         }
         propertySpecBuilder.build()
     }
