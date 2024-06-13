@@ -34,6 +34,7 @@ public class JacksonInputQuery(
     /**
      * Query that accepts some input arguments
      */
+    @get:JsonProperty(value = "inputObjectQuery")
     public val inputObjectQuery: Boolean,
   )
 }

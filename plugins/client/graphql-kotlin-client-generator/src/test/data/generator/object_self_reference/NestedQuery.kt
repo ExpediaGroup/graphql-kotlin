@@ -3,6 +3,7 @@ package com.expediagroup.graphql.generated
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.nestedquery.NestedObject
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -22,6 +23,7 @@ public class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
     /**
      * Query returning object referencing itself
      */
+    @get:JsonProperty(value = "nestedObjectQuery")
     public val nestedObjectQuery: NestedObject,
   )
 }

@@ -36,10 +36,12 @@ public class IncludeSkipDirectivesQuery(
     /**
      * Query that returns enum value
      */
+    @get:JsonProperty(value = "enumQuery")
     public val enumQuery: CustomEnum? = null,
     /**
      * Query that returns wrapper object with all supported scalar types
      */
+    @get:JsonProperty(value = "scalarQuery")
     public val scalarQuery: ScalarWrapper? = null,
   )
 }

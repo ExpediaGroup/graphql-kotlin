@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.differentsubselectionquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
@@ -13,13 +14,16 @@ public data class DetailsObject(
   /**
    * Unique identifier
    */
+  @get:JsonProperty(value = "id")
   public val id: Int,
   /**
    * Actual detail value
    */
+  @get:JsonProperty(value = "value")
   public val `value`: String,
   /**
    * Boolean flag
    */
+  @get:JsonProperty(value = "flag")
   public val flag: Boolean,
 )

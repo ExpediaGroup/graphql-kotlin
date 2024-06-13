@@ -35,6 +35,7 @@ public class InputListQuery(
     /**
      * Query accepting list input
      */
+    @get:JsonProperty(value = "listInputQuery")
     public val listInputQuery: String? = null,
   )
 }

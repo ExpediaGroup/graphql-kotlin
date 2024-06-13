@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.reusedtypesquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Int
 import kotlin.String
 
@@ -14,13 +15,16 @@ public data class ComplexObject3(
   /**
    * Some unique identifier
    */
+  @get:JsonProperty(value = "id")
   public val id: Int,
   /**
    * Some object name
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
   /**
    * Some additional details
    */
+  @get:JsonProperty(value = "details")
   public val details: DetailsObject2,
 )

@@ -3,6 +3,7 @@ package com.expediagroup.graphql.generated
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.complexobjectquery.ComplexObject
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -22,6 +23,7 @@ public class ComplexObjectQuery : GraphQLClientRequest<ComplexObjectQuery.Result
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "complexObjectQuery")
     public val complexObjectQuery: ComplexObject,
   )
 }

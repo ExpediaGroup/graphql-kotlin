@@ -5,6 +5,7 @@ import com.expediagroup.graphql.generated.scalars.AnyToULocaleConverter
 import com.expediagroup.graphql.generated.scalars.AnyToUUIDConverter
 import com.expediagroup.graphql.generated.scalars.ULocaleToAnyConverter
 import com.expediagroup.graphql.generated.scalars.UUIDToAnyConverter
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import com.fasterxml.jackson.databind.`annotation`.JsonDeserialize
 import com.fasterxml.jackson.databind.`annotation`.JsonSerialize
 import com.ibm.icu.util.ULocale
@@ -21,23 +22,27 @@ public data class ScalarWrapper(
    */
   @JsonSerialize(converter = UUIDToAnyConverter::class)
   @JsonDeserialize(converter = AnyToUUIDConverter::class)
+  @get:JsonProperty(value = "custom")
   public val custom: UUID? = null,
   /**
    * List of custom scalar UUIDs
    */
   @JsonSerialize(contentConverter = UUIDToAnyConverter::class)
   @JsonDeserialize(contentConverter = AnyToUUIDConverter::class)
+  @get:JsonProperty(value = "customList")
   public val customList: List<UUID>? = null,
   /**
    * Custom scalar of Locale
    */
   @JsonSerialize(converter = ULocaleToAnyConverter::class)
   @JsonDeserialize(converter = AnyToULocaleConverter::class)
+  @get:JsonProperty(value = "locale")
   public val locale: ULocale,
   /**
    * List of custom scalar Locales
    */
   @JsonSerialize(contentConverter = ULocaleToAnyConverter::class)
   @JsonDeserialize(contentConverter = AnyToULocaleConverter::class)
+  @get:JsonProperty(value = "listLocale")
   public val listLocale: List<ULocale>,
 )

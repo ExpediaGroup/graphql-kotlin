@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.nestedquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.collections.List
 
@@ -12,9 +13,11 @@ public data class NestedObject2(
   /**
    * Name of the object
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
   /**
    * Children elements
    */
+  @get:JsonProperty(value = "children")
   public val children: List<NestedObject3>,
 )

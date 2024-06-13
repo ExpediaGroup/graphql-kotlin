@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicInterface
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicInterface2
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -24,10 +25,12 @@ public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectio
     /**
      * Query returning an interface
      */
+    @get:JsonProperty(value = "first")
     public val first: BasicInterface,
     /**
      * Query returning an interface
      */
+    @get:JsonProperty(value = "second")
     public val second: BasicInterface2,
   )
 }

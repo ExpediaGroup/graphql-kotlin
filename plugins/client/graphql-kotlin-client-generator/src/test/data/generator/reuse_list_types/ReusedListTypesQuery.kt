@@ -7,6 +7,7 @@ import com.expediagroup.graphql.generated.reusedlisttypesquery.BasicObject2
 import com.expediagroup.graphql.generated.reusedlisttypesquery.ComplexObject
 import com.expediagroup.graphql.generated.reusedlisttypesquery.ComplexObject2
 import com.expediagroup.graphql.generated.reusedlisttypesquery.ComplexObject3
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.collections.List
 import kotlin.reflect.KClass
@@ -28,30 +29,37 @@ public class ReusedListTypesQuery : GraphQLClientRequest<ReusedListTypesQuery.Re
     /**
      * Query returning list of simple objects
      */
+    @get:JsonProperty(value = "first")
     public val first: List<BasicObject>,
     /**
      * Query returning list of simple objects
      */
+    @get:JsonProperty(value = "second")
     public val second: List<BasicObject2>,
     /**
      * Query returning list of simple objects
      */
+    @get:JsonProperty(value = "third")
     public val third: List<BasicObject>,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "firstComplex")
     public val firstComplex: ComplexObject,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "secondComplex")
     public val secondComplex: ComplexObject,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "thirdComplex")
     public val thirdComplex: ComplexObject2,
     /**
      * Query returning an object that references another object
      */
+    @get:JsonProperty(value = "fourthComplex")
     public val fourthComplex: ComplexObject3,
   )
 }

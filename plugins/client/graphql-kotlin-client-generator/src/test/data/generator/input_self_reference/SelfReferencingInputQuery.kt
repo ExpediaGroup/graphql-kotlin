@@ -33,6 +33,7 @@ public class SelfReferencingInputQuery(
     /**
      * Query that accepts self referencing input object
      */
+    @get:JsonProperty(value = "complexInputObjectQuery")
     public val complexInputObjectQuery: Boolean,
   )
 }

@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 
 /**
@@ -11,5 +12,6 @@ public data class DetailsObject(
   /**
    * Actual detail value
    */
+  @get:JsonProperty(value = "value")
   public val `value`: String,
 )

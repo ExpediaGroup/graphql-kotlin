@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicUnion
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicUnion2
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.reflect.KClass
 
@@ -24,10 +25,12 @@ public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectio
     /**
      * Query returning union
      */
+    @get:JsonProperty(value = "first")
     public val first: BasicUnion,
     /**
      * Query returning union
      */
+    @get:JsonProperty(value = "second")
     public val second: BasicUnion2,
   )
 }

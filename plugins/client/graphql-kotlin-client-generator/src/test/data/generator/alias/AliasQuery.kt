@@ -2,6 +2,7 @@ package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -22,10 +23,12 @@ public class AliasQuery : GraphQLClientRequest<AliasQuery.Result> {
     /**
      * Query that accepts some input arguments
      */
+    @get:JsonProperty(value = "first")
     public val first: Boolean,
     /**
      * Query that accepts some input arguments
      */
+    @get:JsonProperty(value = "second")
     public val second: Boolean,
   )
 }

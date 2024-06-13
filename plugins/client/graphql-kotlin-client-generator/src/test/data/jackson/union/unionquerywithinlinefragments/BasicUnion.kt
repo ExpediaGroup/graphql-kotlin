@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.unionquerywithinlinefragments
 
 import com.expediagroup.graphql.client.Generated
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -28,10 +29,12 @@ public interface BasicUnion
  */
 @Generated
 public data class BasicObject(
+  @get:JsonProperty(value = "id")
   public val id: Int,
   /**
    * Object name
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
 ) : BasicUnion
 
@@ -45,15 +48,18 @@ public data class ComplexObject(
   /**
    * Some unique identifier
    */
+  @get:JsonProperty(value = "id")
   public val id: Int,
   /**
    * Some object name
    */
+  @get:JsonProperty(value = "name")
   public val name: String,
   /**
    * Optional value
    * Second line of the description
    */
+  @get:JsonProperty(value = "optional")
   public val optional: String?,
 ) : BasicUnion
 
