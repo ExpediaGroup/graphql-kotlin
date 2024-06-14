@@ -57,11 +57,6 @@ data class GraphQLConfigurationProperties(
         val enabled: Boolean = false,
 
         /**
-         * Boolean flag indicating whether we want to generate Federation v2 compatible schema.
-         */
-        val optInV2: Boolean = true,
-
-        /**
          * Federation tracing config
          */
         @NestedConfigurationProperty

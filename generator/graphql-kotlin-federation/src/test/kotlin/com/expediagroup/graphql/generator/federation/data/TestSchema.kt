@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,9 @@ import graphql.schema.GraphQLSchema
 internal fun federatedTestSchema(
     queries: List<TopLevelObject> = emptyList(),
     federatedTypeResolvers: List<FederatedTypeSuspendResolver<*>> = emptyList(),
-    isV1: Boolean = true
 ): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
-        supportedPackages = if (isV1) {
-            listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v1")
-        } else {
-            listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v2")
-        },
+        supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
         hooks = FederatedSchemaGeneratorHooks(federatedTypeResolvers)
     )
     return toFederatedSchema(config = config, queries = queries)

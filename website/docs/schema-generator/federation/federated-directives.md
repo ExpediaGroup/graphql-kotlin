@@ -8,6 +8,10 @@ For more details, see the [Apollo Federation Specification](https://www.apollogr
 
 ## `@authenticated` directive
 
+:::info
+Available since Federation v2.5
+:::
+
 ```graphql
 directive @authenticated on
     ENUM
@@ -22,6 +26,10 @@ Directive that is used to indicate that the target element is accessible only to
 for additional details.
 
 ## `@composeDirective` directive
+
+:::info
+Available since Federation v2.1
+:::
 
 ```graphql
 directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -144,10 +152,6 @@ type Product @key(fields : "id") @extends {
 ## `@external` directive
 
 ```graphql
-# federation v1 definition
-directive @external on FIELD_DEFINITION
-
-# federation v2 definition
 directive @external on OBJECT | FIELD_DEFINITION
 ```
 
@@ -184,8 +188,8 @@ type Product @key(fields : "id") {
 
 ## `@inaccessible` directive
 
-:::note
-Only available in Federation v2.
+:::info
+Available since Federation v2.0
 :::
 
 ```graphql
@@ -240,8 +244,8 @@ type Product {
 
 ## `@interfaceObject` directive
 
-:::note
-Only available in Federation v2.
+:::info
+Available since Federation v2.3
 :::
 
 ```graphql
@@ -295,10 +299,6 @@ type Product @key(fields: "id") @interfaceObject {
 ## `@key` directive
 
 ```graphql
-# federation v1 definition
-directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
-
-# federation v2 definition
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 ```
 
@@ -360,8 +360,8 @@ This allows end users to query GraphQL Gateway for any product review fields and
 
 ## `@link` directive
 
-:::note
-Only available in Federation v2.
+:::info
+Available since Federation v2.0
 :::
 
 :::caution
@@ -441,8 +441,8 @@ directive @custom__foo on FIELD_DEFINITION
 
 ## `@override` directive
 
-:::note
-Only available in Federation v2.
+:::info
+Available since Federation v2.0
 :::
 
 ```graphql
@@ -480,6 +480,10 @@ type Product @key(fields: "id") {
 
 ## `@policy` directive
 
+:::info
+Available since Federation v2.6
+:::
+
 ```graphql
 directive @policy(policies: [[Policy!]!]!) on
     ENUM
@@ -496,10 +500,6 @@ Directive that is used to indicate that access to the target element is restrict
 ## `@provides` directive
 
 ```graphql
-# federation v1 definition
-directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
-
-# federation v2 definition
 directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 ```
 
@@ -565,10 +565,6 @@ In the example above, if user selects `baz` field, it will be resolved locally f
 ## `@requires` directive
 
 ```graphql
-# federation v1 definition
-directive @requires(fields: _FieldSet!) on FIELD_DEFINITON
-
-# federation v2 definition
 directive @requires(fields: FieldSet!) on FIELD_DEFINITON
 ```
 
@@ -609,6 +605,10 @@ type Product @key(fields : "id") {
 
 ## `@requiresScopes` directive
 
+:::info
+Available since Federation v2.5
+:::
+
 ```graphql
 directive @requiresScopes(scopes: [[Scope!]!]!) on
     ENUM
@@ -623,8 +623,8 @@ Directive that is used to indicate that the target element is accessible only to
 
 ## `@shareable` directive
 
-:::note
-Only available in Federation v2.
+:::info
+Available since Federation v2.0
 :::
 
 ```graphql

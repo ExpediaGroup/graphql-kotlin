@@ -51,10 +51,9 @@ the suspending function on a `CoroutineScope` to **asynchronously wait** to comp
 requested in the `_entities` query.
 
 ```kotlin
-// This service does not own the "Product" type but is extending it with new fields
+// This service extends "Product" type with new fields
 @KeyDirective(fields = FieldSet("id"))
-@ExtendsDirective
-class Product(@ExternalDirective val id: String) {
+class Product(val id: String) {
   fun newField(): String = getNewFieldByProductId(id)
 }
 
@@ -80,7 +79,7 @@ class ProductResolver : FederatedTypeSuspendResolver<Product> {
 :::note
 this suspend implementation relies on the same coroutine scope propagation as the
 default `FunctionDataFetcher`. See [asynchronous models documentation](../execution/async-models.md) for additional details.
-Additionally you can also use `FederatedTypePromiseResolver` which is compatible with `DataLoader`'s async model given that returns
+Additionally, you can also use `FederatedTypePromiseResolver` which is compatible with `DataLoader`'s async model given that returns
 a `CompletableFuture`, that way you get advantage of batching and deduplication of transactions to downstream.
 :::
 
@@ -90,10 +89,9 @@ a `CompletableFuture`, that way you get advantage of batching and deduplication 
 a nullable instance of target entity.
 
 ```kotlin
-// This service does not own the "Product" type but is extending it with new fields
+// This service extends "Product" type with new fields
 @KeyDirective(fields = FieldSet("id"))
-@ExtendsDirective
-class Product(@ExternalDirective val id: String) {
+class Product(val id: String) {
   fun newField(): String = getNewFieldByProductId(id)
 }
 
