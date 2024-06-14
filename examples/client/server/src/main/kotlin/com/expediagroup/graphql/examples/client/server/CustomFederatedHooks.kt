@@ -11,7 +11,7 @@ import java.util.UUID
 import kotlin.reflect.KType
 
 @Component
-class CustomFederatedHooks(resolvers: List<FederatedTypeResolver>) : FederatedSchemaGeneratorHooks(resolvers, true) {
+class CustomFederatedHooks(resolvers: List<FederatedTypeResolver>) : FederatedSchemaGeneratorHooks(resolvers,) {
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
         ULocale::class -> graphqlULocaleType
