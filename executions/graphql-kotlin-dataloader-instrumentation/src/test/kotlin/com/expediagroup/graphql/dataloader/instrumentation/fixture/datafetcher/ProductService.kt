@@ -20,6 +20,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.ProductRepository
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
@@ -51,7 +52,5 @@ class ProductService {
         request: ProductServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Product> =
-        environment
-            .getDataLoader<ProductServiceRequest, Product>("ProductDataLoader")
-            .load(request)
+        environment.getValueFromDataLoader("ProductDataLoader", request)
 }

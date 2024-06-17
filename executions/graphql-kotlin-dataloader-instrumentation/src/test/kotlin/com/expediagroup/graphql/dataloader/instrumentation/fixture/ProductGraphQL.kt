@@ -64,7 +64,7 @@ object ProductGraphQL {
     private val productService = ProductService()
 
     private val productDataFetcher = DataFetcher<CompletableFuture<Product>> { environment ->
-        val productId = environment.getArgument<String>("id").toInt()
+        val productId = environment.getArgument<String>("id")?.toInt() ?: throw IllegalArgumentException("Product ID is null")
         val selectionFields = environment.selectionSet.immediateFields.map(SelectedField::getName)
         productService.getProduct(
             ProductServiceRequest(productId, selectionFields),
@@ -73,7 +73,7 @@ object ProductGraphQL {
     }
 
     private val productSummaryDataFetcher = DataFetcher<CompletableFuture<ProductSummary>> { environment ->
-        val productId = environment.getArgument<String>("productId").toInt()
+        val productId = environment.getArgument<String>("productId")?.toInt() ?: throw IllegalArgumentException("Product ID is null")
         val selectionFields = listOf("summary")
         productService.getProduct(
             ProductServiceRequest(productId, selectionFields),
@@ -82,7 +82,7 @@ object ProductGraphQL {
     }
 
     private val productDetailsDataFetcher = DataFetcher<CompletableFuture<ProductDetails>> { environment ->
-        val productId = environment.getArgument<String>("productId").toInt()
+        val productId = environment.getArgument<String>("productId")?.toInt() ?: throw IllegalArgumentException("Product ID is null")
         val selectionFields = listOf("details")
         productService.getProduct(
             ProductServiceRequest(productId, selectionFields),

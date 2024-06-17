@@ -19,6 +19,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.PlanetRepository
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
@@ -48,7 +49,5 @@ class PlanetService {
         request: PlanetServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Planet>> =
-        environment
-            .getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
-            .load(request)
+        environment.getValueFromDataLoader("PlanetsByMissionDataLoader", request)
 }

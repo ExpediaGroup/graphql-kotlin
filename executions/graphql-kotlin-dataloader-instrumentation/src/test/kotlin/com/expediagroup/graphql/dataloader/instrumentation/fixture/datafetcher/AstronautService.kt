@@ -23,6 +23,9 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Missio
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
+import com.expediagroup.graphql.server.exception.MissingDataLoaderException
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
+import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
@@ -57,9 +60,7 @@ class AstronautService {
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
-        environment
-            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-            .load(request)
+        environment.getValueFromDataLoader("AstronautDataLoader", request)
 
     fun createAstronaut(
         request: CreateAstronautServiceRequest
@@ -71,9 +72,7 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Astronaut?>> = when {
         requests.isNotEmpty() -> {
-            environment
-                .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-                .loadMany(requests)
+            environment.getValuesFromDataLoader("AstronautDataLoader", requests)
         }
         else -> {
             AstronautRepository
@@ -89,7 +88,9 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Planet>> {
         val missionsByAstronautDataLoader = environment.getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+            ?: throw MissingDataLoaderException("MissionsByAstronautDataLoader")
         val planetsByMissionDataLoader = environment.getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+            ?: throw MissingDataLoaderException("PlanetsByMissionDataLoader")
         return missionsByAstronautDataLoader
             .load(MissionServiceRequest(0, astronautId = request.id))
             .thenCompose { missions ->
