@@ -51,7 +51,7 @@ class DataLoaderQuery : Query {
 class CompanyDataFetcher : DataFetcher<CompletableFuture<Company>> {
 
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Company> {
-        val companyId = environment.getSource<Employee>().companyId
+        val companyId = environment.getSource<Employee>()?.companyId ?: throw IllegalArgumentException("companyId is null")
         return environment.getValueFromDataLoader(CompanyDataLoader.name, companyId)
     }
 }

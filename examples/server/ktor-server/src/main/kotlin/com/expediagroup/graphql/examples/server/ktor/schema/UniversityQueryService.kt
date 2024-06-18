@@ -18,14 +18,14 @@ package com.expediagroup.graphql.examples.server.ktor.schema
 
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.models.University
+import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
 class UniversityQueryService : Query {
     fun searchUniversities(params: UniversitySearchParameters, dfe: DataFetchingEnvironment): CompletableFuture<List<University>> =
-        dfe.getDataLoader<Int, University>(UniversityDataLoader.dataLoaderName)
-            .loadMany(params.ids)
+        dfe.getValuesFromDataLoader(UniversityDataLoader.dataLoaderName, params.ids)
 }
 
 data class UniversitySearchParameters(val ids: List<Int>)
