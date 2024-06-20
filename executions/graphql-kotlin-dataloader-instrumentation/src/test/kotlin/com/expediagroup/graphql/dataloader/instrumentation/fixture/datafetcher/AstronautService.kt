@@ -23,9 +23,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Missio
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
-import com.expediagroup.graphql.server.exception.MissingDataLoaderException
-import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
-import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
@@ -60,7 +57,9 @@ class AstronautService {
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
-        environment.getValueFromDataLoader("AstronautDataLoader", request)
+        environment
+            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+            ?.load(request) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
 
     fun createAstronaut(
         request: CreateAstronautServiceRequest
@@ -72,7 +71,9 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Astronaut?>> = when {
         requests.isNotEmpty() -> {
-            environment.getValuesFromDataLoader("AstronautDataLoader", requests)
+            environment
+                .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+                ?.loadMany(requests) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
         }
         else -> {
             AstronautRepository
@@ -88,9 +89,9 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Planet>> {
         val missionsByAstronautDataLoader = environment.getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
-            ?: throw MissingDataLoaderException("MissionsByAstronautDataLoader")
+            ?: throw IllegalArgumentException("No data loader called MissionsByAstronautDataLoader was found")
         val planetsByMissionDataLoader = environment.getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
-            ?: throw MissingDataLoaderException("PlanetsByMissionDataLoader")
+            ?: throw IllegalArgumentException("No data loader called PlanetsByMissionDataLoader was found")
         return missionsByAstronautDataLoader
             .load(MissionServiceRequest(0, astronautId = request.id))
             .thenCompose { missions ->

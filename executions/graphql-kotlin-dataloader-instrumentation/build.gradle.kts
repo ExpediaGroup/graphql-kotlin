@@ -9,7 +9,6 @@ dependencies {
     api(libs.graphql.java) {
         exclude(group = "com.graphql-java", module = "java-dataloader")
     }
-    testImplementation(projects.graphqlKotlinServer)
     testImplementation(libs.reactor.core)
     testImplementation(libs.reactor.extensions)
 }
