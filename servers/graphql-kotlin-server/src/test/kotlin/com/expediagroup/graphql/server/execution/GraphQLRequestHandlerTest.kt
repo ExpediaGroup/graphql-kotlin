@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStr
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -389,7 +390,7 @@ class GraphQLRequestHandlerTest {
             id: Int,
             dataFetchingEnvironment: DataFetchingEnvironment
         ): CompletableFuture<User> =
-            dataFetchingEnvironment.getDataLoader<Int, User>("UserDataLoader").load(id)
+            dataFetchingEnvironment.getValueFromDataLoader("UserDataLoader", id)
 
         fun hello(name: String): String = "Hello $name!"
 

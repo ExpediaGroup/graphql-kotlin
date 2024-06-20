@@ -54,7 +54,7 @@ open class EntitiesDataFetcher(
      * @return list of resolved nullable entities
      */
     override fun get(env: DataFetchingEnvironment): CompletableFuture<DataFetcherResult<List<Any?>>> {
-        val representations: List<Map<String, Any>> = env.getArgument(REPRESENTATIONS)
+        val representations: List<Map<String, Any>> = env.getArgumentOrDefault(REPRESENTATIONS, listOf(emptyMap()))
 
         val representationsWithoutResolver = mutableListOf<IndexedValue<Map<String, Any>>>()
         val entitiesWithPromiseResolver = mutableListOf<ResolvableEntity<FederatedTypePromiseResolver<*>>>()

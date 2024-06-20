@@ -50,5 +50,5 @@ class PlanetService {
     ): CompletableFuture<List<Planet>> =
         environment
             .getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
-            .load(request)
+            ?.load(request) ?: throw IllegalStateException("No data loader called PlanetsByMissionDataLoader was found")
 }

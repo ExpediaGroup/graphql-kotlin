@@ -53,5 +53,5 @@ class ProductService {
     ): CompletableFuture<Product> =
         environment
             .getDataLoader<ProductServiceRequest, Product>("ProductDataLoader")
-            .load(request)
+            ?.load(request) ?: throw IllegalStateException("No data loader called ProductDataLoader was found")
 }

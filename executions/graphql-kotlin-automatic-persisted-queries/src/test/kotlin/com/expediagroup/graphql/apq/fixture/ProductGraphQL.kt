@@ -52,7 +52,9 @@ object ProductGraphQL {
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
-                .dataFetcher("product") { products[it.getArgument<String>("id").toInt()] }
+                .dataFetcher("product") {
+                    it.getArgument<String>("id")?.let { id -> products[id.toInt()] }
+                }
         )
     }.build()
 

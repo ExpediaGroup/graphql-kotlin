@@ -59,7 +59,7 @@ class AstronautService {
     ): CompletableFuture<Astronaut> =
         environment
             .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-            .load(request)
+            ?.load(request) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
 
     fun createAstronaut(
         request: CreateAstronautServiceRequest
@@ -73,7 +73,7 @@ class AstronautService {
         requests.isNotEmpty() -> {
             environment
                 .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-                .loadMany(requests)
+                ?.loadMany(requests) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
         }
         else -> {
             AstronautRepository
@@ -89,7 +89,9 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Planet>> {
         val missionsByAstronautDataLoader = environment.getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+            ?: throw IllegalArgumentException("No data loader called MissionsByAstronautDataLoader was found")
         val planetsByMissionDataLoader = environment.getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+            ?: throw IllegalArgumentException("No data loader called PlanetsByMissionDataLoader was found")
         return missionsByAstronautDataLoader
             .load(MissionServiceRequest(0, astronautId = request.id))
             .thenCompose { missions ->
