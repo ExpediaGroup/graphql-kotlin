@@ -19,6 +19,7 @@ indent_size = 2
 [*.{kt,kts}]
 indent_size = 4
 max_line_length = 200
+#ktlint_disabled_rules=import-ordering,filename,no-empty-first-line-in-method-block,argument-list-wrapping,spacing-between-declarations-with-annotations,spacing-between-declarations-with-comments,enum-entry-name-case,trailing-comma-on-call-site,trailing-comma-on-declaration-site,package-name,annotation,multiline-if-else
 
 # TODO: Remove disabled rules then ./gradlew ktlintFormat
 ktlint_standard_import-ordering = disabled
@@ -51,3 +52,8 @@ ktlint_standard_statement-wrapping = disabled
 ktlint_standard_string-template-indent = disabled
 ktlint_standard_trailing-comma-on-call-site = disabled
 ktlint_standard_trailing-comma-on-declaration-site = disabled
+# https://github.com/pinterest/ktlint/releases/tag/1.3.0
+ktlint_standard_class-signature = disabled
+ktlint_standard_chain-method-continuation = disabled
+ktlint_standard_condition-wrapping = disabled
+ktlint_standard_function-expression-body = disabled
