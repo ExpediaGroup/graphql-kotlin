@@ -47,6 +47,8 @@ schema {
   query: Query
 }
 
+directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
 interface Product @extends @key(fields : "id") @key(fields : "upc") {
   id: String! @external
   reviews: [Review!]!
@@ -70,8 +72,8 @@ type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
 type Query @extends
 
 type Review {
-  body: String!
-  content: String
+  body: String! @custom
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   customScalar: CustomScalar!
   id: String!
 }
@@ -173,7 +175,7 @@ type Query {
 
 type Review {
   body: String! @custom
-  content: String
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   customScalar: CustomScalar!
   id: String!
 }

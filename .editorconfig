@@ -19,7 +19,41 @@ indent_size = 2
 [*.{kt,kts}]
 indent_size = 4
 max_line_length = 200
+#ktlint_disabled_rules=import-ordering,filename,no-empty-first-line-in-method-block,argument-list-wrapping,spacing-between-declarations-with-annotations,spacing-between-declarations-with-comments,enum-entry-name-case,trailing-comma-on-call-site,trailing-comma-on-declaration-site,package-name,annotation,multiline-if-else
 
-# ktlint rules
-# https://github.com/pinterest/ktlint/issues/527
-disabled_rules=import-ordering
+# TODO: Remove disabled rules then ./gradlew ktlintFormat
+ktlint_standard_import-ordering = disabled
+ktlint_standard_annotation = disabled
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_backing-property-naming = disabled
+ktlint_standard_blank-line-before-declaration = disabled
+ktlint_standard_class-naming = disabled
+ktlint_standard_enum-entry-name-case = disabled
+ktlint_standard_enum-wrapping = disabled
+ktlint_standard_filename = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_function-signature = disabled
+ktlint_standard_if-else-bracing = disabled
+ktlint_standard_if-else-wrapping = disabled
+ktlint_standard_indent = disabled
+ktlint_standard_multiline-expression-wrapping = disabled
+ktlint_standard_multiline-if-else = disabled
+ktlint_standard_no-blank-line-in-list = disabled
+ktlint_standard_no-consecutive-comments = disabled
+ktlint_standard_no-empty-first-line-in-class-body = disabled
+ktlint_standard_no-empty-first-line-in-method-block = disabled
+ktlint_standard_no-single-line-block-comment = disabled
+ktlint_standard_package-name = disabled
+ktlint_standard_parameter-list-wrapping = disabled
+ktlint_standard_property-naming = disabled
+ktlint_standard_spacing-between-declarations-with-annotations = disabled
+ktlint_standard_spacing-between-declarations-with-comments = disabled
+ktlint_standard_statement-wrapping = disabled
+ktlint_standard_string-template-indent = disabled
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+# https://github.com/pinterest/ktlint/releases/tag/1.3.0
+ktlint_standard_class-signature = disabled
+ktlint_standard_chain-method-continuation = disabled
+ktlint_standard_condition-wrapping = disabled
+ktlint_standard_function-expression-body = disabled
