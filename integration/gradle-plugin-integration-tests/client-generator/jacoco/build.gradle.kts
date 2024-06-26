@@ -8,6 +8,8 @@ plugins {
 
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-client")
+    testImplementation(libs.junit.api)
+    testImplementation(libs.junit.engine)
     testImplementation(libs.mockk)
 }
 
