@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,5 +29,5 @@ class InvalidFederatedRequest(private val errorMessage: String) : GraphQLError {
 
     override fun getErrorType(): ErrorClassification = ErrorType.ValidationError
 
-    override fun getLocations(): List<SourceLocation> = listOf(SourceLocation(-1, -1))
+    override fun getLocations(): List<SourceLocation>? = null
 }

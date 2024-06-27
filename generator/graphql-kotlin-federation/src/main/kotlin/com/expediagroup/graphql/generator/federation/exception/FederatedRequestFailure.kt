@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ class FederatedRequestFailure(private val errorMessage: String, private val erro
 
     override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
 
-    override fun getLocations(): List<SourceLocation> = listOf(SourceLocation(-1, -1))
+    override fun getLocations(): List<SourceLocation>? = null
 
     override fun getExtensions(): Map<String, Any>? =
         if (error != null) {

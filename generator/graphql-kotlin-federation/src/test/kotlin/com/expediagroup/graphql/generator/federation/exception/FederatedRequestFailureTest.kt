@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.exception
 
 import graphql.ErrorType
-import graphql.language.SourceLocation
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -38,7 +37,7 @@ internal class FederatedRequestFailureTest {
 
     @Test
     fun getLocations() {
-        assertEquals(expected = listOf(SourceLocation(-1, -1)), actual = simpleFailure.locations)
+        assertNull(simpleFailure.locations)
     }
 
     @Test
