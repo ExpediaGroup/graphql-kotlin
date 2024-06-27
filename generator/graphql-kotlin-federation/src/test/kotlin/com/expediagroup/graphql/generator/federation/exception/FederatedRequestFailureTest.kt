@@ -38,7 +38,7 @@ internal class FederatedRequestFailureTest {
 
     @Test
     fun getLocations() {
-        assertEquals(expected = listOf(SourceLocation(-1, -1)), actual = simpleFailure.locations)
+        assertNull(simpleFailure.locations)
     }
 
     @Test

@@ -29,5 +29,5 @@ class InvalidFederatedRequest(private val errorMessage: String) : GraphQLError {
 
     override fun getErrorType(): ErrorClassification = ErrorType.ValidationError
 
-    override fun getLocations(): List<SourceLocation> = listOf(SourceLocation(-1, -1))
+    override fun getLocations(): List<SourceLocation>? = null
 }
