@@ -25,7 +25,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Build Subgraphs
         working-directory: examples
@@ -89,7 +89,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Build compatibility app with Gradle
         run: ./gradlew bootJar graphqlGenerateSDL
