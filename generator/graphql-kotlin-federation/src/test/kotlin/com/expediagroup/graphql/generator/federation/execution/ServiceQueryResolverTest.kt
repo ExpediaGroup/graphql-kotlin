@@ -125,7 +125,7 @@ type Query {
 
 type Review {
   body: String! @custom
-  content: String
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   customScalar: CustomScalar!
   id: String!
 }

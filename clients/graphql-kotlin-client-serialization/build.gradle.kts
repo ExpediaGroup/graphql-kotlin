@@ -19,7 +19,7 @@ tasks {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
                     // increase it when https://github.com/Kotlin/kotlinx.serialization/issues/961 is resolved
-                    minimum = "0.70".toBigDecimal()
+                    minimum = "0.79".toBigDecimal()
                 }
             }
         }

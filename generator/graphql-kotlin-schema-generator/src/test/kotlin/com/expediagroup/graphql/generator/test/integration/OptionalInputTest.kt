@@ -69,12 +69,10 @@ class OptionalInputTest {
             Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" }) }", "argument with optional object was not specified"),
             Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" optional: null }) }", "argument object value: null"),
             Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" optional: { id: 1, name: \"XYZ\" } }) }", "argument object value: SimpleArgument(id=1, name=XYZ)"),
-            /* ktlint-disable */
             Arguments.of(
                 "{ inputWithNestedOptionalValues(input: { optional: { nestedOptionalScalar: \"ABC\", nestedOptionalInt: null } } )}",
                 "HasNestedOptionalArguments(optional=Defined(value=DeeplyNestedArguments(nestedOptional=UNDEFINED, nestedOptionalScalar=Defined(value=ABC), nestedOptionalInt=Defined(value=null))), optionalScalar=UNDEFINED)"
             )
-            /* ktlint-enable */
         )
     }
 }

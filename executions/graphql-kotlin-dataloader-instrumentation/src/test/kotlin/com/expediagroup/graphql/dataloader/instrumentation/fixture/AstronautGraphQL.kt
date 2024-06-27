@@ -93,18 +93,16 @@ object AstronautGraphQL {
 
     private val astronautService = AstronautService()
     private val astronautDataFetcher = DataFetcher { environment ->
+        val astronautId = environment.getArgument<String>("id")?.toInt() ?: throw IllegalArgumentException("Astronaut ID is null")
         astronautService.getAstronaut(
-            AstronautServiceRequest(
-                environment.getArgument<String>("id").toInt()
-            ),
+            AstronautServiceRequest(astronautId),
             environment
         )
     }
     private val createAstronautDataFetcher = DataFetcher { environment ->
+        val astronautName = environment.getArgument<String>("name") ?: throw IllegalArgumentException("Astronaut name is null")
         astronautService.createAstronaut(
-            CreateAstronautServiceRequest(
-                environment.getArgument("name")
-            )
+            CreateAstronautServiceRequest(astronautName)
         )
     }
     private val astronautsDataFetcher = DataFetcher { environment ->
@@ -118,10 +116,9 @@ object AstronautGraphQL {
 
     private val missionService = MissionService()
     private val missionDataFetcher = DataFetcher { environment ->
+        val missionId = environment.getArgument<String>("id")?.toInt() ?: throw IllegalArgumentException("Mission ID is null")
         missionService.getMission(
-            MissionServiceRequest(
-                environment.getArgument<String>("id").toInt()
-            ),
+            MissionServiceRequest(missionId),
             environment
         )
     }
@@ -134,26 +131,26 @@ object AstronautGraphQL {
         )
     }
     private val missionsByAstronautDataFetcher = DataFetcher { environment ->
-        val astronaut = environment.getSource<Astronaut>()
+        val astronautId = environment.getSource<Astronaut>()?.id ?: throw IllegalArgumentException("Astronaut ID is null")
         missionService
             .getMissionsByAstronaut(
-                MissionServiceRequest(0, astronaut.id),
+                MissionServiceRequest(0, astronautId),
                 environment
             )
     }
 
     private val planetService = PlanetService()
     private val planetsByMissionDataFetcher = DataFetcher { environment ->
-        val mission = environment.getSource<Mission>()
+        val missionId = environment.getSource<Mission>()?.id ?: throw IllegalArgumentException("Mission ID is null")
         planetService.getPlanets(
-            PlanetServiceRequest(0, mission.id),
+            PlanetServiceRequest(0, missionId),
             environment
         )
     }
     private val planetsByAstronautDataFetcher = DataFetcher { environment ->
-        val astronaut = environment.getSource<Astronaut>()
+        val astronautId = environment.getSource<Astronaut>()?.id ?: throw IllegalArgumentException("Astronaut ID is null")
         astronautService.getPlanets(
-            AstronautServiceRequest(astronaut.id),
+            AstronautServiceRequest(astronautId),
             environment
         )
     }

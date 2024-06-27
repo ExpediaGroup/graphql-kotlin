@@ -160,7 +160,7 @@ class QueryWithDeprecatedFields {
 data class ClassWithDeprecatedField(
     val something: String,
     @Deprecated("this field is deprecated")
-    val deprecatedField: String,
+    val deprecatedField: String?,
     @GraphQLDeprecated("this field is also deprecated")
-    val graphqlDeprecatedField: String = ""
+    val graphqlDeprecatedField: String? = ""
 )

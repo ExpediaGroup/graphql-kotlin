@@ -66,7 +66,7 @@ class MissionService {
     ): CompletableFuture<Mission> =
         environment
             .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
-            .load(request)
+            ?.load(request) ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
 
     fun getMissions(
         requests: List<MissionServiceRequest>,
@@ -75,7 +75,7 @@ class MissionService {
         requests.isNotEmpty() -> {
             environment
                 .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
-                .loadMany(requests)
+                ?.loadMany(requests) ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
         }
         else -> {
             MissionRepository
@@ -92,5 +92,5 @@ class MissionService {
     ): CompletableFuture<List<Mission>> =
         environment
             .getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
-            .load(request)
+            ?.load(request) ?: throw IllegalArgumentException("No data loader called MissionsByAstronautDataLoader was found")
 }

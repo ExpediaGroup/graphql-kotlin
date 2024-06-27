@@ -19,6 +19,7 @@ package com.expediagroup.graphql.examples.server.ktor.schema
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Book
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
@@ -30,8 +31,7 @@ class BookQueryService : Query {
     @GraphQLDescription("Return list of books based on BookSearchParameter options")
     @Suppress("unused")
     fun searchBooks(params: BookSearchParameters, dfe: DataFetchingEnvironment): CompletableFuture<List<Book>> =
-        dfe.getDataLoader<Int, Book>(BookDataLoader.dataLoaderName)
-            .loadMany(params.ids)
+        dfe.getValuesFromDataLoader(BookDataLoader.dataLoaderName, params.ids)
 }
 
 data class BookSearchParameters(val ids: List<Int>)

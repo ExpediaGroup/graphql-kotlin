@@ -18,6 +18,7 @@ package com.expediagroup.graalvm.schema
 
 import com.expediagroup.graalvm.schema.dataloader.EXAMPLE_LOADER
 import com.expediagroup.graphql.generator.scalars.ID
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.coroutineScope
@@ -33,7 +34,7 @@ class AsyncQuery : Query {
 
     fun future(): CompletableFuture<Int> = CompletableFuture.completedFuture(random.nextInt())
 
-    fun dataLoader(env: DataFetchingEnvironment, id: ID): CompletableFuture<String> = env.getDataLoader<ID, String>(EXAMPLE_LOADER).load(id)
+    fun dataLoader(env: DataFetchingEnvironment, id: ID): CompletableFuture<String> = env.getValueFromDataLoader(EXAMPLE_LOADER, id)
 
     suspend fun coroutine(): Int = coroutineScope {
         delay(10)

@@ -31,7 +31,6 @@ import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.junit.jupiter.api.Test
@@ -309,8 +308,7 @@ class GraphQLClientKotlinXSerializerTest {
             |            "foo",
             |            null
             |        ],
-            |        "nonNullableElementList": [
-            |        ]
+            |        "nonNullableElementList": []
             |    },
             |    "query": "INPUT_QUERY",
             |    "operationName": "InputQuery"
@@ -327,8 +325,7 @@ class GraphQLClientKotlinXSerializerTest {
         )
 
         val expected = """{
-            |    "variables": {
-            |    },
+            |    "variables": {},
             |    "query": "EMPTY_INPUT_QUERY",
             |    "operationName": "EmptyInputQuery"
             |}

@@ -15,12 +15,12 @@ tasks {
                 limit {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
-                    minimum = "0.76".toBigDecimal()
+                    minimum = "0.95".toBigDecimal()
                 }
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.50".toBigDecimal()
+                    minimum = "0.90".toBigDecimal()
                 }
             }
         }

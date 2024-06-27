@@ -41,7 +41,7 @@ class EntitiesDataFetcherTest {
             mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
         )
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -57,7 +57,7 @@ class EntitiesDataFetcherTest {
             mapOf<String, Any>("__typename" to "Author", "authorId" to 1)
         )
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
         }
         val result = resolver.get(env).get()
         verifyData(result.data, Author(1, "Author 1"))
@@ -72,7 +72,7 @@ class EntitiesDataFetcherTest {
             mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
         )
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
         }
 
         val result = resolver.get(env).get()
@@ -86,7 +86,7 @@ class EntitiesDataFetcherTest {
         val mockUserResolver = mockk<FederatedTypeSuspendResolver<*>> { every { typeName } returns "User" }
         val resolver = EntitiesDataFetcher(mockBookResolver, mockUserResolver)
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns listOf(emptyMap<String, Any>())
+            every { getArgumentOrDefault<Any>(any(), any()) } returns listOf(emptyMap<String, Any>())
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -100,7 +100,7 @@ class EntitiesDataFetcherTest {
         val resolver = EntitiesDataFetcher(emptyList())
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -118,7 +118,7 @@ class EntitiesDataFetcherTest {
         val resolver = EntitiesDataFetcher(listOf(mockUserResolver))
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env: DataFetchingEnvironment = mockk {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -136,7 +136,7 @@ class EntitiesDataFetcherTest {
         }
         val representations = listOf(user1.toRepresentation(), book.toRepresentation(), user2.toRepresentation())
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -163,7 +163,7 @@ class EntitiesDataFetcherTest {
         }
         val representations = listOf(user.toRepresentation(), book.toRepresentation())
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
@@ -195,7 +195,7 @@ class EntitiesDataFetcherTest {
         )
 
         val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
+            every { getArgumentOrDefault<Any>(any(), any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
