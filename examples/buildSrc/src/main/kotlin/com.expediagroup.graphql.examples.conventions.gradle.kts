@@ -23,8 +23,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.jdk8)
     implementation(libs.icu)
     testImplementation(libs.kotlin.junit.test)
-    testImplementation(libs.junit.api)
-    testImplementation(libs.junit.engine)
 }
 
 tasks.withType<KotlinCompile> {

@@ -16,7 +16,6 @@ dependencies {
     compileOnly(projects.graphqlKotlinGraalvmMetadataGenerator)
 
     testImplementation(libs.wiremock.lib)
-    testImplementation(libs.junit.params)
 }
 
 java {
@@ -42,7 +41,7 @@ gradlePlugin {
 
 val generateDefaultVersion by tasks.registering {
     val fileName = "PluginVersion.kt"
-    val defaultVersionFile = File("$buildDir/generated/src/com/expediagroup/graphql/plugin/gradle", fileName)
+    val defaultVersionFile = layout.buildDirectory.dir("generated/src/com/expediagroup/graphql/plugin/gradle").get().file(fileName).asFile
 
     inputs.property(fileName, project.version)
     outputs.dir(defaultVersionFile.parent)

@@ -12,7 +12,6 @@ plugins {
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-server")
     implementation(projects.commonGraalvmServer)
-    testImplementation(libs.junit.api)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.spring.boot.test)
 }
