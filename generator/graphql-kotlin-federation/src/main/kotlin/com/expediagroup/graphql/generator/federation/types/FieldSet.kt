@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,6 @@ import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
-import graphql.schema.GraphQLSchemaElement
-import graphql.schema.GraphQLTypeVisitorStub
-import graphql.util.TraversalControl
-import graphql.util.TraverserContext
 import java.util.Locale
 
 internal const val FIELD_SET_SCALAR_NAME = "FieldSet"
@@ -90,19 +86,4 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
             is FieldSet -> StringValue.newStringValue(input.value).build()
             else -> throw CoercingValueToLiteralException(FieldSet::class, input)
         }
-}
-
-/**
- * Renames FieldSet scalar (used in Federation V2) to _FieldSet (used in Federation V1).
- */
-class FieldSetTransformer : GraphQLTypeVisitorStub() {
-    override fun visitGraphQLScalarType(node: GraphQLScalarType, context: TraverserContext<GraphQLSchemaElement>): TraversalControl {
-        if (node.name == "FieldSet") {
-            val legacyFieldSetScalar = node.transform {
-                it.name("_FieldSet")
-            }
-            return changeNode(context, legacyFieldSetScalar)
-        }
-        return super.visitGraphQLScalarType(node, context)
-    }
 }

@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQ
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
@@ -33,7 +34,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema {
+            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
               query: Query
             }
 
@@ -45,11 +46,8 @@ class FederatedSchemaGeneratorTest {
                 reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-            "Marks target object as extending part of the federated schema"
-            directive @extends on OBJECT | INTERFACE
-
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
+            directive @external on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -58,16 +56,19 @@ class FederatedSchemaGeneratorTest {
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+            directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+            "Links definitions within the document to external schemas."
+            directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
             "Indicates an Input Object is a OneOf Input Object."
             directive @oneOf on INPUT_OBJECT
 
             "Specifies the base type field set that will be selectable by the gateway"
-            directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 
             "Specifies required input field set from the base type for a resolver"
-            directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
@@ -81,25 +82,25 @@ class FederatedSchemaGeneratorTest {
                 url: String!
               ) on SCALAR
 
-            interface Product @extends @key(fields : "id") @key(fields : "upc") {
-              id: String! @external
+            interface Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
+              id: String!
               reviews: [Review!]!
-              upc: String! @external
+              upc: String!
             }
 
             union _Entity = Author | Book | User
 
-            type Author @extends @key(fields : "authorId") {
-              authorId: Int! @external
-              name: String! @external
+            type Author @key(fields : "authorId", resolvable : true) {
+              authorId: Int!
+              name: String!
             }
 
-            type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
+            type Book implements Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
               author: User! @provides(fields : "name")
-              id: String! @external
+              id: String!
               reviews: [Review!]!
               shippingCost: String! @requires(fields : "weight")
-              upc: String! @external
+              upc: String!
               weight: Float! @external
             }
 
@@ -107,7 +108,7 @@ class FederatedSchemaGeneratorTest {
               value: String!
             }
 
-            type Query @extends {
+            type Query {
               "Union of all types that use the @key directive, including both types native to the schema and extended types"
               _entities(representations: [_Any!]!): [_Entity]!
               _service: _Service!
@@ -120,30 +121,31 @@ class FederatedSchemaGeneratorTest {
               id: String!
             }
 
-            type User @extends @key(fields : "userId") {
-              name: String! @external
-              userId: Int! @external
+            type User @key(fields : "userId", resolvable : true) {
+              name: String!
+              userId: Int!
             }
 
             type _Service {
               sdl: String!
             }
 
+            "Federation type representing set of fields"
+            scalar FieldSet
+
             "Federation scalar type used to represent any external entities passed to _entities query."
             scalar _Any
 
-            "Federation type representing set of fields"
-            scalar _FieldSet
+            scalar link__Import
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v1"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config)
-
-        assertEquals(expectedSchema, schema.print().trim())
+        Assertions.assertEquals(expectedSchema, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
         assertNotNull(productType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
@@ -157,7 +159,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify generator does not add federation queries for non-federated schemas`() {
         val expectedSchema =
             """
-            schema {
+            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
               query: Query
             }
 
@@ -167,29 +169,17 @@ class FederatedSchemaGeneratorTest {
                 reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-            "Marks target object as extending part of the federated schema"
-            directive @extends on OBJECT | INTERFACE
-
-            "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
-
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
                 "Included when true."
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+            "Links definitions within the document to external schemas."
+            directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
             "Indicates an Input Object is a OneOf Input Object."
             directive @oneOf on INPUT_OBJECT
-
-            "Specifies the base type field set that will be selectable by the gateway"
-            directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
-
-            "Specifies required input field set from the base type for a resolver"
-            directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
@@ -203,7 +193,7 @@ class FederatedSchemaGeneratorTest {
                 url: String!
               ) on SCALAR
 
-            type Query @extends {
+            type Query {
               _service: _Service!
               hello(name: String!): String!
             }
@@ -212,13 +202,12 @@ class FederatedSchemaGeneratorTest {
               sdl: String!
             }
 
-            "Federation type representing set of fields"
-            scalar _FieldSet
+            scalar link__Import
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
@@ -226,12 +215,42 @@ class FederatedSchemaGeneratorTest {
     }
 
     @Test
-    fun `verify a nested federated schema still works`() {
+    fun `verify a schema with self nested query still works`() {
         val expectedSchema =
             """
-            schema {
+            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
               query: Query
             }
+
+            "Marks the field, argument, input field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String = "No longer supported"
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Links definitions within the document to external schemas."
+            directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
+
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
+
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
 
             type Query {
               _service: _Service!
@@ -248,16 +267,15 @@ class FederatedSchemaGeneratorTest {
               sdl: String!
             }
 
-            "Federation type representing set of fields"
-            scalar _FieldSet
+            scalar link__Import
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(NestedQuery())))
-        assertEquals(expectedSchema, schema.print(includeDirectives = false).trim())
+        assertEquals(expectedSchema, schema.print(includeDirectives = true).trim())
     }
 }

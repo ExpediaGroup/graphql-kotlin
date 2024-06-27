@@ -21,10 +21,6 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
- * # federation v1 definition
- * directive @external on FIELD_DEFINITION
- *
- * # federation v2 definition
  * directive @external on OBJECT | FIELD_DEFINITION
  * ```
  *
@@ -73,12 +69,6 @@ internal const val EXTERNAL_DIRECTIVE_NAME = "external"
 private const val EXTERNAL_DIRECTIVE_DESCRIPTION = "Marks target field as external meaning it will be resolved by federated schema"
 
 internal val EXTERNAL_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(EXTERNAL_DIRECTIVE_NAME)
-    .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
-    .validLocations(DirectiveLocation.FIELD_DEFINITION)
-    .build()
-
-internal val EXTERNAL_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(EXTERNAL_DIRECTIVE_NAME)
     .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION)

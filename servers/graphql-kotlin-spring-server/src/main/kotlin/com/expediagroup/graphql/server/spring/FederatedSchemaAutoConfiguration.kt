@@ -61,7 +61,6 @@ class FederatedSchemaAutoConfiguration(
         resolvers: Optional<List<FederatedTypeResolver>>
     ): FederatedSchemaGeneratorHooks = FederatedSchemaGeneratorHooks(
         resolvers.orElse(emptyList()),
-        config.federation.optInV2
     )
 
     @Bean
