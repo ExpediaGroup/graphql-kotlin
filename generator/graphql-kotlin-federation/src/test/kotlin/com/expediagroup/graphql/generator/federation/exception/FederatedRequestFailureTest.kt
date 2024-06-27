@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.exception
 
 import graphql.ErrorType
-import graphql.language.SourceLocation
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
