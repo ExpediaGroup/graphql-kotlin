@@ -12,8 +12,8 @@
     "test": "jest"
   },
   "devDependencies": {
-    "jest": "^29.5.0",
-    "@whatwg-node/fetch": "^0.8.2",
-    "graphql-http": "1.16.0"
+    "jest": "^29.7.0",
+    "@whatwg-node/fetch": "^0.9.18",
+    "graphql-http": "1.22.1"
   }
 }
