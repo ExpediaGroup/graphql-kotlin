@@ -34,6 +34,8 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
@@ -55,6 +57,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
      * **Required Property**
      */
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
     /**
@@ -97,6 +100,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
      */
     @InputDirectory
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     val queryFileDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     /**
@@ -105,6 +109,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
      */
     @InputFiles
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     val queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
     @Input

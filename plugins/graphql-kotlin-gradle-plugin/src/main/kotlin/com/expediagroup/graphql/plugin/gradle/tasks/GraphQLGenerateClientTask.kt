@@ -16,12 +16,15 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
+import org.gradle.api.tasks.CacheableTask
+
 internal const val GENERATE_CLIENT_TASK_NAME: String = "graphqlGenerateClient"
 
 /**
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
  */
 @Suppress("UnstableApiUsage")
+@CacheableTask
 abstract class GraphQLGenerateClientTask : AbstractGenerateClientTask() {
 
     init {
