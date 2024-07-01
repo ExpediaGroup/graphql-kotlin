@@ -30,7 +30,7 @@ commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
 # test dependencies
 compile-testing = "0.5.0"
 icu = "75.1"
-junit = "5.10.2"
+junit = "5.10.3"
 logback = "1.5.6"
 mockk = "1.13.11"
 rxjava = "3.1.8"
