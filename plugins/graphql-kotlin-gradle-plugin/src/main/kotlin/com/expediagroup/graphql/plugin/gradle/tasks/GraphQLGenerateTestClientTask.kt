@@ -16,12 +16,15 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
+import org.gradle.api.tasks.CacheableTask
+
 internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTestClient"
 
 /**
  * Generate GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries.
  */
 @Suppress("UnstableApiUsage")
+@CacheableTask
 abstract class GraphQLGenerateTestClientTask : AbstractGenerateClientTask() {
 
     init {
