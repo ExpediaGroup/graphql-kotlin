@@ -48,6 +48,7 @@ class ExecutionLevelDispatchedState(
      * for example:
      * parsing, validation, execution errors
      * persisted query errors
+     * an exception during execution was thrown
      */
     private fun removeExecution(executionId: ExecutionId) {
         if (executions.containsKey(executionId)) {
@@ -70,10 +71,8 @@ class ExecutionLevelDispatchedState(
         }
         return object : SimpleInstrumentationContext<ExecutionResult>() {
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
-                result?.let {
-                    if (result.errors.size > 0) {
-                        removeExecution(parameters.executionInput.executionId)
-                    }
+                if ((result != null && result.errors.size > 0) || t != null) {
+                    removeExecution(parameters.executionInput.executionId)
                 }
             }
         }
