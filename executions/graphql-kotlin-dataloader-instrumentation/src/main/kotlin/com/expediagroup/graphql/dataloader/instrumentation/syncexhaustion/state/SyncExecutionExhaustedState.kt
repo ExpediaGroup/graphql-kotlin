@@ -48,35 +48,36 @@ class SyncExecutionExhaustedState(
     val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
 
     /**
-     * Remove an [ExecutionBatchState] from the state in case operation does not qualify for starting an execution,
-     * for example:
-     * - parsing, validation errors
-     * - persisted query errors
-     * - an exception during execution was thrown
-     */
-    private fun removeExecution(executionId: ExecutionId) {
-        if (executions.containsKey(executionId)) {
-            executions.remove(executionId)
-            totalExecutions.set(totalExecutions.get() - 1)
-        }
-    }
-
-    /**
      * Create the [ExecutionBatchState] When a specific [ExecutionInput] starts his execution
      *
      * @param parameters contains information of which [ExecutionInput] will start his execution
      * @return a non null [InstrumentationContext] object
      */
     fun beginExecution(
-        parameters: InstrumentationExecutionParameters
+        parameters: InstrumentationExecutionParameters,
+        onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
     ): InstrumentationContext<ExecutionResult> {
         executions.computeIfAbsent(parameters.executionInput.executionId) {
             ExecutionBatchState()
         }
         return object : SimpleInstrumentationContext<ExecutionResult>() {
+            /**
+             * Remove an [ExecutionBatchState] from the state in case operation does not qualify for starting or completing execution,
+             * for example:
+             * - parsing, validation errors
+             * - persisted query errors
+             * - an exception during execution was thrown
+             */
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
                 if ((result != null && result.errors.size > 0) || t != null) {
-                    removeExecution(parameters.executionInput.executionId)
+                    if (executions.containsKey(parameters.executionInput.executionId)) {
+                        executions.remove(parameters.executionInput.executionId)
+                        totalExecutions.set(totalExecutions.get() - 1)
+                        val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
+                        if (allSyncExecutionsExhausted) {
+                            onSyncExecutionExhausted(executions.keys().toList())
+                        }
+                    }
                 }
             }
         }

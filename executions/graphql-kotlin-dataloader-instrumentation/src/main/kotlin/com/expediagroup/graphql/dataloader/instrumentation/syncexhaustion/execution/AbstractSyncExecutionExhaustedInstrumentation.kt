@@ -61,7 +61,12 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
     ): InstrumentationContext<ExecutionResult>? =
         parameters.graphQLContext
             ?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginExecution(parameters)
+            ?.beginExecution(
+                parameters,
+                this.getOnSyncExecutionExhaustedCallback(
+                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionInput)
+                )
+            )
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
@@ -92,7 +97,7 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
             ?.beginFieldFetching(
                 parameters,
                 this.getOnSyncExecutionExhaustedCallback(
-                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext)
+                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext.executionInput)
                 )
             )
 }
