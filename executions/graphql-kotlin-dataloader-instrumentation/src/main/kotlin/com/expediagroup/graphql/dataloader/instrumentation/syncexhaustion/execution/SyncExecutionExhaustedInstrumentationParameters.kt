@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
 
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
-import graphql.execution.ExecutionContext
+import graphql.ExecutionInput
 
 /**
  * Hold information that will be provided to an instance of [DataLoaderSyncExecutionExhaustedInstrumentation]
  */
 data class SyncExecutionExhaustedInstrumentationParameters(
-    val executionContext: ExecutionContext
+    val executionInput: ExecutionInput
 )

@@ -64,7 +64,7 @@ class ExecutionLevelDispatchedState(
      * @return a nullable [InstrumentationContext]
      */
     fun beginExecution(
-        parameters: InstrumentationExecutionParameters
+        parameters: InstrumentationExecutionParameters,
     ): InstrumentationContext<ExecutionResult> {
         executions.computeIfAbsent(parameters.executionInput.executionId) {
             ExecutionBatchState()

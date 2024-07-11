@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,18 +94,16 @@ object AstronautGraphQL {
 
     private val astronautService = AstronautService()
     private val astronautDataFetcher = DataFetcher { environment ->
+        val astronautId = environment.getArgument<String>("id")?.toInt() ?: throw IllegalArgumentException("Astronaut ID is null")
         astronautService.getAstronaut(
-            AstronautServiceRequest(
-                environment.getArgument<String>("id").toInt()
-            ),
+            AstronautServiceRequest(astronautId),
             environment
         )
     }
     private val createAstronautDataFetcher = DataFetcher { environment ->
+        val astronautName = environment.getArgument<String>("name") ?: throw IllegalArgumentException("Astronaut name is null")
         astronautService.createAstronaut(
-            CreateAstronautServiceRequest(
-                environment.getArgument("name")
-            )
+            CreateAstronautServiceRequest(astronautName)
         )
     }
     private val astronautsDataFetcher = DataFetcher { environment ->
@@ -119,10 +117,9 @@ object AstronautGraphQL {
 
     private val missionService = MissionService()
     private val missionDataFetcher = DataFetcher { environment ->
+        val missionId = environment.getArgument<String>("id")?.toInt() ?: throw IllegalArgumentException("Mission ID is null")
         missionService.getMission(
-            MissionServiceRequest(
-                environment.getArgument<String>("id").toInt()
-            ),
+            MissionServiceRequest(missionId),
             environment
         )
     }
@@ -135,26 +132,26 @@ object AstronautGraphQL {
         )
     }
     private val missionsByAstronautDataFetcher = DataFetcher { environment ->
-        val astronaut = environment.getSource<Astronaut>()
+        val astronautId = environment.getSource<Astronaut>()?.id ?: throw IllegalArgumentException("Astronaut ID is null")
         missionService
             .getMissionsByAstronaut(
-                MissionServiceRequest(0, astronaut.id),
+                MissionServiceRequest(0, astronautId),
                 environment
             )
     }
 
     private val planetService = PlanetService()
     private val planetsByMissionDataFetcher = DataFetcher { environment ->
-        val mission = environment.getSource<Mission>()
+        val missionId = environment.getSource<Mission>()?.id ?: throw IllegalArgumentException("Mission ID is null")
         planetService.getPlanets(
-            PlanetServiceRequest(0, mission.id),
+            PlanetServiceRequest(0, missionId),
             environment
         )
     }
     private val planetsByAstronautDataFetcher = DataFetcher { environment ->
-        val astronaut = environment.getSource<Astronaut>()
+        val astronautId = environment.getSource<Astronaut>()?.id ?: throw IllegalArgumentException("Astronaut ID is null")
         astronautService.getPlanets(
-            AstronautServiceRequest(astronaut.id),
+            AstronautServiceRequest(astronautId),
             environment
         )
     }
@@ -197,11 +194,22 @@ object AstronautGraphQL {
         )
     )
 
-    fun execute(
+    fun executeOperations(
         graphQL: GraphQL,
         queries: List<String>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
-    ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
+    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> =
+        execute(
+            graphQL,
+            queries.map { query -> ExecutionInput.newExecutionInput(query).build() },
+            dataLoaderInstrumentationStrategy
+        )
+
+    fun execute(
+        graphQL: GraphQL,
+        executionInputs: List<ExecutionInput>,
+        dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
+    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> {
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(),
@@ -214,30 +222,36 @@ object AstronautGraphQL {
             when (dataLoaderInstrumentationStrategy) {
                 DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
                     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                        queries.size,
+                        executionInputs.size,
                         kotlinDataLoaderRegistry
                     )
                 DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED ->
                     ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                        queries.size
+                        executionInputs.size
                     )
             }
         )
 
         val results = runBlocking {
-            queries.map { query ->
+            executionInputs.map { executionInput ->
                 async {
-                    graphQL.executeAsync(
-                        ExecutionInput
-                            .newExecutionInput(query)
-                            .dataLoaderRegistry(kotlinDataLoaderRegistry)
-                            .graphQLContext(graphQLContext)
-                            .build()
-                    ).await()
+                    try {
+                        Result.success(
+                            graphQL.executeAsync(
+                                executionInput.transform { builder ->
+                                    builder
+                                        .dataLoaderRegistry(kotlinDataLoaderRegistry)
+                                        .graphQLContext(graphQLContext)
+                                        .build()
+                                }
+                            ).await()
+                        )
+                    } catch (e: Exception) {
+                        Result.failure(e)
+                    }
                 }
             }.awaitAll()
         }
-
         return Pair(results, kotlinDataLoaderRegistry)
     }
 }
