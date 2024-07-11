@@ -40,7 +40,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExh
         parameters: SyncExecutionExhaustedInstrumentationParameters
     ): OnSyncExecutionExhaustedCallback = { _: List<ExecutionId> ->
         parameters
-            .executionContext.executionInput
+            .executionInput
             .dataLoaderRegistry
             .dispatchAll()
     }

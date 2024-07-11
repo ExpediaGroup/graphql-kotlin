@@ -19,6 +19,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
+import graphql.ExecutionInput
 import io.mockk.clearAllMocks
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
@@ -54,7 +55,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -85,7 +86,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -120,7 +121,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -164,7 +165,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -202,7 +203,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -253,7 +254,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -299,7 +300,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -340,7 +341,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -380,7 +381,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -389,7 +390,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(3, results.size)
 
         results.forEach { result ->
-            assertTrue(result.errors.isEmpty())
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
 
         val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
@@ -422,7 +423,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -430,7 +431,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(3, results.size)
         results.forEach { result ->
-            assertTrue(result.errors.isEmpty())
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
 
         val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
@@ -470,7 +471,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent(),
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -482,7 +483,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(2, results.size)
         results.forEach { result ->
-            assertTrue(result.errors.isEmpty())
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
@@ -566,7 +567,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.execute(
+        val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -579,7 +580,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     }
 
     @Test
-    fun `Instrumentation should not account for invalid operations`() {
+    fun `Instrumentation should not consider executions with invalid operations`() {
         val queries = listOf(
             "invalid query{ astronaut(id: 1) {",
             "{ astronaut(id: 2) { id name } }",
@@ -587,7 +588,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -603,6 +604,37 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
+
+        verify(exactly = 2) {
+            kotlinDataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
+    fun `Instrumentation should not consider executions that thrown exceptions`() {
+        val executions = listOf(
+            ExecutionInput.newExecutionInput("query test1 { astronaut(id: 1) { id name } }").operationName("test1").build(),
+            ExecutionInput.newExecutionInput("query test2 { astronaut(id: 2) { id name } }").operationName("test2").build(),
+            ExecutionInput.newExecutionInput("query test3 { mission(id: 3) { id designation } }").operationName("test3").build(),
+            ExecutionInput.newExecutionInput("query test4 { mission(id: 4) { designation } }").operationName("OPERATION_NOT_IN_DOCUMENT").build()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+            graphQL,
+            executions,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(4, results.size)
+
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        assertEquals(2, astronautStatistics?.batchLoadCount)
+
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        assertEquals(1, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
             kotlinDataLoaderRegistry.dispatchAll()
