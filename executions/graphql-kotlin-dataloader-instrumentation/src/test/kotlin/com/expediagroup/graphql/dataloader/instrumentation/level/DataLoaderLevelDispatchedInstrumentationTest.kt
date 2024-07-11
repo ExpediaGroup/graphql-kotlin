@@ -48,7 +48,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -79,7 +79,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -114,7 +114,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -149,7 +149,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, _) = AstronautGraphQL.execute(
+        val (results, _) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -170,7 +170,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
