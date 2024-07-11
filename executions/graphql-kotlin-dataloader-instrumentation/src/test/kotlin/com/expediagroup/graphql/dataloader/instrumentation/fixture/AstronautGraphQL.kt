@@ -193,11 +193,22 @@ object AstronautGraphQL {
         )
     )
 
-    fun execute(
+    fun executeOperations(
         graphQL: GraphQL,
         queries: List<String>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
-    ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
+    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> =
+        execute(
+            graphQL,
+            queries.map { query -> ExecutionInput.newExecutionInput(query).build() },
+            dataLoaderInstrumentationStrategy
+        )
+
+    fun execute(
+        graphQL: GraphQL,
+        executionInputs: List<ExecutionInput>,
+        dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
+    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> {
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(),
@@ -210,26 +221,32 @@ object AstronautGraphQL {
             when (dataLoaderInstrumentationStrategy) {
                 DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
                     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                        queries.size,
+                        executionInputs.size,
                         kotlinDataLoaderRegistry
                     )
             }
         )
 
         val results = runBlocking {
-            queries.map { query ->
+            executionInputs.map { executionInput ->
                 async {
-                    graphQL.executeAsync(
-                        ExecutionInput
-                            .newExecutionInput(query)
-                            .dataLoaderRegistry(kotlinDataLoaderRegistry)
-                            .graphQLContext(graphQLContext)
-                            .build()
-                    ).await()
+                    try {
+                        Result.success(
+                            graphQL.executeAsync(
+                                executionInput.transform { builder ->
+                                    builder
+                                        .dataLoaderRegistry(kotlinDataLoaderRegistry)
+                                        .graphQLContext(graphQLContext)
+                                        .build()
+                                }
+                            ).await()
+                        )
+                    } catch (e: Exception) {
+                        Result.failure(e)
+                    }
                 }
             }.awaitAll()
         }
-
         return Pair(results, kotlinDataLoaderRegistry)
     }
 }
