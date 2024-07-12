@@ -37,22 +37,24 @@ fun <V> CompletableFuture<V>.dispatchIfNeeded(
     val dataLoaderRegistry = environment.dataLoaderRegistry as? KotlinDataLoaderRegistry ?: throw MissingKotlinDataLoaderRegistryException()
 
     if (dataLoaderRegistry.dataLoadersInvokedOnDispatch()) {
-        val cantContinueExecution = when {
+        when {
             environment.graphQlContext.hasKey(ExecutionLevelDispatchedState::class) -> {
-                environment
-                    .graphQlContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
-                    .allExecutionsDispatched(Level(environment.executionStepInfo.path.level))
+                val cantContinueExecution =
+                    environment
+                        .graphQlContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+                        .allExecutionsDispatched(Level(environment.executionStepInfo.path.level))
+                if (cantContinueExecution) {
+                    dataLoaderRegistry.dispatchAll()
+                }
             }
             environment.graphQlContext.hasKey(SyncExecutionExhaustedState::class) -> {
                 environment
                     .graphQlContext.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-                    .allSyncExecutionsExhausted()
+                    .ifAllSyncExecutionsExhausted {
+                        dataLoaderRegistry.dispatchAll()
+                    }
             }
             else -> throw MissingInstrumentationStateException()
-        }
-
-        if (cantContinueExecution) {
-            dataLoaderRegistry.dispatchAll()
         }
     }
     return this
