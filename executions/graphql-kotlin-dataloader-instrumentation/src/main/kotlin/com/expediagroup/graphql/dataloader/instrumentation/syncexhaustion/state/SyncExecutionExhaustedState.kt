@@ -71,11 +71,12 @@ class SyncExecutionExhaustedState(
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
                 if ((result != null && result.errors.size > 0) || t != null) {
                     if (executions.containsKey(parameters.executionInput.executionId)) {
-                        executions.remove(parameters.executionInput.executionId)
-                        totalExecutions.set(totalExecutions.get() - 1)
-                        val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
-                        if (allSyncExecutionsExhausted) {
-                            onSyncExecutionExhausted(executions.keys().toList())
+                        synchronized(executions) {
+                            executions.remove(parameters.executionInput.executionId)
+                            totalExecutions.set(totalExecutions.get() - 1)
+                        }
+                        ifAllSyncExecutionsExhausted { executionIds ->
+                            onSyncExecutionExhausted(executionIds)
                         }
                     }
                 }
@@ -131,9 +132,8 @@ class SyncExecutionExhaustedState(
                     executionState
                 }
 
-                val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
-                if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhausted(executions.keys().toList())
+                ifAllSyncExecutionsExhausted { executionIds ->
+                    onSyncExecutionExhausted(executionIds)
                 }
             }
 
@@ -143,9 +143,8 @@ class SyncExecutionExhaustedState(
                     executionState
                 }
 
-                val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
-                if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhausted(executions.keys().toList())
+                ifAllSyncExecutionsExhausted { executionIds ->
+                    onSyncExecutionExhausted(executionIds)
                 }
             }
 
@@ -155,17 +154,18 @@ class SyncExecutionExhaustedState(
     }
 
     /**
-     * Provide the information about when all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution
+     * execute a given [predicate] when all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution.
      * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
      * a scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
      */
-    fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
-        val operationsToExecute = totalExecutions.get()
-        when {
-            executions.size < operationsToExecute || !dataLoaderRegistry.onDispatchFuturesHandled() -> false
-            else -> {
-                executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)
+    fun ifAllSyncExecutionsExhausted(predicate: (List<ExecutionId>) -> Unit) =
+        synchronized(executions) {
+            val operationsToExecute = totalExecutions.get()
+            if (executions.size < operationsToExecute || !dataLoaderRegistry.onDispatchFuturesHandled())
+                return@synchronized
+
+            if (executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)) {
+                predicate(executions.keys().toList())
             }
         }
-    }
 }
