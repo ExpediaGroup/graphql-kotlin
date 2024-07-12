@@ -616,9 +616,9 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should not consider executions that thrown exceptions`() {
         val executions = listOf(
             ExecutionInput.newExecutionInput("query test1 { astronaut(id: 1) { id name } }").operationName("test1").build(),
-            ExecutionInput.newExecutionInput("query test2 { astronaut(id: 2) { id name } }").operationName("test2").build(),
-            ExecutionInput.newExecutionInput("query test3 { mission(id: 3) { id designation } }").operationName("test3").build(),
-            ExecutionInput.newExecutionInput("query test4 { mission(id: 4) { designation } }").operationName("OPERATION_NOT_IN_DOCUMENT").build()
+            ExecutionInput.newExecutionInput("query test2 { astronaut(id: 2) { id name } }").operationName("OPERATION_NOT_IN_DOCUMENT").build(),
+            ExecutionInput.newExecutionInput("query test3 { mission(id: 3) { id designation } }").operationName("OPERATION_NOT_IN_DOCUMENT").build(),
+            ExecutionInput.newExecutionInput("query test4 { mission(id: 4) { designation } }").operationName("test4").build()
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
@@ -633,7 +633,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
-        assertEquals(2, astronautStatistics?.batchLoadCount)
+        assertEquals(1, astronautStatistics?.batchLoadCount)
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(1, missionStatistics?.batchLoadCount)
