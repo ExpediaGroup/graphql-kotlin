@@ -1,3 +1,5 @@
+description = "BOM (Bill Of Materials) for graphql-kotlin"
+
 plugins {
     `maven-publish`
     `java-platform`
