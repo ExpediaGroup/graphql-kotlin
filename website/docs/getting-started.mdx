@@ -25,18 +25,33 @@ Using a JVM dependency manager, link any `graphql-kotlin-*` library to your proj
 <TabItem value="gradle">
 
 ```kotlin
-implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
+implementation(platform("com.expediagroup:graphql-kotlin-bom:$latestVersion"))
+
+implementation("com.expediagroup:graphql-kotlin-spring-server")
 ```
 
 </TabItem>
 <TabItem value="maven">
 
 ```xml
-<dependency>
-    <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-spring-server</artifactId>
-    <version>${latestVersion}</version>
-</dependency>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-bom</artifactId>
+            <version>${latestVersion}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>com.expediagroup</groupId>
+        <artifactId>graphql-kotlin-spring-server</artifactId>
+    </dependency>
+</dependencies>
 ```
 
 </TabItem>
