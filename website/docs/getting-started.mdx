@@ -18,20 +18,43 @@ Using a JVM dependency manager, link any `graphql-kotlin-*` library to your proj
   defaultValue="gradle"
   values={[
     { label: 'Gradle Kotlin', value: 'gradle' },
-    { label: 'Maven', value: 'maven' }
+    { label: 'Gradle Kotlin with BOM', value: 'gradle-bom' },
+    { label: 'Maven', value: 'maven' },
+    { label: 'Maven with BOM', value: 'maven-bom' }
   ]
 }>
 
 <TabItem value="gradle">
 
 ```kotlin
+implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
+```
+
+</TabItem>
+<TabItem value="gradle-bom">
+
+```kotlin
 implementation(platform("com.expediagroup:graphql-kotlin-bom:$latestVersion"))
 
-implementation("com.expediagroup:graphql-kotlin-spring-server")
+implementation("com.expediagroup", "graphql-kotlin-spring-server")
 ```
 
 </TabItem>
 <TabItem value="maven">
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.expediagroup</groupId>
+        <artifactId>graphql-kotlin-spring-server</artifactId>
+        <version>${latestVersion}</version>
+    </dependency>
+</dependencies>
+```
+
+</TabItem>
+
+<TabItem value="maven-bom">
 
 ```xml
 <dependencyManagement>
