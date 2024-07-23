@@ -18,7 +18,9 @@ Using a JVM dependency manager, link any `graphql-kotlin-*` library to your proj
   defaultValue="gradle"
   values={[
     { label: 'Gradle Kotlin', value: 'gradle' },
-    { label: 'Maven', value: 'maven' }
+    { label: 'Gradle Kotlin with BOM', value: 'gradle-bom' },
+    { label: 'Maven', value: 'maven' },
+    { label: 'Maven with BOM', value: 'maven-bom' }
   ]
 }>
 
@@ -26,6 +28,15 @@ Using a JVM dependency manager, link any `graphql-kotlin-*` library to your proj
 
 ```kotlin
 implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
+```
+
+</TabItem>
+<TabItem value="gradle-bom">
+
+```kotlin
+implementation(platform("com.expediagroup:graphql-kotlin-bom:$latestVersion"))
+
+implementation("com.expediagroup", "graphql-kotlin-spring-server")
 ```
 
 </TabItem>
@@ -37,6 +48,31 @@ implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion
     <artifactId>graphql-kotlin-spring-server</artifactId>
     <version>${latestVersion}</version>
 </dependency>
+```
+
+</TabItem>
+
+<TabItem value="maven-bom">
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-bom</artifactId>
+            <version>${latestVersion}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>com.expediagroup</groupId>
+        <artifactId>graphql-kotlin-spring-server</artifactId>
+    </dependency>
+</dependencies>
 ```
 
 </TabItem>
