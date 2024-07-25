@@ -1,6 +1,7 @@
 description = "BOM (Bill Of Materials) for graphql-kotlin"
 
 plugins {
+    id("com.expediagroup.graphql.conventions")
     `maven-publish`
     `java-platform`
 }
