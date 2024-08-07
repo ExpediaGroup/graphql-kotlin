@@ -62,7 +62,7 @@ operator fun GraphQLContext.plus(graphQLContext: GraphQLContext): GraphQLContext
  * @param map which values will be added into [this] GraphQLContext
  * @return current GraphQLContext with values of [map] added
  */
-operator fun GraphQLContext.plus(map: Map<*, Any?>): GraphQLContext =
+operator fun GraphQLContext.plus(map: Map<*, Any>): GraphQLContext =
     putAll(map)
 
 /**
