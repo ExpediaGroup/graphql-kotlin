@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -50,20 +48,18 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                withContext(Dispatchers.Default) {
-                    val graphQLContext = contextFactory.generateContext(request)
+                val graphQLContext = contextFactory.generateContext(request)
 
-                    val customCoroutineContext = (graphQLContext.get<CoroutineContext>() ?: EmptyCoroutineContext)
-                    val graphQLExecutionScope = CoroutineScope(
-                        coroutineContext + customCoroutineContext + SupervisorJob()
-                    )
+                val customCoroutineContext = (graphQLContext.get<CoroutineContext>() ?: EmptyCoroutineContext)
+                val graphQLExecutionScope = CoroutineScope(
+                    coroutineContext + customCoroutineContext + SupervisorJob()
+                )
 
-                    val graphQLContextWithCoroutineScope = graphQLContext + mapOf(
-                        CoroutineScope::class to graphQLExecutionScope
-                    )
+                val graphQLContextWithCoroutineScope = graphQLContext + mapOf(
+                    CoroutineScope::class to graphQLExecutionScope
+                )
 
-                    requestHandler.executeRequest(graphQLRequest, graphQLContextWithCoroutineScope)
-                }
+                requestHandler.executeRequest(graphQLRequest, graphQLContextWithCoroutineScope)
             }
         }
 }
