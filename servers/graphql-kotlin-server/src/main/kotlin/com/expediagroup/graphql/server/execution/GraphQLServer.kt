@@ -19,10 +19,8 @@ package com.expediagroup.graphql.server.execution
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -48,21 +46,19 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                withContext(Dispatchers.Default) {
-                    val deprecatedContext = contextFactory.generateContext(request)
-                    val contextMap = contextFactory.generateContextMap(request)
+                val deprecatedContext = contextFactory.generateContext(request)
+                val contextMap = contextFactory.generateContextMap(request)
 
-                    val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
-                        (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
-                    val graphQLExecutionScope = CoroutineScope(
-                        coroutineContext + customCoroutineContext + SupervisorJob()
-                    )
-                    val graphQLContext = contextMap + mapOf(
-                        CoroutineScope::class to graphQLExecutionScope
-                    )
+                val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
+                    (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val graphQLExecutionScope = CoroutineScope(
+                    coroutineContext + customCoroutineContext + SupervisorJob()
+                )
+                val graphQLContext = contextMap + mapOf(
+                    CoroutineScope::class to graphQLExecutionScope
+                )
 
-                    requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
-                }
+                requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
             }
         }
 }
