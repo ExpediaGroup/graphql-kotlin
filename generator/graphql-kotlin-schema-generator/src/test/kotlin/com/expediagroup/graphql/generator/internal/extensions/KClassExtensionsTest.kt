@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.internal.extensions
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
-import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
@@ -77,13 +76,6 @@ open class KClassExtensionsTest {
 
     @GraphQLName("MyClassRenamedInput")
     class MyClassCustomNameInput
-
-    @GraphQLValidObjectLocations([GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
-    class MyInputClassWithoutSuffix
-
-    @GraphQLValidObjectLocations([GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
-    @GraphQLName("MyClass")
-    class MyInputClassWithoutSuffixUsingCustomName
 
     protected class MyProtectedClass
 
@@ -385,11 +377,5 @@ open class KClassExtensionsTest {
         assertFalse(IgnoredSecondLevelInterface::class.isValidAdditionalType(false))
         assertFalse(IgnoredClass::class.isValidAdditionalType(true))
         assertFalse(IgnoredClass::class.isValidAdditionalType(false))
-    }
-
-    @Test
-    fun `@GraphQLName does not apply input suffix on input only classes`() {
-        assertEquals("MyInputClassWithoutSuffix", MyInputClassWithoutSuffix::class.getSimpleName(isInputClass = true))
-        assertEquals("MyClass", MyInputClassWithoutSuffixUsingCustomName::class.getSimpleName(isInputClass = true))
     }
 }
