@@ -20,27 +20,6 @@ type MyCustomName {
 }
 ```
 
-:::info
-By default, in order to differentiate between input and output types, all input type names are auto generated with additional
-`Input` suffix. Suffix is appended only if input type name does not already end with `Input`. If you would like to change this 
-behavior and avoid extra suffix, you need to explicitly specify that this is an input only type.
-
-```kotlin
-// GraphQL input object type name: MyInputType
-@GraphQLValidObjectLocations([GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
-data class MyInputType(val id: ID)
-```
-
-You can also rename input types
-
-```kotlin
-// GraphQL input object type name: MyCustomInputType
-@GraphQLValidObjectLocations([GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
-@GraphQLName("MyCustomInputType")
-data class MyInputType(val id: ID)
-```
-:::
-
 ## Known Issues
 
 Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate
