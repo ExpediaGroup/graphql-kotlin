@@ -74,6 +74,9 @@ open class KClassExtensionsTest {
 
     class MyClassInput
 
+    @GraphQLName("MyTestClassSkipSuffix", skipSuffix = true)
+    class MyTestClassSkipSuffix
+
     @GraphQLName("MyClassRenamedInput")
     class MyClassCustomNameInput
 
@@ -328,6 +331,11 @@ open class KClassExtensionsTest {
     fun `test input class name`() {
         assertEquals("MyTestClassInput", MyTestClass::class.getSimpleName(true))
         assertEquals("MyClassInput", MyClassInput::class.getSimpleName(true))
+    }
+
+    @Test
+    fun `test input class name with skipped suffix`() {
+        assertEquals("MyTestClassSkipSuffix", MyTestClassSkipSuffix::class.getSimpleName(true))
     }
 
     @Test

@@ -28,7 +28,9 @@ import kotlin.reflect.full.findAnnotation
 
 internal fun KAnnotatedElement.getGraphQLDescription(): String? = this.findAnnotation<GraphQLDescription>()?.value
 
-internal fun KAnnotatedElement.getGraphQLName(): String? = this.findAnnotation<GraphQLName>()?.value
+internal fun KAnnotatedElement.getGraphQLNameOverride() = this.findAnnotation<GraphQLName>()
+
+internal fun KAnnotatedElement.getGraphQLName(): String? = this.getGraphQLNameOverride()?.value
 
 internal fun KAnnotatedElement.getDeprecationReason(): String? =
     this.findAnnotation<Deprecated>()?.getReason()
