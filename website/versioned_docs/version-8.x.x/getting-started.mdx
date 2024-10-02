@@ -1,0 +1,82 @@
+---
+id: getting-started
+title: Getting Started
+slug: /
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+GraphQL Kotlin is a collection of libraries, built on top of [graphql-java](https://www.graphql-java.com/), that simplify running GraphQL clients and servers in Kotlin.
+
+## Installation
+
+Using a JVM dependency manager, link any `graphql-kotlin-*` library to your project.
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle Kotlin', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<dependency>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-spring-server</artifactId>
+    <version>${latestVersion}</version>
+</dependency>
+```
+
+</TabItem>
+</Tabs>
+
+## Generating a Schema
+
+You can use `graphql-kotlin-schema-generator` to generate a schema from Kotlin code and expose it with any server library.
+
+See the docs in [Schema Generator Getting Started](./schema-generator/schema-generator-getting-started.mdx).
+
+### Apollo Federation
+
+Using `graphql-kotlin-federation`, you can generate an [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/) compliant schema.
+
+See the docs in [Apollo Federation](./schema-generator/federation/apollo-federation.mdx).
+
+## Running a Server
+
+`graphql-kotlin-server` is a combination of the schema generator, federation, and server libraries. If you are looking to run a GraphQL server, this is the place to start.
+
+See the docs in [GraphQL Kotlin Server](./server/graphql-server.md).
+
+## Creating a Client
+
+`graphql-kotlin-plugins` can be used to generate a `graphql-kotlin-client` from an existing schema that is easy to use and type-safe.
+
+See the docs in [Client Overview](./client/client-overview.mdx).
+
+## Examples
+
+The `examples` module is a collection of working code and examples on how to use all of the `graphql-kotlin` modules.
+
+See the [example docs](./examples.md) for more info.
+
+## Blogs and Videos
+
+You can find more posts and recorded conference talks on GraphQL and `graphql-kotlin` on our [Blogs and Videos](./blogs-and-videos.md) page.
+
+## Additional resources
+
+-   [GraphQL](https://graphql.org/)
+-   [graphql-java](https://www.graphql-java.com/)
