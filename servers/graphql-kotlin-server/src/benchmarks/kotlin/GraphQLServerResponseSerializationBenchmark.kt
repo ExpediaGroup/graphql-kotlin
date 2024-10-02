@@ -18,7 +18,7 @@ package com.expediagroup.graphql.server
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONWriter
-import com.expediagroup.graphql.server.testtypes.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.openjdk.jmh.annotations.Benchmark
@@ -32,11 +32,11 @@ import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
 @Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
-@Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
 open class GraphQLServerResponseSerializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var response: GraphQLResponse
+    private lateinit var response: GraphQLResponse<Map<String, Any?>>
 
     @Setup
     fun setUp() {

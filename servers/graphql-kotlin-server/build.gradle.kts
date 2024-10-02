@@ -31,6 +31,14 @@ kotlin.sourceSets.getByName("benchmarks") {
 }
 
 benchmark {
+    configurations {
+        register("graphQLRequest") {
+            include("com.expediagroup.graphql.server.GraphQLServerRequest*")
+        }
+        register("graphQLResponse") {
+            include("com.expediagroup.graphql.server.GraphQLServerResponse*")
+        }
+    }
     targets {
         register("benchmarks") {
             this as JvmBenchmarkTarget

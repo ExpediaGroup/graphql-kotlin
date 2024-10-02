@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
 @Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
-@Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
 open class GraphQLServerRequestDeserializationBenchmark {
     private val mapper = jacksonObjectMapper()
     private lateinit var request: String

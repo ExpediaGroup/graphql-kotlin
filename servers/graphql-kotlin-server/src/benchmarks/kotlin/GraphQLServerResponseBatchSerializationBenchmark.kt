@@ -18,8 +18,8 @@ package com.expediagroup.graphql.server
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONWriter
-import com.alibaba.fastjson2.to
-import com.expediagroup.graphql.server.types.GraphQLServerRequest
+import com.expediagroup.graphql.server.types.GraphQLBatchResponse
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.openjdk.jmh.annotations.Benchmark
@@ -33,32 +33,31 @@ import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
 @Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
-@Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-open class GraphQLServerBatchRequestDeserializationBenchmark {
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
+open class GraphQLServerResponseBatchSerializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var request: String
-    private lateinit var batchRequest: String
+    private lateinit var batchResponse: GraphQLBatchResponse
 
     @Setup
     fun setUp() {
         JSON.config(JSONWriter.Feature.WriteNulls)
-        val loader = this::class.java.classLoader
-        val operation = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
-        val variables = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
-        batchRequest = """
-            [
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables }
-            ]
-        """.trimIndent()
+        val data = mapper.readValue<Map<String, Any?>>(
+            this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
+        )
+        batchResponse = GraphQLBatchResponse(
+            listOf(
+                GraphQLResponse(data),
+                GraphQLResponse(data),
+                GraphQLResponse(data),
+                GraphQLResponse(data)
+            )
+        )
     }
 
     @Benchmark
-    fun JacksonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = mapper.readValue(batchRequest)
+    fun JacksonSerializeGraphQLBatchResponse(): String = mapper.writeValueAsString(batchResponse)
 
     @Benchmark
-    fun FastJsonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = batchRequest.to<GraphQLServerRequest>()
+    fun FastJsonSerializeGraphQLBatchResponse(): String = JSON.toJSONString(batchResponse)
 }
