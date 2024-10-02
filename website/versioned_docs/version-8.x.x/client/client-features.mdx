@@ -1,0 +1,504 @@
+---
+id: client-features
+title: Client Features
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Jackson and Kotlinx Serialization Support
+
+GraphQL Kotlin supports generation of client data models that are compatible with both `Jackson` (default) and `kotlinx.serialization`
+formats. Build plugins and `graphql-kotlin-spring-client` default to use `Jackson` whereas `graphql-kotlin-ktor-client`
+defaults to `kotlinx.serialization`.
+
+See [client serialization documentation](./client-serialization.mdx) for additional details.
+
+## Polymorphic Types Support
+
+GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
+regular interfaces. In order to ensure generated objects are not empty, GraphQL queries referencing polymorphic types
+will automatically generate fallback implementations that will be used if there is no match. Polymorphic queries have to
+explicitly request `__typename` field as it is used by serializers to correctly distinguish between different implementations.
+
+:::caution
+`kotlinx-serialization` currently does not provide mechanism to automatically register polymorphic fallbacks. Fallbacks
+have to be explicitly configured when creating your `GraphQLClientKotlinxSerializer`.
+
+```kotlin
+val serializerWithFallback = GraphQLClientKotlinxSerializer(jsonBuilder = {
+    serializersModule = SerializersModule {
+        polymorphic(BasicInterface::class) {
+            defaultDeserializer { DefaultBasicInterfaceImplementation.serializer() }
+        }
+    }
+})
+val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"), serializer = serializerWithFallback)
+```
+
+See https://github.com/Kotlin/kotlinx.serialization/issues/1575 for details.
+:::
+
+Given example schema
+
+```graphql
+type Query {
+  interfaceQuery: BasicInterface!
+}
+
+interface BasicInterface {
+  id: Int!
+  name: String!
+}
+
+type FirstInterfaceImplementation implements BasicInterface {
+  id: Int!
+  intValue: Int!
+  name: String!
+}
+
+type SecondInterfaceImplementation implements BasicInterface {
+  floatValue: Float!
+  id: Int!
+  name: String!
+}
+```
+
+We can query interface field as
+
+```graphql
+query PolymorphicQuery {
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+}
+```
+
+Which will generate following data models
+
+<Tabs
+  defaultValue="jackson"
+  values={[
+    { label: 'Jackson', value: 'jackson' },
+    { label: 'kotlinx.serialization', value: 'kotlinx' }
+  ]
+}>
+
+<TabItem value="jackson">
+
+```kotlin
+@Generated
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "__typename",
+  defaultImpl = DefaultBasicInterfaceImplementation::class
+)
+@JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+    FirstInterfaceImplementation::class,
+    name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+    = SecondInterfaceImplementation::class, name="SecondInterfaceImplementation")])
+interface BasicInterface {
+  abstract val id: Int
+  abstract val name: String
+}
+
+@Generated
+data class FirstInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val intValue: Int
+) : BasicInterface
+
+@Generated
+data class SecondInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val floatValue: Float
+) : BasicInterface
+
+@Generated
+data class DefaultBasicInterfaceImplementation(
+  override val id: Int,
+  override val name: String
+) : BasicInterface
+```
+
+</TabItem>
+<TabItem value="kotlinx">
+
+```kotlin
+@Generated
+@Serializable
+sealed class BasicInterface {
+  abstract val id: Int
+  abstract val name: String
+}
+
+@Generated
+@Serializable
+@SerialName(value = "FirstInterfaceImplementation")
+data class FirstInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val intValue: Int
+) : BasicInterface()
+
+@Generated
+@Serializable
+@SerialName(value = "SecondInterfaceImplementation")
+data class SecondInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val floatValue: Float
+) : BasicInterface()
+
+@Generated
+@Serializable
+data class DefaultBasicInterfaceImplementation(
+  override val id: String
+  override val name: String
+) : BasicInterface()
+```
+
+</TabItem>
+</Tabs>
+
+## Custom Scalar Support
+
+By default, custom GraphQL scalars are serialized and [type-aliased](https://kotlinlang.org/docs/reference/type-aliases.html)
+to a String. GraphQL Kotlin plugins also support custom serialization based on provided configuration.
+
+In order to automatically convert between custom GraphQL `UUID` scalar type and `java.util.UUID`, we first need to create
+our custom `ScalarConverter`.
+
+```kotlin
+package com.example.client
+
+import com.expediagroup.graphql.client.converter.ScalarConverter
+import java.util.UUID
+
+class UUIDScalarConverter : ScalarConverter<UUID> {
+    override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString())
+    override fun toJson(value: UUID): Any = value.toString()
+}
+```
+
+And then configure build plugin by specifying
+
+-   Custom GraphQL scalar name
+-   Target JVM class name
+-   Converter that provides logic to map between GraphQL and Kotlin type
+
+```kotlin
+graphql {
+    packageName = "com.example.generated"
+    endpoint = "http://localhost:8080/graphql"
+    customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
+}
+```
+
+Custom scalar fields will then be automatically converted to a `java.util.UUID` type using appropriate converter/serializer.
+
+<Tabs
+  defaultValue="jackson"
+  values={[
+    { label: 'Jackson', value: 'jackson' },
+    { label: 'kotlinx.serialization', value: 'kotlinx' }
+  ]
+}>
+
+<TabItem value="jackson">
+
+Following converters will be generated under `com.example.generated.scalars` package.
+
+```kotlin
+@Generated
+public class AnyToUUIDConverter : StdConverter<Any, UUID>() {
+  private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+  public override fun convert(`value`: Any): UUID = converter.toScalar(value)
+}
+
+@Generated
+public class UUIDToAnyConverter : StdConverter<UUID, Any>() {
+  private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+  public override fun convert(`value`: UUID): Any = converter.toJson(value)
+}
+```
+
+Custom scalars fields will then be annotated with Jackson annotations referencing the above converters.
+
+```kotlin
+@Generated
+public data class Result(
+  @JsonSerialize(converter = UUIDToAnyConverter::class)
+  @JsonDeserialize(converter = AnyToUUIDConverter::class)
+  public val custom: UUID,
+  @JsonSerialize(contentConverter = UUIDToAnyConverter::class)
+  @JsonDeserialize(contentConverter = AnyToUUIDConverter::class)
+  public val customList: List<UUID>
+)
+```
+
+</TabItem>
+<TabItem value="kotlinx">
+
+Following serializer will be generated under `com.example.generated.scalars` package.
+
+```kotlin
+@Generated
+public object UUIDSerializer : KSerializer<UUID> {
+  private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+  public override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
+
+  public override fun serialize(encoder: Encoder, `value`: UUID): Unit {
+    val encoded = converter.toJson(value)
+    encoder.encodeString(encoded.toString())
+  }
+
+  public override fun deserialize(decoder: Decoder): UUID {
+    val jsonDecoder = decoder as JsonDecoder
+    val element = jsonDecoder.decodeJsonElement()
+    val rawContent = element.jsonPrimitive.content
+    return converter.toScalar(rawContent)
+  }
+}
+```
+
+Custom scalars fields will then be annotated with `@Serializable` annotation referencing the above serializer.
+
+```kotlin
+@Generated
+@Serializable
+public data class Result(
+  @Serializable(with = UUIDSerializer::class)
+  public val custom: UUID,
+  public val customList: List<@Serializable(with = UUIDSerializer::class) UUID>
+)
+```
+
+</TabItem>
+</Tabs>
+
+See [Gradle](../plugins/gradle-plugin-tasks.mdx) and [Maven](../plugins/maven-plugin-goals.md) plugin documentation for additional details.
+
+:::info
+While custom scalars are most commonly represented using some primitive values (e.g. serializing UUID as String), it is
+possible to use arbitrary objects representation as custom scalar. For example Apollo Federation relies on `_Any` scalar
+to accept federated entity representations which is a JSON map containing `__typename` information and a number of additional
+fields used to uniquely identify the target object.
+
+<Tabs
+  defaultValue="jackson"
+  values={[
+    { label: 'Jackson', value: 'jackson' },
+    { label: 'kotlinx.serialization', value: 'kotlinx' }
+  ]
+}>
+
+<TabItem value="jackson">
+
+Jackson uses reflection to automatically serialize the objects. In order to rely on this behavior for custom scalars,
+we simply need to implement a pass-through converter.
+
+```kotlin
+class AnyScalarConverter : ScalarConverter<Any> {
+    override fun toScalar(rawValue: Any): Any = rawValue
+    override fun toJson(value: Any): Any = value
+}
+```
+
+This will allow us to pass arbitrary objects as custom scalar inputs. Given following Federation type and `_entities` query
+
+```
+type Product @key(fields : "id") {
+    id: String!
+    name: String!
+}
+
+query EntitiesQuery($representations: [_Any!]!) {
+    _entities(representations: $representations) {
+        __typename
+        ...on Product { name }
+        }
+    }
+}
+```
+
+We can create corresponding `ProductEntityRepresentation` data class and use it in our generated query.
+
+```kotlin
+data class ProductEntityRepresentation(val id: String) {
+    val __typename: String = "Product"
+}
+
+val entityData = client.execute(EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(ProductEntityRepresentation(id = "apollo-federation")))))
+```
+
+</TabItem>
+<TabItem value="kotlinx">
+
+Using kotlinx-serialization we can use `JsonObject` to represent arbitrary objects as custom scalars.
+
+```kotlin
+class AnyScalarConverter : ScalarConverter<JsonObject> {
+    override fun toScalar(rawValue: Any): JsonObject = Json.parseToJsonElement(rawValue.toString()).jsonObject
+    override fun toJson(value: JsonObject): Any = value
+}
+```
+
+This will allow us to pass arbitrary objects as custom scalar inputs. Given following Federation type and `_entities` query
+
+```
+type Product @key(fields : "id") {
+    id: String!
+    name: String!
+}
+
+query EntitiesQuery($representations: [_Any!]!) {
+    _entities(representations: $representations) {
+        __typename
+        ...on Product { name }
+        }
+    }
+}
+```
+
+We can then represent product entity representation as `JsonObject` and use it in our generated query.
+
+```kotlin
+val entity = Json.decodeFromString<JsonObject>(
+    """
+    |{
+    |  "__typename": "Product",
+    |  "id": "apollo-federation"
+    |}
+    """.trimMargin()
+)
+
+val entityData = client.execute(EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(entity))))
+```
+
+</TabItem>
+</Tabs>
+:::
+
+## Default Enum Values
+
+Enums represent predefined set of values. Adding additional enum values could be a potentially breaking change as your
+clients may not be able to process it. GraphQL Kotlin Client automatically adds default `__UNKNOWN_VALUE` to all generated
+enums as a catch all safeguard for handling new enum values.
+
+## Auto Generated Documentation
+
+GraphQL Kotlin build plugins automatically pull in GraphQL descriptions of the queried fields from the target schema and
+add it as KDoc to corresponding data models.
+
+Given simple GraphQL object definition
+
+```graphql
+"Some basic description"
+type BasicObject {
+  "Unique identifier"
+  id: Int!
+  "Object name"
+  name: String!
+}
+```
+
+Will result in a corresponding auto generated data class
+
+```kotlin
+/**
+ * Some basic description
+ */
+ @Generated
+data class BasicObject(
+  /**
+   * Unique identifier
+   */
+  val id: Int,
+  /**
+   * Object name
+   */
+  val name: String
+)
+```
+
+## Native Support for Coroutines
+
+GraphQL Kotlin Client is a generic interface that exposes `execute` methods that will suspend your GraphQL operation until
+it gets a response back without blocking the underlying thread. Reference Ktor and Spring WebClient based implementations
+offer fully asynchronous communication through Kotlin coroutines. In order to fetch data asynchronously you should wrap
+your client execution in `launch` or `async` coroutine builder and explicitly `await` for their results.
+
+See [Kotlin coroutines documentation](https://kotlinlang.org/docs/reference/coroutines-overview.html) for additional details.
+
+## Batch Operation Support
+
+GraphQL Kotlin Clients provide out of the box support for batching multiple client operations into a single GraphQL request.
+Batch requests are sent as an array of individual GraphQL requests and clients expect the server to respond with a corresponding
+array of GraphQL responses. Each response is then deserialized to a corresponding result type.
+
+```kotlin
+val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+val firstQuery = FirstQuery(variables = FirstQuery.Variables(foo = "bar"))
+val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
+
+val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
+```
+
+## Optional Input Support
+
+In the GraphQL world, input types can be optional which means that the client can specify a value, specify a `null` value
+OR don't specify any value. This is in contrast with the JVM world where objects can either have some specific value or
+don't have any value (i.e. are `null`). By default, GraphQL Kotlin Client treats `null` Kotlin values as unspecified, which
+means they will skip all `null` values when serializing the request, e.g. given following query
+
+```graphql
+query OptionalInputQuery($optionalValue: String) {
+  optional(value: $optionalValue)
+```
+
+GraphQL Kotlin plugins will generate corresponding POJO that defines `Variables` as
+
+```kotlin
+public data class Variables(
+  public val optionalValue: String? = null
+)
+```
+
+Regardless whether we specify `optionalValue` as `null` or rely on the default value, this field won't be serialized,
+i.e. variables will be serialized as an empty JSON object `{}`.
+
+By specifying `useOptionalInputWrapper = true` plugin configuration option, we can opt-in to a behavior that supports
+three states - defined, `null` or undefined. Generated code will then use `OptionalInput` wrapper to represent those states.
+See [Gradle](../plugins/gradle-plugin-tasks) and [Maven](../plugins/maven-plugin-goals) plugin for configuration details.
+
+```kotlin
+public data class Variables(
+  public val optionalValue: OptionalInput<String> = OptionalInput.Undefined
+)
+
+// usage
+// - same behavior as default null, serialized as {}
+val undefinedVariables = Variables(optionalValue = OptionalInput.Undefined)
+
+// - serialized as {"optionalValue": null}
+val nullVariables = Variables(optionalValue = OptionalInput.Defined(null))
+
+// - serialized as {"optionalValue": "foo"}
+val definedVariables = Variables(optionalValue = OptionalInput.Defined("foo")
+```
