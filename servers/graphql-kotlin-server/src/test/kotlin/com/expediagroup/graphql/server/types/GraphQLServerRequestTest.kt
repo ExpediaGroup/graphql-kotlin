@@ -16,15 +16,24 @@
 
 package com.expediagroup.graphql.server.types
 
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONWriter
+import com.alibaba.fastjson2.to
 import com.expediagroup.graphql.generator.scalars.ID
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class GraphQLServerRequestTest {
+
+    init {
+        JSON.config(JSONWriter.Feature.WriteNulls)
+    }
+
+    private val mapper = jacksonObjectMapper()
 
     @Test
     fun `verify simple serialization`() {
@@ -35,7 +44,7 @@ class GraphQLServerRequestTest {
         val expectedJson =
             """{"query":"{ foo }"}"""
 
-        assertEquals(expectedJson, Json.encodeToString(request))
+        assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
@@ -48,8 +57,7 @@ class GraphQLServerRequestTest {
 
         val expectedJson =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
-
-        assertEquals(expectedJson, Json.encodeToString(request))
+        assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
@@ -63,7 +71,7 @@ class GraphQLServerRequestTest {
         val expectedJson =
             """{"query":"query FooQuery(${'$'}input: ID) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":"1"}}"""
 
-        assertEquals(expectedJson, Json.encodeToString(request))
+        assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
@@ -82,7 +90,7 @@ class GraphQLServerRequestTest {
         )
         val expectedJson =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
-        assertEquals(expectedJson, Json.encodeToString(request))
+        assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
@@ -90,12 +98,17 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"{ foo }"}"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
-
+        val request = mapper.readValue<GraphQLServerRequest>(input)
         assertTrue(request is GraphQLRequest)
         assertEquals("{ foo }", request.query)
         assertNull(request.operationName)
         assertNull(request.variables)
+
+        val requestFastJson = input.to<GraphQLServerRequest>()
+        assertTrue(requestFastJson is GraphQLRequest)
+        assertEquals("{ foo }", requestFastJson.query)
+        assertNull(requestFastJson.operationName)
+        assertNull(requestFastJson.variables)
     }
 
     @Test
@@ -103,12 +116,17 @@ class GraphQLServerRequestTest {
         val input =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
-
+        val request = mapper.readValue<GraphQLServerRequest>(input)
         assertTrue(request is GraphQLRequest)
         assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
         assertEquals("FooQuery", request.operationName)
         assertEquals(mapOf("input" to 1), request.variables)
+
+        val requestFastJson = input.to<GraphQLServerRequest>()
+        assertTrue(requestFastJson is GraphQLRequest)
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", requestFastJson.query)
+        assertEquals("FooQuery", requestFastJson.operationName)
+        assertEquals(mapOf("input" to 1), requestFastJson.variables)
     }
 
     @Test
@@ -116,15 +134,20 @@ class GraphQLServerRequestTest {
         val input =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
 
-        val request = Json.decodeFromString<GraphQLServerRequest>(input)
-
+        val request = mapper.readValue<GraphQLServerRequest>(input)
         assertTrue(request is GraphQLBatchRequest)
         assertEquals(2, request.requests.size)
-        val first = request.requests[0]
-        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", first.query)
-        assertEquals("FooQuery", first.operationName)
-        assertEquals(mapOf("input" to 1), first.variables)
-        val second = request.requests[1]
-        assertEquals("query BarQuery { bar }", second.query)
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.requests[0].query)
+        assertEquals("FooQuery", request.requests[0].operationName)
+        assertEquals(mapOf("input" to 1), request.requests[0].variables)
+        assertEquals("query BarQuery { bar }", request.requests[1].query)
+
+        val requestFastJson = input.to<GraphQLServerRequest>()
+        assertTrue(requestFastJson is GraphQLBatchRequest)
+        assertEquals(2, requestFastJson.requests.size)
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", requestFastJson.requests[0].query)
+        assertEquals("FooQuery", requestFastJson.requests[0].operationName)
+        assertEquals(mapOf("input" to 1), requestFastJson.requests[0].variables)
+        assertEquals("query BarQuery { bar }", requestFastJson.requests[1].query)
     }
 }
