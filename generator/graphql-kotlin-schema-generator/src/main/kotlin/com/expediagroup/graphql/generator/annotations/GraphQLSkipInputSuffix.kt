@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.annotations
 
 /**
- * Set the GraphQL name to be picked up by the schema generator.
+ * Do not add "Input" Suffix for input types.
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
-annotation class GraphQLName(val value: String)
+@Target(AnnotationTarget.CLASS)
+annotation class GraphQLSkipInputSuffix

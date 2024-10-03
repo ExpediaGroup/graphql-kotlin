@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLSkipInputSuffix
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
@@ -74,7 +75,7 @@ open class KClassExtensionsTest {
 
     class MyClassInput
 
-    @GraphQLName("MyTestClassSkipSuffix", skipSuffix = true)
+    @GraphQLSkipInputSuffix
     class MyTestClassSkipSuffix
 
     @GraphQLName("MyClassRenamedInput")
