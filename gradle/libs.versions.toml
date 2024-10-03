@@ -15,6 +15,7 @@ kotlinx-coroutines = "1.7.3"
 # TODO kotlin 1.9 upgrade -> kotlinx-serialization 1.6.0+ uses kotlin 1.9
 kotlinx-serialization = "1.5.1"
 ktor = "2.3.10"
+fastjson2 = "2.0.53"
 maven-plugin-annotation = "3.12.0"
 maven-plugin-api = "3.9.6"
 maven-project = "2.2.1"
@@ -88,6 +89,8 @@ spring-boot-config = { group = "org.springframework.boot", name = "spring-boot-c
 spring-boot-netty = { group = "org.springframework.boot", name = "spring-boot-starter-reactor-netty", version.ref = "spring-boot" }
 spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux", version.ref = "spring-boot" }
 spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
+fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
+fastjson2-spring = { group = "com.alibaba.fastjson2", name = "fastjson2-extension-spring6", version.ref = "fastjson2" }
 
 # test dependencies
 compile-testing = { group = "dev.zacsweers.kctfork", name = "core", version.ref = "compile-testing" }

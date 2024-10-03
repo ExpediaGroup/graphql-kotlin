@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import
  */
 @Configuration
 @Import(
+    GraphQLServerCodecConfiguration::class,
     GraphQLRoutesConfiguration::class,
     SubscriptionAutoConfiguration::class,
     SdlRouteConfiguration::class,
