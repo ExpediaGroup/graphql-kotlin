@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.types
 
+import com.alibaba.fastjson2.annotation.JSONType
+import com.expediagroup.graphql.server.types.serializers.FastJsonIncludeNonNullProperty
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JSONType(serializeFilters = [FastJsonIncludeNonNullProperty::class])
 data class GraphQLServerError(
     val message: String,
     val locations: List<GraphQLSourceLocation>? = null,

@@ -13,6 +13,7 @@ kotlinx-coroutines = "1.8.1"
 # TODO kotlin 1.9 upgrade: fix GraphQLTestUtils and GenerateKotlinxClientIT
 kotlinx-serialization = "1.6.3"
 ktor = "2.3.12"
+fastjson2 = "2.0.53"
 maven-plugin-annotation = "3.13.1"
 maven-plugin-api = "3.9.8"
 maven-project = "2.2.1"
@@ -86,6 +87,8 @@ spring-boot-netty = { group = "org.springframework.boot", name = "spring-boot-st
 spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux", version.ref = "spring-boot" }
 spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
+fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
+fastjson2-spring = { group = "com.alibaba.fastjson2", name = "fastjson2-extension-spring6", version.ref = "fastjson2" }
 
 # security vulnerabilities overrides
 commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
