@@ -5,7 +5,6 @@ description = "Common code for running a GraphQL server in any HTTP server frame
 val kotlinCoroutinesVersion: String by project
 val kotlinxBenchmarkVersion: String by project
 val jacksonVersion: String by project
-val kotlinxSerializationVersion: String by project
 val fastjson2Version: String by project
 
 plugins {
