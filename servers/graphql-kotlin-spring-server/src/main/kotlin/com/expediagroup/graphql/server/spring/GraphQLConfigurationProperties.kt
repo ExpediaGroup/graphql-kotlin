@@ -30,6 +30,7 @@ data class GraphQLConfigurationProperties(
     val packages: List<String>,
     /** Boolean flag indicating whether to print the schema after generator creates it */
     val printSchema: Boolean = false,
+    val serializationLibrary: SerializationLibrary = SerializationLibrary.JACKSON,
     @NestedConfigurationProperty
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     @NestedConfigurationProperty
@@ -166,4 +167,9 @@ enum class SubscriptionProtocol {
 enum class BatchingStrategy {
     LEVEL_DISPATCHED,
     SYNC_EXHAUSTION
+}
+
+enum class SerializationLibrary {
+    JACKSON,
+    FASTJSON
 }
