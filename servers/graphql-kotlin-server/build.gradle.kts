@@ -4,20 +4,20 @@ description = "Common code for running a GraphQL server in any HTTP server frame
 
 val kotlinCoroutinesVersion: String by project
 val kotlinxBenchmarkVersion: String by project
+val jacksonVersion: String by project
+val kotlinxSerializationVersion: String by project
+val fastjson2Version: String by project
 
 plugins {
     id("org.jetbrains.kotlinx.benchmark")
-    kotlin("plugin.serialization")
 }
 
-val jacksonVersion: String by project
-val kotlinxSerializationVersion: String by project
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
     api(project(path = ":graphql-kotlin-dataloader-instrumentation"))
     api(project(path = ":graphql-kotlin-automatic-persisted-queries"))
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+    api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjson2Version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
 }
 
@@ -35,6 +35,14 @@ kotlin.sourceSets.getByName("benchmarks") {
 }
 
 benchmark {
+    configurations {
+        register("graphQLRequest") {
+            include("com.expediagroup.graphql.server.GraphQLServerRequest*")
+        }
+        register("graphQLResponse") {
+            include("com.expediagroup.graphql.server.GraphQLServerResponse*")
+        }
+    }
     targets {
         register("benchmarks") {
             this as JvmBenchmarkTarget
