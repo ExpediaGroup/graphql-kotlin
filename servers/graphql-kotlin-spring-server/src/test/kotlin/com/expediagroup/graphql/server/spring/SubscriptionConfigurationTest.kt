@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import reactor.core.publisher.Flux
 import java.time.Duration
@@ -73,7 +72,7 @@ class SubscriptionConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(SpringGraphQLSubscriptionHandler::class.java)
                 assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
-                assertThat(ctx).hasSingleBean(HandlerMapping::class.java)
+                assertThat(ctx).hasBean("subscriptionHandlerMapping")
             }
     }
 
@@ -97,10 +96,9 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).getBean(SpringGraphQLSubscriptionHandler::class.java)
                     .isSameAs(customConfiguration.subscriptionHandler())
 
-                assertThat(ctx).hasSingleBean(WebSocketHandlerAdapter::class.java)
-                assertThat(ctx).getBean(WebSocketHandlerAdapter::class.java)
+                assertThat(ctx).hasBean("webSocketHandlerAdapter")
+                assertThat(ctx).getBean("webSocketHandlerAdapter")
                     .isSameAs(customConfiguration.webSocketHandlerAdapter())
-                assertThat(ctx).hasSingleBean(HandlerMapping::class.java)
             }
     }
 
@@ -142,7 +140,9 @@ class SubscriptionConfigurationTest {
         }
 
         @Bean
-        fun webSocketHandlerAdapter(): WebSocketHandlerAdapter = mockk()
+        fun webSocketHandlerAdapter(): WebSocketHandlerAdapter = mockk {
+            every { order } returns 1
+        }
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries

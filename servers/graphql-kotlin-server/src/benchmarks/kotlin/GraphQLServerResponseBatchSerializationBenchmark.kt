@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONWriter
+import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -34,9 +35,9 @@ import java.util.concurrent.TimeUnit
 @Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
-open class GraphQLServerResponseSerializationBenchmark {
+open class GraphQLServerResponseBatchSerializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var response: GraphQLResponse<Map<String, Any?>>
+    private lateinit var batchResponse: GraphQLBatchResponse
 
     @Setup
     fun setUp() {
@@ -44,16 +45,19 @@ open class GraphQLServerResponseSerializationBenchmark {
         val data = mapper.readValue<Map<String, Any?>>(
             this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
         )
-        response = GraphQLResponse(
-            mapper.readValue<Map<String, Any?>>(
-                this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
+        batchResponse = GraphQLBatchResponse(
+            listOf(
+                GraphQLResponse(data),
+                GraphQLResponse(data),
+                GraphQLResponse(data),
+                GraphQLResponse(data)
             )
         )
     }
 
     @Benchmark
-    fun JacksonSerializeGraphQLResponse(): String = mapper.writeValueAsString(response)
+    fun JacksonSerializeGraphQLBatchResponse(): String = mapper.writeValueAsString(batchResponse)
 
     @Benchmark
-    fun FastJsonSerializeGraphQLResponse(): String = JSON.toJSONString(response)
+    fun FastJsonSerializeGraphQLBatchResponse(): String = JSON.toJSONString(batchResponse)
 }

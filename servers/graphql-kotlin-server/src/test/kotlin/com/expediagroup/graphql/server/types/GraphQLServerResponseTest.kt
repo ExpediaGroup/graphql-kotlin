@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.types
 
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONWriter
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
@@ -25,6 +27,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class GraphQLServerResponseTest {
+
+    init {
+        JSON.config(JSONWriter.Feature.WriteNulls)
+    }
 
     class MyQuery(val foo: Int)
 
@@ -40,11 +46,12 @@ class GraphQLServerResponseTest {
             """{"data":{"foo":1}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(response))
+        assertEquals(expectedJson, JSON.toJSONString(response))
     }
 
     @Test
     fun `verify complete serialization`() {
-        val request = GraphQLResponse(
+        val response = GraphQLResponse(
             data = MyQuery(1),
             errors = listOf(GraphQLServerError("my error")),
             extensions = mapOf("bar" to 2)
@@ -53,7 +60,8 @@ class GraphQLServerResponseTest {
         val expectedJson =
             """{"data":{"foo":1},"errors":[{"message":"my error"}],"extensions":{"bar":2}}"""
 
-        assertEquals(expectedJson, mapper.writeValueAsString(request))
+        assertEquals(expectedJson, mapper.writeValueAsString(response))
+        assertEquals(expectedJson, JSON.toJSONString(response))
     }
 
     @Test
@@ -73,6 +81,7 @@ class GraphQLServerResponseTest {
         val expectedJson =
             """[{"data":{"foo":1}},{"data":{"foo":2},"errors":[{"message":"my error"}],"extensions":{"bar":2}}]"""
         assertEquals(expectedJson, mapper.writeValueAsString(batchResponse))
+        assertEquals(expectedJson, JSON.toJSONString(batchResponse))
     }
 
     @Test

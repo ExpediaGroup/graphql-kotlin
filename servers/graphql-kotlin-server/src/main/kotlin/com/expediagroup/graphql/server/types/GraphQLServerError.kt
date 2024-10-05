@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.types
 
+import com.alibaba.fastjson2.annotation.JSONType
+import com.expediagroup.graphql.server.types.serializers.FastJsonIncludeNonNullProperty
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JSONType(serializeFilters = [FastJsonIncludeNonNullProperty::class])
 data class GraphQLServerError(
     val message: String,
     val locations: List<GraphQLSourceLocation>? = null,
