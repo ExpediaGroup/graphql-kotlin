@@ -61,6 +61,8 @@ input WidgetInput {
 }
 ```
 
+If you want to disable this behaviour for one of your types, you can add `@GraphQLSkipInputSuffix` to your type.
+
 Note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output types.
 
 :::caution
