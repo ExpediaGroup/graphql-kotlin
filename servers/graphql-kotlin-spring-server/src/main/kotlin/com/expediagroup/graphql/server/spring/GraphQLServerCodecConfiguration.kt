@@ -7,11 +7,9 @@ import com.alibaba.fastjson2.support.spring6.http.codec.Fastjson2Encoder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.codec.ServerCodecConfigurer
-import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.WebFluxConfigurer
 
 @Configuration
-@EnableWebFlux
 class GraphQLServerCodecConfiguration(
     private val config: GraphQLConfigurationProperties,
     private val objectMapper: ObjectMapper,
