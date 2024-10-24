@@ -31,9 +31,6 @@ class GenerateGraphQLClientIT {
 
     companion object {
         @JvmStatic
-        fun generatorTests(): List<Arguments> {
-            val arguments = locateTestCaseArguments("src/test/data/generator")
-            return arguments
-        }
+        fun generatorTests(): List<Arguments> = locateTestCaseArguments("src/test/data/generator")
     }
 }
