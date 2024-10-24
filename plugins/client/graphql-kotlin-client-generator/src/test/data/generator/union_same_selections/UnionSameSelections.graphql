@@ -1,0 +1,25 @@
+query UnionSameSelections {
+  message1 {
+    __typename
+    ... on ProductRatingLink {
+      link {
+        text
+      }
+      action {
+        text
+      }
+    }
+    ... on EGDSPlainText {
+      text
+    }
+  }
+  message2 {
+    __typename
+    ... on EGDSParagraph {
+      text
+    }
+    ... on EGDSPlainText {
+      text
+    }
+  }
+}

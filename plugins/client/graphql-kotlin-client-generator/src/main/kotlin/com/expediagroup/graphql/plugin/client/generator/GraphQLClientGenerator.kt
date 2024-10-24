@@ -185,13 +185,21 @@ class GraphQLClientGenerator(
             operationTypeSpec.addType(graphQLResponseTypeSpec)
 
             val polymorphicTypes = mutableListOf<ClassName>()
+            // prevent colocating duplicated type specs in the same packageName
+            val typeSpecByPackageName = mutableMapOf<String, Unit>()
             for ((superClassName, implementations) in context.polymorphicTypes) {
                 polymorphicTypes.add(superClassName)
                 val polymorphicTypeSpec = FileSpec.builder(superClassName.packageName, superClassName.simpleName)
                 for (implementation in implementations) {
                     polymorphicTypes.add(implementation)
                     context.typeSpecs[implementation]?.let { typeSpec ->
-                        polymorphicTypeSpec.addType(typeSpec)
+                        if (
+                            typeSpec.name != null &&
+                            !typeSpecByPackageName.containsKey("${typeSpecByPackageName[superClassName.packageName]}.${typeSpec.name}")
+                        ) {
+                            polymorphicTypeSpec.addType(typeSpec)
+                            typeSpecByPackageName["${typeSpecByPackageName[superClassName.packageName]}.${typeSpec.name}"] = Unit
+                        }
                     }
                 }
                 fileSpecs.add(polymorphicTypeSpec.build())

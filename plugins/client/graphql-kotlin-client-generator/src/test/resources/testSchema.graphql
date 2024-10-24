@@ -112,6 +112,8 @@ type Query {
   unionQuery: BasicUnion!
   "Query to test doc strings"
   docQuery: DocObject!
+  message1: [ProductRatingSupportingMessage!]!
+  message2: [ProductSupportingMessage!]!
 }
 "Wrapper that holds all supported scalar types"
 type ScalarWrapper {
@@ -212,4 +214,27 @@ input ScalarWrapperInput {
     locale: Locale!
     "List of custom scalar Locales"
     listLocale: [Locale!]!
+}
+
+interface EGDSText {
+    text: String!
+}
+type EGDSPlainText implements EGDSText {
+    text: String!
+}
+type ProductRatingLink {
+    action: EGDSProductRatingShowTextAction!
+    link: EGDSStandardLink!
+}
+type EGDSProductRatingShowTextAction {
+    text: String!
+}
+type EGDSStandardLink implements EGDSText {
+    text: String!
+}
+union ProductRatingSupportingMessage = EGDSPlainText | ProductRatingLink
+union ProductSupportingMessage = EGDSParagraph | EGDSPlainText
+
+type EGDSParagraph implements EGDSText {
+    text: String!
 }
