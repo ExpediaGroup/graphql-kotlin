@@ -213,11 +213,31 @@ private fun updateImplementationTypeSpecWithSuperInformation(
             } else {
                 property
             }
-            builder.addProperty(updatedProperty)
+
+            // add the property to the type builder only if the property was actually uptaded.
+            if (updatedProperty != property) {
+                builder.addProperty(updatedProperty)
+            }
             constructor.addParameter(updatedProperty.name, updatedProperty.type)
         }
         builder.primaryConstructor(constructor.build())
     }
+
+    /*if (implementationTypeSpec.propertySpecs.isNotEmpty()) {
+        val constructor = FunSpec.constructorBuilder()
+        var constructorWasUpdated = false
+        implementationTypeSpec.propertySpecs.forEach { property ->
+            if (commonPropertyNames.contains(property.name)) {
+                constructorWasUpdated = true
+                val updatedProperty = property.toBuilder().addModifiers(KModifier.OVERRIDE).build()
+                builder.addProperty(updatedProperty)
+                constructor.addParameter(updatedProperty.name, updatedProperty.type)
+            }
+        }
+        if (constructorWasUpdated) {
+            builder.primaryConstructor(constructor.build())
+        }
+    }*/
 
     val updatedType = builder.build()
     context.polymorphicTypes[superClassName]?.add(implementationClassName)

@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-internal val defaultConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.generated")
+internal val defaultConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.generated", allowDeprecated = true)
 
 internal fun locateTestCaseArguments(directory: String) = File(directory)
     .listFiles()
