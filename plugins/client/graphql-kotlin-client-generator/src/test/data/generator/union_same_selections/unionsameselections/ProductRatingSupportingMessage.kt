@@ -1,7 +1,6 @@
 package com.expediagroup.graphql.generated.unionsameselections
 
 import com.expediagroup.graphql.client.Generated
-import com.fasterxml.jackson.`annotation`.JsonProperty
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -23,18 +22,14 @@ public interface ProductRatingSupportingMessage
 
 @Generated
 public data class ProductRatingLink(
-  @get:JsonProperty(value = "link")
   public val link: EGDSStandardLink,
-  @get:JsonProperty(value = "action")
   public val action: EGDSProductRatingShowTextAction,
 ) : ProductRatingSupportingMessage
 
 @Generated
 public data class EGDSPlainText(
-  @get:JsonProperty(value = "text")
   public val text: String,
-) : ProductRatingSupportingMessage,
-    ProductSupportingMessage
+) : ProductRatingSupportingMessage, ProductSupportingMessage
 
 /**
  * Fallback ProductRatingSupportingMessage implementation that will be used when unknown/unhandled

@@ -4,7 +4,6 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.unionsameselections.ProductRatingSupportingMessage
 import com.expediagroup.graphql.generated.unionsameselections.ProductSupportingMessage
-import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.collections.List
 import kotlin.reflect.KClass
@@ -23,9 +22,7 @@ public class UnionSameSelections : GraphQLClientRequest<UnionSameSelections.Resu
 
   @Generated
   public data class Result(
-    @get:JsonProperty(value = "message1")
     public val message1: List<ProductRatingSupportingMessage>,
-    @get:JsonProperty(value = "message2")
     public val message2: List<ProductSupportingMessage>,
   )
 }
