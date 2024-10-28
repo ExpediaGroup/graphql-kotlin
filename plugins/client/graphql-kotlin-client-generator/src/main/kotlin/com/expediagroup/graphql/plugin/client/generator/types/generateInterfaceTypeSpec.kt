@@ -213,7 +213,11 @@ private fun updateImplementationTypeSpecWithSuperInformation(
             } else {
                 property
             }
-            builder.addProperty(updatedProperty)
+
+            // add the property to the type builder only if the property was actually uptaded.
+            if (updatedProperty != property) {
+                builder.addProperty(updatedProperty)
+            }
             constructor.addParameter(updatedProperty.name, updatedProperty.type)
         }
         builder.primaryConstructor(constructor.build())
