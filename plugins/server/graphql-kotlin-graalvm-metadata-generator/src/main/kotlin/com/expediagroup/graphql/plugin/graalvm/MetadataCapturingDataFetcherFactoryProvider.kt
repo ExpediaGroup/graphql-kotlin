@@ -32,7 +32,6 @@ internal class MetadataCapturingDataFetcherFactoryProvider(val scanResult: ScanR
     // we need to capture enums
     private val additionalTypes: MutableSet<String> = HashSet()
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>): DataFetcherFactory<Any?> {
         val methodName = kFunction.javaMethod!!.name
         val classMetadata = reflectMetadataMap.getOrPut(kClass.java.name) { MutableClassMetadata(name = kClass.java.name, methods = ArrayList()) }
