@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2024 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.dataloader.instrumentation.extensions
+package com.expediagroup.graphql.generator.annotations
 
-import graphql.execution.FieldValueInfo
-
-internal fun List<FieldValueInfo>.getExpectedStrategyCalls(): Int {
-    var count = 0
-    this.forEach { fieldValueInfo ->
-        when (fieldValueInfo.completeValueType) {
-            FieldValueInfo.CompleteValueType.OBJECT -> count++
-            FieldValueInfo.CompleteValueType.LIST -> count += fieldValueInfo.fieldValueInfos.getExpectedStrategyCalls()
-            else -> count += 0
-        }
-    }
-    return count
-}
+/**
+ * Do not add "Input" Suffix for input types.
+ */
+@Target(AnnotationTarget.CLASS)
+annotation class GraphQLSkipInputSuffix
