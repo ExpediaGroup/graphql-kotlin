@@ -31,7 +31,6 @@ internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
 
-
 class InvalidPayloadException(message: String, throwable: Throwable) : IllegalStateException(message, throwable)
 
 /**
