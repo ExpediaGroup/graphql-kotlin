@@ -31,7 +31,6 @@ fun StatusPagesConfig.defaultGraphQLStatusPages(): StatusPagesConfig {
     exception<Throwable> { call, cause ->
         when (cause) {
             is UnsupportedOperationException -> call.respond(HttpStatusCode.MethodNotAllowed)
-            is InvalidPayloadException -> call.respond(HttpStatusCode.UnsupportedMediaType)
             else -> call.respond(HttpStatusCode.BadRequest)
         }
     }

@@ -31,9 +31,6 @@ internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
 
-
-class InvalidPayloadException(message: String, throwable: Throwable) : IllegalStateException(message, throwable)
-
 /**
  * GraphQL Ktor [ApplicationRequest] parser.
  */
@@ -65,6 +62,6 @@ open class KtorGraphQLRequestParser(
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
         request.call.receive()
     } catch (e: IOException) {
-        throw InvalidPayloadException("Invalid HTTP request - unable to parse GraphQL request from POST payload", e)
+        throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload", e)
     }
 }
