@@ -19,15 +19,20 @@ package com.expediagroup.graphql.plugin.gradle.tasks
 import com.expediagroup.graphql.plugin.gradle.actions.GenerateSDLAction
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import org.gradle.workers.ClassLoaderWorkerSpec
+import org.gradle.jvm.toolchain.JavaLauncher
+import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.workers.ProcessWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
@@ -57,14 +62,25 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
     @OutputFile
     val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
-    @Inject
-    abstract fun getWorkerExecutor(): WorkerExecutor
+    @get:Inject
+    abstract val workerExecutor: WorkerExecutor
+
+    @get:Inject
+    protected abstract val javaToolchainService: JavaToolchainService
+
+    @get:Nested
+    abstract val launcher: Property<JavaLauncher>
 
     init {
         group = "GraphQL"
         description = "Generate GraphQL schema in SDL format."
 
         schemaFile.convention(project.layout.buildDirectory.file("schema.graphql"))
+
+        @Suppress("LeakingThis")
+        project.extensions.getByType(JavaPluginExtension::class.java).toolchain
+            .let(javaToolchainService::launcherFor)
+            .let(launcher::convention)
     }
 
     @TaskAction
@@ -80,7 +96,12 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
             throw RuntimeException("failed to generate target schema directory = $targetDirectory")
         }
 
-        val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
+        val workQueue: WorkQueue = workerExecutor.processIsolation { workerSpec: ProcessWorkerSpec ->
+            workerSpec.forkOptions {
+                it.setExecutable(launcher.get().executablePath.asFile)
+            }
+            logger.debug("worker executable: \n${workerSpec.forkOptions.executable}")
+
             val workerClasspath = pluginClasspath.plus(projectClasspath).plus(source.files)
             workerSpec.classpath.from(workerClasspath)
             logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
