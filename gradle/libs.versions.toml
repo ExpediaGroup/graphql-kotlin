@@ -12,7 +12,7 @@ kotlinx-benchmark = "0.4.11"
 kotlinx-coroutines = "1.8.1"
 # TODO kotlin 1.9 upgrade: fix GraphQLTestUtils and GenerateKotlinxClientIT
 kotlinx-serialization = "1.6.3"
-ktor = "2.3.12"
+ktor = "3.0.1"
 fastjson2 = "2.0.53"
 maven-plugin-annotation = "3.13.1"
 maven-plugin-api = "3.9.8"
