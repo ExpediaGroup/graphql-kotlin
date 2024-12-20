@@ -4,7 +4,9 @@ import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.HttpMethod
+import io.ktor.server.request.ApplicationReceivePipeline
 import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.testing.TestApplicationCall
 import io.ktor.server.testing.TestApplicationRequest
 import io.mockk.coEvery
 import io.mockk.every
@@ -89,13 +91,18 @@ class KtorGraphQLRequestParserTest {
     @Test
     fun `parseRequest should return request if method is POST`() = runTest {
         val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
-        val serverRequest = mockk<TestApplicationRequest>(relaxed = true) {
-            every { call } returns mockk(relaxed = true) {
+        val serverRequest = TestApplicationRequest(
+            call = mockk<TestApplicationCall>(relaxed = true) {
+                every { application } returns mockk(relaxed = true) {
+                    every { receivePipeline } returns ApplicationReceivePipeline()
+                }
+                coEvery { receiveNullable<Any>(any()) } answers { callOriginal() }
                 every { attributes.getOrNull<Any>(any()) } returns null
                 coEvery { request.pipeline.execute(any(), any()) } returns mockRequest
-            }
-            every { local.method } returns HttpMethod.Post
-        }
+            },
+            closeRequest = true,
+            method = HttpMethod.Post
+        )
 
         val graphQLRequest = parser.parseRequest(serverRequest)
         assertNotNull(graphQLRequest)
@@ -111,13 +118,18 @@ class KtorGraphQLRequestParserTest {
         val mockRequest2 = GraphQLRequest("query MyBar { bar }", "MyBar")
         val mockRequest = GraphQLBatchRequest(listOf(mockRequest1, mockRequest2))
 
-        val serverRequest = mockk<TestApplicationRequest>(relaxed = true) {
-            every { call } returns mockk(relaxed = true) {
+        val serverRequest = TestApplicationRequest(
+            call = mockk<TestApplicationCall>(relaxed = true) {
+                every { application } returns mockk(relaxed = true) {
+                    every { receivePipeline } returns ApplicationReceivePipeline()
+                }
+                coEvery { receiveNullable<Any>(any()) } answers { callOriginal() }
                 every { attributes.getOrNull<Any>(any()) } returns null
                 coEvery { request.pipeline.execute(any(), any()) } returns mockRequest
-            }
-            every { local.method } returns HttpMethod.Post
-        }
+            },
+            closeRequest = true,
+            method = HttpMethod.Post
+        )
 
         val graphQLServerRequest = parser.parseRequest(serverRequest)
         assertNotNull(graphQLServerRequest)

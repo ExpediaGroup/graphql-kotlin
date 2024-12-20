@@ -31,11 +31,11 @@ class CustomScalarKotlinxTests {
 
     @Test
     fun `verify custom scalars are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
-                val port = engine.resolvedConnectors().first().port
+                val port = embeddedServer.engine.resolvedConnectors().first().port
                 val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val undefinedLocaleQuery = LocaleQuery(variables = LocaleQuery.Variables())
@@ -52,17 +52,17 @@ class CustomScalarKotlinxTests {
                 assertEquals(ULocale.CANADA, localeResult.data?.localeQuery)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 
     @Test
     fun `verify undefined optionals are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
-                val port = engine.resolvedConnectors().first().port
+                val port = embeddedServer.engine.resolvedConnectors().first().port
                 val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val undefinedWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables())
@@ -97,15 +97,15 @@ class CustomScalarKotlinxTests {
                 assertEquals(0, defaultResult.optionalUUIDList?.size)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 
     @Test
     fun `verify null optionals are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
                 val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
 
@@ -142,15 +142,15 @@ class CustomScalarKotlinxTests {
                 assertNull(nullResult.optionalUUIDList)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 
     @Test
     fun `verify defined optionals are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
                 val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
 
@@ -187,15 +187,15 @@ class CustomScalarKotlinxTests {
                 assertEquals(randomUUID, result.optionalUUIDList?.get(0))
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 
     @Test
     fun `verify serialization and deserialization of required type`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
                 val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
 
@@ -232,7 +232,7 @@ class CustomScalarKotlinxTests {
                 assertEquals(wrapper.requiredUUIDList[0], result.requiredUUIDList[0])
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 }

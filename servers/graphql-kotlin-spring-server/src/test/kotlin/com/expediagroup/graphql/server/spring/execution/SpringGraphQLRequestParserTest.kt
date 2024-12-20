@@ -22,7 +22,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -44,7 +43,7 @@ class SpringGraphQLRequestParserTest {
     private val parser = SpringGraphQLRequestParser(objectMapper)
 
     @Test
-    fun `parseRequest should return null if request method is not valid`() = runBlockingTest {
+    fun `parseRequest should return null if request method is not valid`() = runTest {
         val request = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
             every { method() } returns HttpMethod.PUT
@@ -53,7 +52,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return null if request method is GET without query`() = runBlockingTest {
+    fun `parseRequest should return null if request method is GET without query`() = runTest {
         val request = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
             every { method() } returns HttpMethod.GET

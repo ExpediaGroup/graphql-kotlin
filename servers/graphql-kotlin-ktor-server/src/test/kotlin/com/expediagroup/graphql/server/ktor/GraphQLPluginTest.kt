@@ -36,9 +36,9 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.ktor.server.config.*
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.routing.*
+import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
@@ -276,4 +276,3 @@ private fun testModule(block: suspend io.ktor.server.testing.ApplicationTestBuil
     }
     block()
 }
-
