@@ -20,7 +20,7 @@ import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.ktor.server.routing.Routing
+import io.ktor.server.routing.routing
 
 fun Application.graphQLModule() {
     install(GraphQL) {
@@ -31,7 +31,7 @@ fun Application.graphQLModule() {
             )
         }
     }
-    install(Routing) {
+    routing {
         graphQLGetRoute()
         graphQLPostRoute()
     }

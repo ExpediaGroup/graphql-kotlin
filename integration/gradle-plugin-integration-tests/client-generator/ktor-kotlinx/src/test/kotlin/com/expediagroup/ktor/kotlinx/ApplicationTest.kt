@@ -18,11 +18,11 @@ import kotlin.test.assertNull
 class ApplicationTest {
     @Test
     fun `verify ktor client can execute queries`() {
-        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
-                val port = engine.resolvedConnectors().first().port
+                val port = embeddedServer.engine.resolvedConnectors().first().port
                 val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val result = client.execute(TestQuery(variables = TestQuery.Variables(name = OptionalInput.Defined("junit"))))
@@ -40,7 +40,7 @@ class ApplicationTest {
                 assertEquals(ExampleEnum.ONE.name, testObject.choice.name)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 }

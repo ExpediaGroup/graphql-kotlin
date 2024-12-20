@@ -21,8 +21,6 @@ import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCO
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.jackson
-import io.ktor.server.application.call
-import io.ktor.server.application.install
 import io.ktor.server.application.plugin
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respondText
@@ -115,11 +113,11 @@ fun Route.graphiQLRoute(
     graphQLEndpoint: String = "graphql",
     subscriptionsEndpoint: String = "subscriptions",
 ): Route {
-    val contextPath = this.environment?.rootPath
+    val contextPath = this.application.rootPath
     val graphiQL = GraphQL::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
         reader.readText()
-            .replace("\${graphQLEndpoint}", if (contextPath.isNullOrBlank()) graphQLEndpoint else "$contextPath/$graphQLEndpoint")
-            .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) subscriptionsEndpoint else "$contextPath/$subscriptionsEndpoint")
+            .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) graphQLEndpoint else "$contextPath/$graphQLEndpoint")
+            .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) subscriptionsEndpoint else "$contextPath/$subscriptionsEndpoint")
     } ?: throw IllegalStateException("Unable to load GraphiQL")
     return get(endpoint) {
         call.respondText(graphiQL, ContentType.Text.Html)
