@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import io.ktor.http.HttpMethod
+import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.receive
 import java.io.IOException
@@ -30,8 +31,6 @@ import java.io.IOException
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
-
-class InvalidPayloadException(message: String, throwable: Throwable) : IllegalStateException(message, throwable)
 
 /**
  * GraphQL Ktor [ApplicationRequest] parser.
@@ -63,7 +62,9 @@ open class KtorGraphQLRequestParser(
 
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
         request.call.receive()
+    } catch (e: CannotTransformContentToTypeException) {
+        throw e
     } catch (e: IOException) {
-        throw InvalidPayloadException("Invalid HTTP request - unable to parse GraphQL request from POST payload", e)
+        throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload", e)
     }
 }
