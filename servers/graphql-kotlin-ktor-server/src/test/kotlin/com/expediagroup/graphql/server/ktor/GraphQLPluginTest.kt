@@ -135,6 +135,16 @@ class GraphQLPluginTest {
     }
 
     @Test
+    fun `server should return Method Not Allowed for Mutation GET requests with persisted query`() {
+        testApplication {
+            val response = client.get("/graphql") {
+                parameter("query", "mutation { foo }")
+            }
+            assertEquals(HttpStatusCode.MethodNotAllowed, response.status)
+        }
+    }
+
+    @Test
     fun `server should return Bad Request for invalid GET requests`() {
         testApplication {
             val response = client.get("/graphql")
