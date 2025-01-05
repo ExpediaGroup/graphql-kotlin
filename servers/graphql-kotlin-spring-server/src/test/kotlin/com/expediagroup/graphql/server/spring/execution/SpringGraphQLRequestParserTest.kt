@@ -22,7 +22,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -44,18 +43,20 @@ class SpringGraphQLRequestParserTest {
     private val parser = SpringGraphQLRequestParser(objectMapper)
 
     @Test
-    fun `parseRequest should return null if request method is not valid`() = runBlockingTest {
+    fun `parseRequest should return null if request method is not valid`() = runTest {
         val request = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
+            every { queryParam(REQUEST_PARAM_EXTENSIONS) } returns Optional.empty()
             every { method() } returns HttpMethod.PUT
         }
         assertNull(parser.parseRequest(request))
     }
 
     @Test
-    fun `parseRequest should return null if request method is GET without query`() = runBlockingTest {
+    fun `parseRequest should return null if request method is GET without query`() = runTest {
         val request = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
+            every { queryParam(REQUEST_PARAM_EXTENSIONS) } returns Optional.empty()
             every { method() } returns HttpMethod.GET
         }
         assertNull(parser.parseRequest(request))
@@ -65,6 +66,7 @@ class SpringGraphQLRequestParserTest {
     fun `parseRequest should return request if method is GET with simple query`() = runTest {
         val serverRequest = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.of("{ foo }")
+            every { queryParam(REQUEST_PARAM_EXTENSIONS) } returns Optional.empty()
             every { queryParam(REQUEST_PARAM_OPERATION_NAME) } returns Optional.empty()
             every { queryParam(REQUEST_PARAM_VARIABLES) } returns Optional.empty()
             every { method() } returns HttpMethod.GET
@@ -82,9 +84,58 @@ class SpringGraphQLRequestParserTest {
         val serverRequest = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.of("query MyFoo { foo }")
             every { queryParam(REQUEST_PARAM_OPERATION_NAME) } returns Optional.of("MyFoo")
+            every { queryParam(REQUEST_PARAM_EXTENSIONS) } returns Optional.empty()
             every { queryParam(REQUEST_PARAM_VARIABLES) } returns Optional.of("""{ "a": 1 }""")
             every { method() } returns HttpMethod.GET
         }
+        val graphQLRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLRequest)
+        assertTrue(graphQLRequest is GraphQLRequest)
+        assertEquals("query MyFoo { foo }", graphQLRequest.query)
+        assertEquals("MyFoo", graphQLRequest.operationName)
+        assertEquals(1, graphQLRequest.variables?.get("a"))
+    }
+
+    @Test
+    fun `parseRequest should return request if method is GET with hash only`() = runTest {
+        val serverRequest = mockk<ServerRequest>(relaxed = true) {
+            every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
+            every { queryParam(REQUEST_PARAM_EXTENSIONS) } returns Optional.of("""{"persistedQuery":{"version":1,"sha256Hash":"some-hash"}}""")
+            every { queryParam(REQUEST_PARAM_OPERATION_NAME) } returns Optional.empty()
+            every { queryParam(REQUEST_PARAM_VARIABLES) } returns Optional.empty()
+            every { method() } returns HttpMethod.GET
+        }
+        val graphQLRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLRequest)
+        assertTrue(graphQLRequest is GraphQLRequest)
+        assertEquals("", graphQLRequest.query)
+        assertNull(graphQLRequest.operationName)
+        assertNull(graphQLRequest.variables)
+        assertEquals(
+            mapOf("version" to 1, "sha256Hash" to "some-hash"),
+            graphQLRequest.extensions?.get("persistedQuery")
+        )
+    }
+
+    @Test
+    fun `parseRequest should return request if method is POST with content-type json and persisted query extension`() = runTest {
+        val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
+        val serverRequest = MockServerRequest.builder()
+            .method(HttpMethod.POST)
+            .queryParam(
+                REQUEST_PARAM_EXTENSIONS,
+                """
+                {
+                    "persistedQuery": {
+                        "version": 1,
+                        "sha256Hash": "some-hash"
+                    }
+                }
+            """.trimIndent()
+            )
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(Mono.justOrEmpty(mockRequest))
+
         val graphQLRequest = parser.parseRequest(serverRequest)
         assertNotNull(graphQLRequest)
         assertTrue(graphQLRequest is GraphQLRequest)

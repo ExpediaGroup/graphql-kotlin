@@ -30,10 +30,13 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyToMono
 import org.springframework.web.server.ResponseStatusException
+import kotlin.jvm.optionals.getOrNull
 
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
+internal const val REQUEST_PARAM_EXTENSIONS = "extensions"
+internal const val REQUEST_PARAM_PERSISTED_QUERY = "persistedQuery"
 internal val graphQLMediaType = MediaType("application", "graphql")
 
 open class SpringGraphQLRequestParser(
@@ -43,20 +46,33 @@ open class SpringGraphQLRequestParser(
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     override suspend fun parseRequest(request: ServerRequest): GraphQLServerRequest? = when {
-        request.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(request) }
-        request.method().equals(HttpMethod.POST) -> { getRequestFromPost(request) }
+        request.isGetPersistedQuery() || request.hasQueryParam() -> { getRequestFromGet(request) }
+        request.method() == HttpMethod.POST -> getRequestFromPost(request)
         else -> null
     }
 
+    private fun ServerRequest.hasQueryParam() = queryParam(REQUEST_PARAM_QUERY).isPresent
+
+    private fun ServerRequest.isGetPersistedQuery() =
+        method() == HttpMethod.GET && queryParam(REQUEST_PARAM_EXTENSIONS).getOrNull()?.contains(REQUEST_PARAM_PERSISTED_QUERY) == true
+
     private fun getRequestFromGet(serverRequest: ServerRequest): GraphQLServerRequest {
-        val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
+        val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).orElse("")
         val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
         val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
         val graphQLVariables: Map<String, Any>? = variables?.let {
             objectMapper.readValue(it, mapTypeReference)
         }
+        val extensions: Map<String, Any>? = serverRequest.queryParam(REQUEST_PARAM_EXTENSIONS).takeIf { it.isPresent }?.get()?.let {
+            objectMapper.readValue(it, mapTypeReference)
+        }
 
-        return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
+        return GraphQLRequest(
+            query = query,
+            operationName = operationName,
+            variables = graphQLVariables,
+            extensions = extensions
+        )
     }
 
     private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLServerRequest? {

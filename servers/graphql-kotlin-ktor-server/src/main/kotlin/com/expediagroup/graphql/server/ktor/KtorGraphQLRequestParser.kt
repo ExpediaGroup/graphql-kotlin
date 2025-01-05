@@ -30,6 +30,8 @@ import java.io.IOException
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
+internal const val REQUEST_PARAM_EXTENSIONS = "extensions"
+internal const val REQUEST_PARAM_PERSISTED_QUERY = "persistedQuery"
 
 /**
  * GraphQL Ktor [ApplicationRequest] parser.
@@ -46,8 +48,12 @@ open class KtorGraphQLRequestParser(
         else -> null
     }
 
-    private fun parseGetRequest(request: ApplicationRequest): GraphQLServerRequest? {
-        val query = request.queryParameters[REQUEST_PARAM_QUERY] ?: throw IllegalStateException("Invalid HTTP request - GET request has to specify query parameter")
+    private fun parseGetRequest(request: ApplicationRequest): GraphQLServerRequest {
+        val extensions = request.queryParameters[REQUEST_PARAM_EXTENSIONS]
+        val query = request.queryParameters[REQUEST_PARAM_QUERY] ?: ""
+        check(query.isNotEmpty() || extensions?.contains(REQUEST_PARAM_PERSISTED_QUERY) == true) {
+            "Invalid HTTP request - GET request has to specify either query parameter or persisted query extension"
+        }
         if (query.startsWith("mutation ") || query.startsWith("subscription ")) {
             throw UnsupportedOperationException("Invalid GraphQL operation - only queries are supported for GET requests")
         }
@@ -56,7 +62,15 @@ open class KtorGraphQLRequestParser(
         val graphQLVariables: Map<String, Any>? = variables?.let {
             mapper.readValue(it, mapTypeReference)
         }
-        return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
+        val extensionsMap: Map<String, Any>? = request.queryParameters[REQUEST_PARAM_EXTENSIONS]?.let {
+            mapper.readValue(it, mapTypeReference)
+        }
+        return GraphQLRequest(
+            query = query,
+            operationName = operationName,
+            variables = graphQLVariables,
+            extensions = extensionsMap
+        )
     }
 
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {

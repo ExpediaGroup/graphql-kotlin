@@ -35,6 +35,7 @@ class KtorGraphQLRequestParserTest {
     fun `parseRequest should throw IllegalStateException if request method is GET without query`() = runTest {
         val request = mockk<ApplicationRequest>(relaxed = true) {
             every { queryParameters[REQUEST_PARAM_QUERY] } returns null
+            every { queryParameters[REQUEST_PARAM_EXTENSIONS] } returns null
             every { local.method } returns HttpMethod.Get
         }
         assertFailsWith<IllegalStateException> {
@@ -60,6 +61,7 @@ class KtorGraphQLRequestParserTest {
             every { queryParameters[REQUEST_PARAM_QUERY] } returns "{ foo }"
             every { queryParameters[REQUEST_PARAM_OPERATION_NAME] } returns null
             every { queryParameters[REQUEST_PARAM_VARIABLES] } returns null
+            every { queryParameters[REQUEST_PARAM_EXTENSIONS] } returns null
             every { local.method } returns HttpMethod.Get
         }
         val graphQLRequest = parser.parseRequest(serverRequest)
@@ -76,6 +78,7 @@ class KtorGraphQLRequestParserTest {
             every { queryParameters[REQUEST_PARAM_QUERY] } returns "query MyFoo { foo }"
             every { queryParameters[REQUEST_PARAM_OPERATION_NAME] } returns "MyFoo"
             every { queryParameters[REQUEST_PARAM_VARIABLES] } returns """{"a":1}"""
+            every { queryParameters[REQUEST_PARAM_EXTENSIONS] } returns null
             every { local.method } returns HttpMethod.Get
         }
         val graphQLRequest = parser.parseRequest(serverRequest)
@@ -84,6 +87,27 @@ class KtorGraphQLRequestParserTest {
         assertEquals("query MyFoo { foo }", graphQLRequest.query)
         assertEquals("MyFoo", graphQLRequest.operationName)
         assertEquals(1, graphQLRequest.variables?.get("a"))
+    }
+
+    @Test
+    fun `parseRequest should return request if method is GET with hash only`() = runTest {
+        val serverRequest = mockk<ApplicationRequest>(relaxed = true) {
+            every { queryParameters[REQUEST_PARAM_QUERY] } returns null
+            every { queryParameters[REQUEST_PARAM_OPERATION_NAME] } returns "MyFoo"
+            every { queryParameters[REQUEST_PARAM_VARIABLES] } returns """{"a":1}"""
+            every { queryParameters[REQUEST_PARAM_EXTENSIONS] } returns """{"persistedQuery":{"version":1,"sha256Hash":"some-hash"}}"""
+            every { local.method } returns HttpMethod.Get
+        }
+        val graphQLRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLRequest)
+        assertTrue(graphQLRequest is GraphQLRequest)
+        assertEquals("", graphQLRequest.query)
+        assertEquals("MyFoo", graphQLRequest.operationName)
+        assertEquals(1, graphQLRequest.variables?.get("a"))
+        assertEquals(
+            mapOf("version" to 1, "sha256Hash" to "some-hash"),
+            graphQLRequest.extensions?.get("persistedQuery")
+        )
     }
 
     @Test
