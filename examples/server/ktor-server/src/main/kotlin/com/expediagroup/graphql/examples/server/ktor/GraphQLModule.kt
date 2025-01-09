@@ -37,14 +37,14 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.routing.Routing
+import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 fun Application.graphQLModule() {
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(1)
+        pingPeriod = 1.seconds
         contentConverter = JacksonWebsocketContentConverter()
     }
     install(StatusPages) {
@@ -78,7 +78,7 @@ fun Application.graphQLModule() {
             contextFactory = CustomGraphQLContextFactory()
         }
     }
-    install(Routing) {
+    routing {
         graphQLGetRoute()
         graphQLPostRoute()
         graphQLSubscriptionsRoute()

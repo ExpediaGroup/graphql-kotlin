@@ -5,11 +5,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
-import io.ktor.server.application.install
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -20,7 +17,6 @@ fun Application.graphQLModule() {
     val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
     val ktorGraphQLServer: KtorGraphQLServer = KtorGraphQLServer(jacksonObjectMapper)
 
-    install(Routing)
     routing {
         post("graphql") {
             val result = ktorGraphQLServer.execute(call.request)

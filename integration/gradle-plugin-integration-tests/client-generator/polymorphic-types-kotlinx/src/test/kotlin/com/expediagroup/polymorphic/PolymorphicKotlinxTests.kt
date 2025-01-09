@@ -26,11 +26,11 @@ class PolymorphicKotlinxTests {
 
     @Test
     fun `verify polymorphic queries are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
-                val port = engine.resolvedConnectors().first().port
+                val port = embeddedServer.engine.resolvedConnectors().first().port
                 val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val query = CompletePolymorphicQuery(variables = CompletePolymorphicQuery.Variables(input = "foo"))
@@ -46,16 +46,16 @@ class PolymorphicKotlinxTests {
                 assertNull(nullResponse.data?.unionQuery)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun `verify polymorphic queries fallbacks are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
+        val embeddedServer = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
-            engine.start()
+            embeddedServer.start()
             runBlocking {
                 // need to register fallback logic
                 val serializerWithFallback = GraphQLClientKotlinxSerializer(jsonBuilder = {
@@ -68,7 +68,7 @@ class PolymorphicKotlinxTests {
                         }
                     }
                 })
-                val port = engine.resolvedConnectors().first().port
+                val port = embeddedServer.engine.resolvedConnectors().first().port
                 val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"), serializer = serializerWithFallback)
 
                 val fallbackQuery = PartialPolymorphicQuery(variables = PartialPolymorphicQuery.Variables(input = "bar"))
@@ -79,7 +79,7 @@ class PolymorphicKotlinxTests {
                 assertTrue(unionResult is DefaultBasicUnionImplementation)
             }
         } finally {
-            engine.stop(1000, 1000)
+            embeddedServer.stop(1000, 1000)
         }
     }
 }
