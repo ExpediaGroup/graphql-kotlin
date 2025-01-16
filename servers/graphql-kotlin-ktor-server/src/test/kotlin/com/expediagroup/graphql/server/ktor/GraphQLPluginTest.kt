@@ -137,7 +137,7 @@ class GraphQLPluginTest {
 
     @Test
     fun `server should return Method Not Allowed for Mutation GET requests with persisted query`() {
-        testApplication {
+        testModule {
             val response = client.get("/graphql") {
                 parameter("query", "mutation { foo }")
             }
