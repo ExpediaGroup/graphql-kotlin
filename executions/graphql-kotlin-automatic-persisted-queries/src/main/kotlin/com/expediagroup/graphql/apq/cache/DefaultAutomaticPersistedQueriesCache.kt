@@ -35,6 +35,6 @@ class DefaultAutomaticPersistedQueriesCache : AutomaticPersistedQueriesCache {
         } ?: run {
             val entry = supplier.invoke()
             cache[key] = entry
-            CompletableFuture.completedFuture(supplier.invoke())
+            CompletableFuture.completedFuture(entry)
         }
 }
