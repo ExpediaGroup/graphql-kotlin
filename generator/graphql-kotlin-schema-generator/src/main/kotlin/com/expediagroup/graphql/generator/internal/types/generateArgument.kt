@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.exceptions.InvalidInputFieldTypeException
+import com.expediagroup.graphql.generator.internal.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
@@ -51,10 +52,15 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
     val graphQLType = generateGraphQLType(generator = generator, type = unwrappedType, typeInfo)
 
     // Deprecation of arguments is currently unsupported: https://youtrack.jetbrains.com/issue/KT-25643
+
     val builder = GraphQLArgument.newArgument()
         .name(parameter.getName())
         .description(parameter.getGraphQLDescription())
         .type(graphQLType.safeCast())
+
+    parameter.getDeprecationReason()?.let {
+        builder.deprecate(it)
+    }
 
     generateDirectives(generator, parameter, DirectiveLocation.ARGUMENT_DEFINITION).forEach {
         builder.withAppliedDirective(it)

@@ -24,10 +24,12 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.testSchemaConfig
 import com.expediagroup.graphql.generator.toSchema
 import graphql.Scalars
+import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -72,6 +74,18 @@ class DirectiveTests {
         assertTrue(graphqlDeprecatedQuery.isDeprecated)
         assertEquals("this query is deprecated", query.deprecationReason)
         assertEquals("this query is also deprecated", graphqlDeprecatedQuery.deprecationReason)
+    }
+
+    @Test
+    fun `SchemaGenerator marks deprecated fields within queries`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig())
+        val topLevelQuery = schema.getObjectType("Query")
+        val query = topLevelQuery.getFieldDefinition("graphqlQueryWithDeprecatedFields")
+
+        assertFalse(query.isDeprecated)
+        val deprecatedArgument = query.getArgument("something")
+        assertTrue(deprecatedArgument.isDeprecated)
+        assertEquals("This field is deprecated", deprecatedArgument.deprecationReason)
     }
 
     @Test
@@ -155,6 +169,8 @@ class QueryWithDeprecatedFields {
 
     @Deprecated("this query is also deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
     fun graphqlDeprecatedQueryWithReplacement(something: String) = something
+
+    fun graphqlQueryWithDeprecatedFields(@GraphQLDeprecated("This field is deprecated") something: String, replacement: String) = "$something -> $replacement"
 }
 
 data class ClassWithDeprecatedField(
