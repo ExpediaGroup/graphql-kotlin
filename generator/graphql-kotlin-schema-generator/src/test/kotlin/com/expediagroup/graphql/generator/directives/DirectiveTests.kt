@@ -24,7 +24,6 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.testSchemaConfig
 import com.expediagroup.graphql.generator.toSchema
 import graphql.Scalars
-import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test

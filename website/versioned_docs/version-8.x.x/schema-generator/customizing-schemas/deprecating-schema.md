@@ -37,6 +37,7 @@ type Query {
 
 A side-effect of using `@Deprecated` is that it marks your own Kotlin code as being deprecated, which may not be what you want. Using `@GraphQLDeprecated` you can add the `@deprecated` directive to the GraphQL schema, but not have your Kotlin code show up as deprecated in your editor.
 
+### Deprecating Fields
 ```kotlin
 class SimpleQuery {
   @GraphQLDeprecated(message = "this query is deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
@@ -44,3 +45,15 @@ class SimpleQuery {
 
   fun shinyNewQuery(): Boolean = true
 }
+```
+
+### Deprecating Arguments
+You can also use `@GraphQLDeprecated` to deprecate individual arguments in your GraphQL schema. This allows you to notify clients that a specific argument is deprecated and optionally provide them with guidance on replacement arguments.
+
+```kotlin
+class QueryWithDeprecatedArgument {
+  fun exampleQuery(@GraphQLDeprecated(message = "Use 'newArg' instead") oldArg: String?, newArg: String): String {
+    return "Received: ${newArg}"
+  }
+}
+```

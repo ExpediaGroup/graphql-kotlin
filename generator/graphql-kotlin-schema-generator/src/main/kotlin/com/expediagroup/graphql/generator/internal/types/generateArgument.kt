@@ -51,8 +51,6 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
     val typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = parameter.getName(), fieldAnnotations = parameter.annotations)
     val graphQLType = generateGraphQLType(generator = generator, type = unwrappedType, typeInfo)
 
-    // Deprecation of arguments is currently unsupported: https://youtrack.jetbrains.com/issue/KT-25643
-
     val builder = GraphQLArgument.newArgument()
         .name(parameter.getName())
         .description(parameter.getGraphQLDescription())
