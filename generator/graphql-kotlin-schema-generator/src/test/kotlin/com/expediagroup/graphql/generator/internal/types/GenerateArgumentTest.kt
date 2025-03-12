@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.types
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.InvalidInputFieldTypeException
@@ -33,6 +34,7 @@ import kotlin.reflect.full.findParameterByName
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class GenerateArgumentTest : TypeTestHelper() {
 
@@ -50,6 +52,8 @@ class GenerateArgumentTest : TypeTestHelper() {
         fun directive(@SimpleDirective input: String) = input
 
         fun changeName(@GraphQLName("newName") input: String) = input
+
+        fun deprecate(@GraphQLDeprecated("Deprecated") input: String, replacement: String) = "$input -> $replacement"
 
         fun idClass(idArg: ID) = "Your id is $idArg"
 
@@ -106,6 +110,16 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         assertEquals(Scalars.GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("newName", result.name)
+    }
+
+    @Test
+    fun `Argument can be deprecated with @GraphqlDeprecated`() {
+        val kParameter = ArgumentTestClass::deprecate.findParameterByName("input")
+        assertNotNull(kParameter)
+        val result = generateArgument(generator, kParameter)
+
+        assertTrue(result.isDeprecated, "The argument should be marked as deprecated")
+        assertEquals("Deprecated", result.deprecationReason, "The deprecation reason should match")
     }
 
     @Test
