@@ -32,7 +32,7 @@ import org.openjdk.jmh.annotations.Warmup
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
-@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
+@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector"])
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
 open class GraphQLServerRequestDeserializationBenchmark {
@@ -55,8 +55,8 @@ open class GraphQLServerRequestDeserializationBenchmark {
     }
 
     @Benchmark
-    fun JacksonDeserializeGraphQLRequest(): GraphQLServerRequest = mapper.readValue(request)
+    fun jackson(): GraphQLServerRequest = mapper.readValue(request)
 
     @Benchmark
-    fun FastJsonDeserializeGraphQLRequest(): GraphQLServerRequest = request.to()
+    fun fastjson2(): GraphQLServerRequest = request.to()
 }
