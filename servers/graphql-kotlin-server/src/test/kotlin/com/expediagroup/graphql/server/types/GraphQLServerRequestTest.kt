@@ -17,12 +17,15 @@
 package com.expediagroup.graphql.server.types
 
 import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.JSONWriter
 import com.alibaba.fastjson2.to
 import com.expediagroup.graphql.generator.scalars.ID
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -112,7 +115,7 @@ class GraphQLServerRequestTest {
     }
 
     @Test
-    fun `verify complete deserialization`() {
+    fun `jackson verify complete deserialization`() {
         val input =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
@@ -121,16 +124,21 @@ class GraphQLServerRequestTest {
         assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
         assertEquals("FooQuery", request.operationName)
         assertEquals(mapOf("input" to 1), request.variables)
-
-        val requestFastJson = input.to<GraphQLServerRequest>()
-        assertTrue(requestFastJson is GraphQLRequest)
-        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", requestFastJson.query)
-        assertEquals("FooQuery", requestFastJson.operationName)
-        assertEquals(mapOf("input" to 1), requestFastJson.variables)
     }
 
     @Test
-    fun `verify batch request deserialization`() {
+    fun `fastjson2 verify complete deserialization`() {
+        val input =
+            """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
+        val request = input.to<GraphQLServerRequest>()
+        assertTrue(request is GraphQLRequest)
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
+        assertEquals("FooQuery", request.operationName)
+        assertEquals(mapOf("input" to 1), request.variables)
+    }
+
+    @Test
+    fun `jackson verify batch request deserialization`() {
         val input =
             """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
 
@@ -141,13 +149,48 @@ class GraphQLServerRequestTest {
         assertEquals("FooQuery", request.requests[0].operationName)
         assertEquals(mapOf("input" to 1), request.requests[0].variables)
         assertEquals("query BarQuery { bar }", request.requests[1].query)
+    }
 
-        val requestFastJson = input.to<GraphQLServerRequest>()
-        assertTrue(requestFastJson is GraphQLBatchRequest)
-        assertEquals(2, requestFastJson.requests.size)
-        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", requestFastJson.requests[0].query)
-        assertEquals("FooQuery", requestFastJson.requests[0].operationName)
-        assertEquals(mapOf("input" to 1), requestFastJson.requests[0].variables)
-        assertEquals("query BarQuery { bar }", requestFastJson.requests[1].query)
+    @Test
+    fun `fastjson2 verify batch request deserialization`() {
+        val input =
+            """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
+        val request = input.to<GraphQLServerRequest>()
+        assertTrue(request is GraphQLBatchRequest)
+        assertEquals(2, request.requests.size)
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.requests[0].query)
+        assertEquals("FooQuery", request.requests[0].operationName)
+        assertEquals(mapOf("input" to 1), request.requests[0].variables)
+        assertEquals("query BarQuery { bar }", request.requests[1].query)
+    }
+
+    @Test
+    fun `jackson deserialize error`() {
+        val toDeserializeWithError =
+            """
+            {
+                "operationName": "test",
+                "query": "query test { foo { bar } }",
+                "variables": ["this should break"]
+            }
+            """.trimIndent()
+        assertThrows<MismatchedInputException> {
+            mapper.readValue<GraphQLServerRequest>(toDeserializeWithError)
+        }
+    }
+
+    @Test
+    fun `fastjson2 deserialize error`() {
+        val toDeserializeWithError =
+            """
+            {
+                "operationName": "test",
+                "query": "query test { foo { bar } }",
+                "variables": ["this should break"]
+            }
+            """.trimIndent()
+        assertThrows<JSONException> {
+            toDeserializeWithError.to<GraphQLServerRequest>()
+        }
     }
 }

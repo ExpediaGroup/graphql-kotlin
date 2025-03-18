@@ -32,33 +32,38 @@ import org.openjdk.jmh.annotations.Warmup
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
-@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
+@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector"])
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
 open class GraphQLServerRequestBatchDeserializationBenchmark {
     private val mapper = jacksonObjectMapper()
-    private lateinit var request: String
     private lateinit var batchRequest: String
 
     @Setup
     fun setUp() {
         JSON.config(JSONWriter.Feature.WriteNulls)
         val loader = this::class.java.classLoader
-        val operation = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
-        val variables = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
+        val operation1 = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
+        val operation2 = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
+        val operation3 = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
+        val operation4 = loader.getResource("StarWarsDetails.graphql")!!.readText().replace("\n", "\\n")
+        val variables1 = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
+        val variables2 = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
+        val variables3 = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
+        val variables4 = loader.getResource("StarWarsDetailsVariables.json")!!.readText()
         batchRequest = """
             [
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables },
-                { "operationName": "StarWarsDetails", "query": "$operation", "variables": $variables }
+                { "operationName": "StarWarsDetails", "query": "$operation1", "variables": $variables1 },
+                { "operationName": "StarWarsDetails", "query": "$operation2", "variables": $variables2 },
+                { "operationName": "StarWarsDetails", "query": "$operation3", "variables": $variables3 },
+                { "operationName": "StarWarsDetails", "query": "$operation4", "variables": $variables4 }
             ]
         """.trimIndent()
     }
 
     @Benchmark
-    fun JacksonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = mapper.readValue(batchRequest)
+    fun jackson(): GraphQLServerRequest = mapper.readValue(batchRequest)
 
     @Benchmark
-    fun FastJsonDeserializeGraphQLBatchRequest(): GraphQLServerRequest = batchRequest.to<GraphQLServerRequest>()
+    fun fastjson2(): GraphQLServerRequest = batchRequest.to<GraphQLServerRequest>()
 }

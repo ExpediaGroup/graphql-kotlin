@@ -31,7 +31,7 @@ import org.openjdk.jmh.annotations.Warmup
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
-@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector", "-Dfastjson2.readerVector=true"])
+@Fork(value = 5, jvmArgsAppend = ["--add-modules=jdk.incubator.vector"])
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
 open class GraphQLServerResponseSerializationBenchmark {
@@ -41,9 +41,6 @@ open class GraphQLServerResponseSerializationBenchmark {
     @Setup
     fun setUp() {
         JSON.config(JSONWriter.Feature.WriteNulls)
-        val data = mapper.readValue<Map<String, Any?>>(
-            this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
-        )
         response = GraphQLResponse(
             mapper.readValue<Map<String, Any?>>(
                 this::class.java.classLoader.getResourceAsStream("StarWarsDetailsResponse.json")!!
@@ -52,8 +49,8 @@ open class GraphQLServerResponseSerializationBenchmark {
     }
 
     @Benchmark
-    fun JacksonSerializeGraphQLResponse(): String = mapper.writeValueAsString(response)
+    fun jackson(): String = mapper.writeValueAsString(response)
 
     @Benchmark
-    fun FastJsonSerializeGraphQLResponse(): String = JSON.toJSONString(response)
+    fun fastjson2(): String = JSON.toJSONString(response)
 }
