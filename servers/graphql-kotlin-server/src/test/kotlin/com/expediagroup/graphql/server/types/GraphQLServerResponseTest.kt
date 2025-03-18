@@ -44,7 +44,6 @@ class GraphQLServerResponseTest {
         val expectedJson =
             """{"data":{"foo":1}}"""
         assertEquals(expectedJson, mapper.writeValueAsString(response))
-
     }
 
     @Test
