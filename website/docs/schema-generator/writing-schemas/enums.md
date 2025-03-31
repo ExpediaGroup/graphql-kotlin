@@ -46,6 +46,7 @@ val statusEnumType = GraphQLEnumType.newEnum()
     .name("Status")
     .values(Status.values().map {
       GraphQLEnumValueDefinition.newEnumValueDefinition()
+          .name(it.name)
           .value(it.name)
           .build()
     })
