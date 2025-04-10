@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.ConflictingTypesException
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleSingletonKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.extensions.deepName
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.scalars.ID
@@ -35,9 +38,12 @@ import graphql.introspection.IntrospectionQuery
 import graphql.language.SourceLocation
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.net.CookieManager
 import java.util.UUID
+import java.util.stream.Stream
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -56,12 +62,21 @@ import kotlin.test.assertTrue
 )
 class ToSchemaTest {
 
-    @Test
-    fun `SchemaGenerator generates a simple GraphQL schema`() {
+    companion object {
+        @JvmStatic
+        fun toSchemaTestArguments(): Stream<Arguments> = Stream.of(
+            Arguments.of(SimpleKotlinDataFetcherFactoryProvider(), "with SimpleKotlinDataFetcherFactoryProvider"),
+            Arguments.of(SimpleSingletonKotlinDataFetcherFactoryProvider(), "with SimpleSingletonKotlinDataFetcherFactoryProvider"),
+        )
+    }
+
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a simple GraphQL schema`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig(provider)
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
 
@@ -71,9 +86,10 @@ class ToSchemaTest {
         assertEquals(1, geo?.get("query")?.get("id"))
     }
 
-    @Test
-    fun `SchemaGenerator generates a simple GraphQL schema with default builder`() {
-        val schemaGenerator = SchemaGenerator(testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a simple GraphQL schema with default builder`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schemaGenerator = SchemaGenerator(testSchemaConfig(provider))
         val schema = schemaGenerator.use {
             it.generateSchema(
                 queries = listOf(TopLevelObject(QueryObject())),
@@ -90,9 +106,10 @@ class ToSchemaTest {
         assertEquals(1, geo?.get("query")?.get("id"))
     }
 
-    @Test
-    fun `SchemaGenerator ignores fields and functions with @Ignore`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator ignores fields and functions with @Ignore`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig(provider))
 
         assertTrue(
             schema.queryType.fieldDefinitions.none {
@@ -114,9 +131,10 @@ class ToSchemaTest {
         )
     }
 
-    @Test
-    fun `SchemaGenerator generates a GraphQL schema with repeated types to test conflicts`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a GraphQL schema with repeated types to test conflicts`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig(provider))
         val resultType = schema.getObjectType("Result")
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("Result!", topLevelQuery.getFieldDefinition("query").type.deepName)
@@ -127,9 +145,10 @@ class ToSchemaTest {
         assertEquals("[SomeOtherObject!]!", resultType.getFieldDefinition("someOtherObjectValues").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator generates a GraphQL schema with mixed nullity`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a GraphQL schema with mixed nullity`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig(provider))
         val resultType = schema.getObjectType("MixedNullityResult")
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("MixedNullityResult!", topLevelQuery.getFieldDefinition("query").type.deepName)
@@ -137,9 +156,10 @@ class ToSchemaTest {
         assertEquals("String!", resultType.getFieldDefinition("theNextThing").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator generates a GraphQL schema where the input types differ from the output types`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a GraphQL schema where the input types differ from the output types`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig(provider))
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals(
             "SomeObjectInput!",
@@ -148,17 +168,19 @@ class ToSchemaTest {
         assertEquals("SomeObject!", topLevelQuery.getFieldDefinition("query").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator generates a GraphQL schema where the input and output enum is the same`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates a GraphQL schema where the input and output enum is the same`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig(provider))
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").getArgument("someEnum").type.deepName)
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator names types according to custom name in @GraphQLName`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator names types according to custom name in @GraphQLName`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig(provider))
         val topLevelQuery = schema.getObjectType("Query")
 
         assertEquals("SomeInputObjectRenamedInput!", topLevelQuery.getFieldDefinition("query").getArgument("someInputObjectWithCustomName").type.deepName)
@@ -167,9 +189,10 @@ class ToSchemaTest {
         assertEquals("SomeOtherObjectRenamed!", topLevelQuery.getFieldDefinition("query").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator names self-referencing types according to custom name in @GraphQLName`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator names self-referencing types according to custom name in @GraphQLName`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig(provider))
         val topLevelQuery = schema.getObjectType("Query")
         val resultType = schema.getObjectType("ObjectSelfReferencingRenamed")
 
@@ -177,42 +200,46 @@ class ToSchemaTest {
         assertEquals("ObjectSelfReferencingRenamed", resultType.getFieldDefinition("self").type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator documents types annotated with @Description`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator documents types annotated with @Description`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig(provider)
         )
         val geo = schema.getObjectType("Geography")
         assertTrue(geo.description?.startsWith("A place") == true)
     }
 
-    @Test
-    fun `SchemaGenerator documents arguments annotated with @Description`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator documents arguments annotated with @Description`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig(provider)
         )
         val documentation = schema.queryType.fieldDefinitions.first().arguments.first().description
         assertEquals("A GraphQL value", documentation)
     }
 
-    @Test
-    fun `SchemaGenerator documents properties annotated with @Description`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator documents properties annotated with @Description`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig(provider)
         )
         val documentation = schema.queryType.fieldDefinitions.first().description
         assertEquals("A GraphQL query method", documentation)
     }
 
-    @Test
-    fun `SchemaGenerator can expose functions on result classes`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator can expose functions on result classes`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig(provider))
         val resultWithFunction = schema.getObjectType("ResultWithFunction")
         val repeatFieldDefinition = resultWithFunction.getFieldDefinition("repeat")
         assertEquals("repeat", repeatFieldDefinition.name)
@@ -221,9 +248,10 @@ class ToSchemaTest {
         assertEquals("String!", repeatFieldDefinition.type.deepName)
     }
 
-    @Test
-    fun `SchemaGenerator can execute functions on result classes`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator can execute functions on result classes`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig(provider))
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query(something: \"thing\") { repeat(n: 3) } }")
         val data: Map<String, Map<String, Any>> = result.getData()
@@ -231,10 +259,11 @@ class ToSchemaTest {
         assertEquals("thingthingthing", data["query"]?.get("repeat"))
     }
 
-    @Test
-    fun `SchemaGenerator ignores private fields`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator ignores private fields`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema =
-            toSchema(queries = listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig(provider))
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
         val resultWithPrivateParts = query.type as? GraphQLObjectType
@@ -244,31 +273,35 @@ class ToSchemaTest {
         assertEquals("something", resultWithPrivateParts.fieldDefinitions[0].name)
     }
 
-    @Test
-    fun `SchemaGenerator throws when encountering java stdlib`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator throws when encountering java stdlib`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         assertFailsWith(GraphQLKotlinException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithJavaClass())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithJavaClass())), config = testSchemaConfig(provider))
         }
     }
 
-    @Test
-    fun `SchemaGenerator throws when encountering list of java stdlib`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator throws when encountering list of java stdlib`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         assertFailsWith(GraphQLKotlinException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithListOfJavaClass())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithListOfJavaClass())), config = testSchemaConfig(provider))
         }
     }
 
-    @Test
-    fun `SchemaGenerator throws when encountering conflicting types`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator throws when encountering conflicting types`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         assertFailsWith(ConflictingTypesException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithConflictingTypes())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithConflictingTypes())), config = testSchemaConfig(provider))
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Test
-    fun `SchemaGenerator supports type references`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithParentChildRelationship())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator supports type references`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithParentChildRelationship())), config = testSchemaConfig(provider))
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query { name children { name } } }")
@@ -285,26 +318,29 @@ class ToSchemaTest {
         assertNull(firstChild["children"])
     }
 
-    @Test
-    fun `SchemaGenerator support GraphQLID scalar`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator support GraphQLID scalar`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig(provider))
 
         val placeType = schema.getObjectType("PlaceOfIds")
         assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("id").type as? GraphQLNonNull)?.wrappedType)
     }
 
-    @Test
-    fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator supports Scalar GraphQLID for input types`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig(provider))
 
         val furnitureType = schema.getObjectType("Furniture")
         val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull
         assertEquals(Scalars.GraphQLID, serialField?.wrappedType)
     }
 
-    @Test
-    fun `SchemaGenerator supports DataFetcherResult as a return type`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataFetcherResult())), config = testSchemaConfig)
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator supports DataFetcherResult as a return type`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataFetcherResult())), config = testSchemaConfig(provider))
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ dataAndErrors }")
@@ -319,8 +355,9 @@ class ToSchemaTest {
         assertEquals(expected = 1, actual = errors.size)
     }
 
-    @Test
-    fun `SchemaGenerator disables introspection query`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator disables introspection query`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"), introspectionEnabled = false)
         val generator = SchemaGenerator(config)
         val schema = generator.generateSchema(listOf(TopLevelObject(QueryObject())))
@@ -332,12 +369,13 @@ class ToSchemaTest {
         assertTrue(result.errors?.isEmpty() == false)
     }
 
-    @Test
-    fun `SchemaGenerator supports Schema Directives`() {
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator supports Schema Directives`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(
             queries = listOf(TopLevelObject(SimpleQuery())),
             schemaObject = TopLevelObject(SimpleSchema()),
-            config = testSchemaConfig
+            config = testSchemaConfig(provider)
         )
 
         val schemaString = schema.print()
