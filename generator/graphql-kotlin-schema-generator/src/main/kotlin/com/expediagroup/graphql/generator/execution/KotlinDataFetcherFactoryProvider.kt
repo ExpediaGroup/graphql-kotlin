@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,4 +63,13 @@ open class SimpleKotlinDataFetcherFactoryProvider : KotlinDataFetcherFactoryProv
         DataFetcherFactory {
             PropertyDataFetcher(kProperty.getter)
         }
+}
+
+/**
+ * [SimpleSingletonKotlinDataFetcherFactoryProvider] is a specialization of [SimpleKotlinDataFetcherFactoryProvider] that will provide a
+ * a [SingletonPropertyDataFetcher] that should be used to target property resolutions without allocating a DataFetcher per property
+ */
+open class SimpleSingletonKotlinDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
+        SingletonPropertyDataFetcher.getFactoryAndRegister(kClass, kProperty)
 }
