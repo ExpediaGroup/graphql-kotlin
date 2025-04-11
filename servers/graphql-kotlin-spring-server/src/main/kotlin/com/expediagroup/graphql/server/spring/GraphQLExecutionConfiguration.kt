@@ -19,7 +19,7 @@ package com.expediagroup.graphql.server.spring
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.server.spring.execution.SpringSingletonKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -42,7 +42,7 @@ class GraphQLExecutionConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun dataFetcherFactoryProvider(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
-        SpringSingletonKotlinDataFetcherFactoryProvider(applicationContext)
+        SpringKotlinDataFetcherFactoryProvider(applicationContext)
 
     @Bean
     @ConditionalOnMissingBean
