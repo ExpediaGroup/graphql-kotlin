@@ -62,3 +62,12 @@ open class SimpleKotlinDataFetcherFactoryProvider : KotlinDataFetcherFactoryProv
         PropertyDataFetcher(kProperty.getter)
     }
 }
+
+/**
+ * [SimpleSingletonKotlinDataFetcherFactoryProvider] is a specialization of [SimpleKotlinDataFetcherFactoryProvider] that will provide a
+ * a [SingletonPropertyDataFetcher] that should be used to target property resolutions without allocating a DataFetcher per property
+ */
+open class SimpleSingletonKotlinDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
+        SingletonPropertyDataFetcher.getFactoryAndRegister(kClass, kProperty)
+}

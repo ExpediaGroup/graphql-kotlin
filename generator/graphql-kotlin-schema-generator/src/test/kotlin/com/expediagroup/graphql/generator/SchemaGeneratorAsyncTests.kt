@@ -42,7 +42,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig())
         val returnType =
             (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType
         assertNotNull(returnType)

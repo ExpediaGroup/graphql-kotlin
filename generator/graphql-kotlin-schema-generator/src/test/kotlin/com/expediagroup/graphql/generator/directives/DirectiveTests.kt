@@ -35,7 +35,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated fields in the return objects`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedFieldQuery")
         val result = (query.type as? GraphQLNonNull)?.wrappedType as? GraphQLObjectType
@@ -50,7 +50,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries and documents replacement`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         val deprecatedQueryWithReplacement = topLevelQuery.getFieldDefinition("deprecatedQueryWithReplacement")
         val graphqlDeprecatedQueryWithReplacement = topLevelQuery.getFieldDefinition("graphqlDeprecatedQueryWithReplacement")
@@ -63,7 +63,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQuery")
         val graphqlDeprecatedQuery = topLevelQuery.getFieldDefinition("graphqlDeprecatedQuery")

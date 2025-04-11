@@ -27,7 +27,7 @@ class ConcurrentAdditionalTypesTest {
     @Test
     fun `verify a concurrent exception is not thrown if there are additionalTypes added when generating the additionalTypes`() {
         val queries = listOf(TopLevelObject(SimpleQuery()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("InterfaceOne"))
         assertNotNull(schema.getType("InterfaceTwo"))
