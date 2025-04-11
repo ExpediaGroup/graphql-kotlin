@@ -31,7 +31,7 @@ class OptionalResultsTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
 

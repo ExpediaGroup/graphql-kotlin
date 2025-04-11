@@ -32,7 +32,7 @@ class NodeGraphTest {
     fun nodeGraph() {
         val queries = listOf(TopLevelObject(NodeQuery()))
 
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
 
         assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
         assertEquals(expected = "nodeGraph", actual = schema.queryType.fieldDefinitions.first().name)

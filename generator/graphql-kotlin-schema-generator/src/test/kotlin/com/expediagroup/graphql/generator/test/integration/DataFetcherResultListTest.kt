@@ -29,7 +29,7 @@ class DataFetcherResultListTest {
     @Test
     fun validateSchema() {
         val queries = listOf(TopLevelObject(SimpleQuery()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         assertNotNull(schema)
         assertEquals("String!", schema.queryType.getFieldDefinition("getString").type.toString())
         assertEquals("String!", schema.queryType.getFieldDefinition("getDataFetcherResultString").type.toString())

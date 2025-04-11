@@ -20,7 +20,6 @@ import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFacto
 import com.expediagroup.graphql.generator.execution.SimpleSingletonKotlinDataFetcherFactoryProvider
 import graphql.schema.DataFetcherFactory
 import org.springframework.context.ApplicationContext
-import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
 /**

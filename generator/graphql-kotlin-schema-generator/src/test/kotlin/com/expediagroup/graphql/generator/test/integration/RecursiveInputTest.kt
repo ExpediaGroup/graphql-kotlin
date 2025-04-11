@@ -28,7 +28,7 @@ class RecursiveInputTest {
     @Test
     fun `Input type with a recursive argument should work`() {
         val queries = listOf(TopLevelObject(RecursiveInputQueries()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("RecursivePerson"))
         assertNotNull(schema.getType("RecursivePersonInput"))

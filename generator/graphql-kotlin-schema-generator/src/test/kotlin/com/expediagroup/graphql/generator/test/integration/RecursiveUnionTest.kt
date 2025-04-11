@@ -27,7 +27,7 @@ class RecursiveUnionTest {
     @Test
     fun recursiveUnion() {
         val queries = listOf(TopLevelObject(RecursiveUnionQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)

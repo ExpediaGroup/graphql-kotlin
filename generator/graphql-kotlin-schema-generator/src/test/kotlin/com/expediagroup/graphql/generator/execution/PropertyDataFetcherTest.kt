@@ -32,7 +32,7 @@ class PropertyDataFetcherTest {
 
     private val schema = toSchema(
         queries = listOf(TopLevelObject(PrefixedQuery())),
-        config = testSchemaConfig
+        config = testSchemaConfig()
     )
     private val graphQL = GraphQL.newGraphQL(schema).build()
 

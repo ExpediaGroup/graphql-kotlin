@@ -32,11 +32,7 @@ tasks {
                 limit {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
-<<<<<<< HEAD
-                    minimum = "0.91".toBigDecimal()
-=======
                     minimum = "0.85".toBigDecimal()
->>>>>>> ad727d45e (feat: SingletonPropertyDataFetcher, avoid allocating a PropertyDataFetcher per property per graphql operation)
                 }
                 limit {
                     counter = "BRANCH"

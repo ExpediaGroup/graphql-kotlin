@@ -16,7 +16,7 @@ class OptionalInputTest {
 
     private val schema = toSchema(
         queries = listOf(TopLevelObject(OptionalInputQuery())),
-        config = testSchemaConfig
+        config = testSchemaConfig()
     )
 
     private val graphQL = GraphQL.newGraphQL(schema).build()

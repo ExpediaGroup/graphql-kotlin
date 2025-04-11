@@ -28,7 +28,7 @@ class OptionalInputSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
-        val generator = SchemaGenerator(testSchemaConfig)
+        val generator = SchemaGenerator(testSchemaConfig())
         val schema = generator.generateSchema(
             queries = listOf(TopLevelObject(Query())),
             additionalInputTypes = setOf(MyAdditionalInput::class.createType())

@@ -38,7 +38,7 @@ class CustomUnionAnnotationTest {
 
     @Test
     fun `custom unions can be defined with a variety of return types`() {
-        val schema = toSchema(testSchemaConfig, listOf(TopLevelObject(Query())))
+        val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(Query())))
         assertNotNull(schema)
         assertNotNull(schema.getType("One"))
         assertNotNull(schema.getType("Two"))
@@ -68,23 +68,23 @@ class CustomUnionAnnotationTest {
     @Test
     fun `verify exception is thrown when union returns different types`() {
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidQuery())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidQuery())))
         }
     }
 
     @Test
     fun `verify exception is thrown when custom union return type is not Any`() {
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidReturnTypeNumber())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidReturnTypeNumber())))
         }
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidReturnTypePrime())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidReturnTypePrime())))
         }
     }
 
     @Test
     fun `verify Meta Union Annotation when adding as additional type`() {
-        val generator = CustomSchemaGenerator(testSchemaConfig)
+        val generator = CustomSchemaGenerator(testSchemaConfig())
         generator.addTypes(MyAnnotation::class)
         val types = generator.generateCustomAdditionalTypes()
 

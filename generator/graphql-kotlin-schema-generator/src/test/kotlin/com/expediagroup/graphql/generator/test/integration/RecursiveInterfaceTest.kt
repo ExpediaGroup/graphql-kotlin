@@ -27,7 +27,7 @@ class RecursiveInterfaceTest {
     @Test
     fun recursiveInterface() {
         val queries = listOf(TopLevelObject(RecursiveInterfaceQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)
@@ -36,7 +36,7 @@ class RecursiveInterfaceTest {
     @Test
     fun `interface with self field`() {
         val queries = listOf(TopLevelObject(InterfaceWithSelfFieldQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getInterface", field.name)

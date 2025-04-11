@@ -13,11 +13,11 @@ public const val UNION_SAME_SELECTIONS: String =
 
 @Generated
 public class UnionSameSelections : GraphQLClientRequest<UnionSameSelections.Result> {
-  override val query: String = UNION_SAME_SELECTIONS
+  public override val query: String = UNION_SAME_SELECTIONS
 
-  override val operationName: String = "UnionSameSelections"
+  public override val operationName: String = "UnionSameSelections"
 
-  override fun responseType(): KClass<UnionSameSelections.Result> =
+  public override fun responseType(): KClass<UnionSameSelections.Result> =
       UnionSameSelections.Result::class
 
   @Generated
