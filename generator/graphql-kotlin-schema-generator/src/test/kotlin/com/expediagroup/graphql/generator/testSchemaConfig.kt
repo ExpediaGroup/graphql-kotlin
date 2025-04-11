@@ -18,12 +18,19 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
 
 val defaultSupportedPackages = listOf("com.expediagroup.graphql.generator")
-fun testSchemaConfig() = SchemaGeneratorConfig(defaultSupportedPackages)
+fun testSchemaConfig(
+    dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
+) = SchemaGeneratorConfig(
+    defaultSupportedPackages,
+    dataFetcherFactoryProvider = dataFetcherFactoryProvider
+)
 
 fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(defaultSupportedPackages, hooks = hooks)
 
