@@ -25,7 +25,7 @@ jobs:
       - name: Android Test
         run: ./gradlew build
       - name: Archive failures
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: gradle-plugin-android-build-reports
@@ -53,7 +53,7 @@ jobs:
       - name: Integration Tests
         run: ./gradlew build
       - name: Archive failures
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: gradle-plugin-build-reports
@@ -82,7 +82,7 @@ jobs:
       - name: Integration Tests
         run: ./gradlew build
       - name: Archive failures
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: maven-plugin-build-reports
