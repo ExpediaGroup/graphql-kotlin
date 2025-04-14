@@ -17,7 +17,13 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLAppliedDirective
+import graphql.schema.GraphQLAppliedDirectiveArgument
+import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLNonNull
 
 /**
  * ```graphql
@@ -30,6 +36,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * >NOTE: Only one subgraph can `@override` any given field. If multiple subgraphs attempt to `@override` the same field, a composition error occurs.
  *
  * @param from name of the subgraph to override field resolution
+ * @param label optional string containing migration parameters (e.g. "percent(number)"). Enterprise feature available in Federation 2.7+.
  *
  * @see <a href="https://www.apollographql.com/docs/rover/subgraphs/#publishing-a-subgraph-schema-to-apollo-studio">Publishing schema to Apollo Studio</a>
  */
@@ -43,3 +50,72 @@ annotation class OverrideDirective(val from: String)
 
 internal const val OVERRIDE_DIRECTIVE_NAME = "override"
 private const val OVERRIDE_DIRECTIVE_DESCRIPTION = "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
+
+/**
+ * Creates the override directive definition
+ */
+internal fun overrideDirectiveDefinition(): graphql.schema.GraphQLDirective {
+    val builder = graphql.schema.GraphQLDirective.newDirective()
+        .name(OVERRIDE_DIRECTIVE_NAME)
+        .description(OVERRIDE_DIRECTIVE_DESCRIPTION)
+        .validLocation(DirectiveLocation.FIELD_DEFINITION)
+        .argument(
+            GraphQLArgument.newArgument()
+                .name("from")
+                .description("Name of the subgraph to override field resolution")
+                .type(GraphQLNonNull(Scalars.GraphQLString))
+                .build()
+        )
+
+    builder.argument(
+        GraphQLArgument.newArgument()
+            .name("label")
+            .description("The value must follow the format of 'percent(number)'. Enterprise feature available in Federation 2.7+.")
+            .type(Scalars.GraphQLString)
+            .build()
+    )
+
+    return builder.build()
+}
+
+/**
+ * Converts a GraphQL directive to an applied override directive with proper validation
+ * and handling of optional label argument.
+ */
+internal fun graphql.schema.GraphQLDirective.toAppliedOverrideDirective(directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
+    val overrideDirective = directiveInfo.directive as OverrideDirective
+    val label = overrideDirective.label.takeIf { it.isNotEmpty() }
+
+    if (!label.isNullOrEmpty() && !validateLabel(label)) {
+        throw Exception("@override label must follow the format 'percent(number)', got: $label")
+    }
+
+    val builder = GraphQLAppliedDirective.newDirective()
+        .name(this.name)
+        .argument(GraphQLAppliedDirectiveArgument.newArgument()
+            .name("from")
+            .type(GraphQLNonNull(Scalars.GraphQLString))
+            .valueProgrammatic(overrideDirective.from)
+            .build())
+
+    if (!label.isNullOrEmpty()) {
+        builder.argument(GraphQLAppliedDirectiveArgument.newArgument()
+            .name("label")
+            .type(Scalars.GraphQLString)
+            .valueProgrammatic(label)
+            .build())
+    }
+
+    return builder.build()
+}
+
+/**
+ * Validates that the label follows the format 'percent(number)'
+ * Returns true if the label is valid or null/empty
+ */
+internal fun validateLabel(label: String?): Boolean {
+    if (label.isNullOrEmpty()) return true
+
+    val percentPattern = """^percent\(\d+\)$""".toRegex()
+    return percentPattern.matches(label)
+}

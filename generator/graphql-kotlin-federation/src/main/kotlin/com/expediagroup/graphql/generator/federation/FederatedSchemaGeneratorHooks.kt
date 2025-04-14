@@ -47,11 +47,13 @@ import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECT
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.overrideDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.policyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresScopesDirectiveType
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
+import com.expediagroup.graphql.generator.federation.directives.toAppliedOverrideDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedPolicyDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedRequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
@@ -75,6 +77,7 @@ import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLAppliedDirective
+import graphql.schema.GraphQLAppliedDirectiveArgument
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
@@ -221,6 +224,7 @@ open class FederatedSchemaGeneratorHooks(
             EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
             LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
+            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition()
             POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar)
             PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
             REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
@@ -235,6 +239,9 @@ open class FederatedSchemaGeneratorHooks(
             }
             POLICY_DIRECTIVE_NAME -> {
                 directive.toAppliedPolicyDirective(directiveInfo)
+            }
+            OVERRIDE_DIRECTIVE_NAME -> {
+                directive.toAppliedOverrideDirective(directiveInfo)
             }
             else -> {
                 super.willApplyDirective(directiveInfo, directive)
