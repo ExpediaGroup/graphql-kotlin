@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,11 @@ import graphql.schema.GraphQLNonNull
     description = OVERRIDE_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.FIELD_DEFINITION]
 )
-annotation class OverrideDirective(val from: String)
+annotation class OverrideDirective(val from: String, val label: String = "")
 
 internal const val OVERRIDE_DIRECTIVE_NAME = "override"
+internal const val OVERRIDE_DIRECTIVE_FROM_PARAM = "from"
+internal const val OVERRIDE_DIRECTIVE_LABEL_PARAM = "label"
 private const val OVERRIDE_DIRECTIVE_DESCRIPTION = "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
 
 /**
@@ -61,7 +63,7 @@ internal fun overrideDirectiveDefinition(): graphql.schema.GraphQLDirective {
         .validLocation(DirectiveLocation.FIELD_DEFINITION)
         .argument(
             GraphQLArgument.newArgument()
-                .name("from")
+                .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
                 .description("Name of the subgraph to override field resolution")
                 .type(GraphQLNonNull(Scalars.GraphQLString))
                 .build()
@@ -69,8 +71,8 @@ internal fun overrideDirectiveDefinition(): graphql.schema.GraphQLDirective {
 
     builder.argument(
         GraphQLArgument.newArgument()
-            .name("label")
-            .description("The value must follow the format of 'percent(number)'. Enterprise feature available in Federation 2.7+.")
+            .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
+            .description("The value must follow the format of 'percent(number)'")
             .type(Scalars.GraphQLString)
             .build()
     )
@@ -93,14 +95,14 @@ internal fun graphql.schema.GraphQLDirective.toAppliedOverrideDirective(directiv
     val builder = GraphQLAppliedDirective.newDirective()
         .name(this.name)
         .argument(GraphQLAppliedDirectiveArgument.newArgument()
-            .name("from")
+            .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
             .type(GraphQLNonNull(Scalars.GraphQLString))
             .valueProgrammatic(overrideDirective.from)
             .build())
 
     if (!label.isNullOrEmpty()) {
         builder.argument(GraphQLAppliedDirectiveArgument.newArgument()
-            .name("label")
+            .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
             .type(Scalars.GraphQLString)
             .valueProgrammatic(label)
             .build())

@@ -478,6 +478,44 @@ type Product @key(fields: "id") {
 }
 ```
 
+## progressive `@override` directive
+
+:::info
+Available since Federation v2.0
+:::
+
+```graphql
+directive @override(from: String!, label: String) on FIELD_DEFINITION
+```
+
+The progressive @override feature enables the gradual, progressive deployment of a subgraph with an @override field. As a subgraph developer, you can customize the percentage of traffic that the overriding and overridden subgraphs each resolve for a field. Please read mmore about the [progressive @override feature](https://www.apollographql.com/docs/graphos/schema-design/federated-schemas/reference/directives) in the Apollo Router documentation.
+
+:::caution
+It is an Enterprise feature of the GraphOS Router and requires an organization with a GraphOS Enterprise plan.
+Only one subgraph can `@override` any given field. If multiple subgraphs attempt to `@override` the same field, a composition error occurs.
+:::
+
+#### Example
+
+Given `SubgraphA`:
+
+```graphql
+type Product @key(fields: "id") {
+    id: String!
+    description: String!
+}
+```
+
+We can override the `description` field resolution in `SubgraphB`:
+
+```graphql
+type Product @key(fields: "id") {
+    id: String!
+    name: String!
+    description: String! @override(from: "SubgraphA", label: "percent(1)")
+}
+```
+
 ## `@policy` directive
 
 :::info

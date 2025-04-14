@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -159,7 +159,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify generator does not add federation queries for non-federated schemas`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -218,7 +218,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify a schema with self nested query still works`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
