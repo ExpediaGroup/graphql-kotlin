@@ -77,7 +77,6 @@ import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLAppliedDirective
-import graphql.schema.GraphQLAppliedDirectiveArgument
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
@@ -98,8 +97,8 @@ open class FederatedSchemaGeneratorHooks(
     private val resolvers: List<FederatedTypeResolver>
 ) : FlowSubscriptionSchemaGeneratorHooks() {
     private val validator: FederatedSchemaValidator = FederatedSchemaValidator()
-    data class LinkSpec(val namespace: String, val imports: Map<String, String>)
-    private val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
+    data class LinkSpec(val namespace: String, val imports: Map<String, String>, val url: String? = FEDERATION_SPEC_LATEST_URL)
+    public val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
 
     // workaround to https://github.com/ExpediaGroup/graphql-kotlin/issues/1815
     // since those scalars can be renamed, we need to ensure we only generate those scalars just once
@@ -175,7 +174,7 @@ open class FederatedSchemaGeneratorHooks(
                     normalizeImportName(import.name) to normalizeImportName(importedName)
                 }
 
-                val linkSpec = LinkSpec(nameSpace, imports)
+                val linkSpec = LinkSpec(nameSpace, imports, appliedDirectiveAnnotation.url)
                 linkSpecs[spec] = linkSpec
             }
         }
@@ -218,19 +217,23 @@ open class FederatedSchemaGeneratorHooks(
         else -> super.willGenerateGraphQLType(type)
     }
 
-    override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? =
-        when (directiveInfo.effectiveName) {
+    override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? {
+        val federationSpec = linkSpecs[FEDERATION_SPEC]
+        val federationUrl = federationSpec?.url ?: FEDERATION_SPEC_LATEST_URL
+
+        return when (directiveInfo.effectiveName) {
             CONTACT_DIRECTIVE_NAME -> CONTACT_DIRECTIVE_TYPE
             EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
             LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
-            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition()
-            POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar)
+            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition(federationUrl)
+            POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar, federationUrl)
             PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
             REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
             REQUIRES_SCOPE_DIRECTIVE_NAME -> requiresScopesDirectiveType(scopesScalar)
             else -> super.willGenerateDirective(directiveInfo)
         }
+    }
 
     override fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? {
         return when (directiveInfo.effectiveName) {
@@ -300,7 +303,8 @@ open class FederatedSchemaGeneratorHooks(
                 // only add @link directive definition if it doesn't exist yet
                 builder.additionalDirective(linkDirective)
             }
-            builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(FEDERATION_SPEC_LATEST_URL, null, fed2Imports))
+            val federationUrl = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
+            builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(federationUrl, null, fed2Imports))
         }
 
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)

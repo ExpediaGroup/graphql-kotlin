@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import com.expediagroup.graphql.generator.federation.isFederationVersionAtLeast
 import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLAppliedDirective
@@ -56,7 +57,7 @@ private const val OVERRIDE_DIRECTIVE_DESCRIPTION = "Overrides fields resolution 
 /**
  * Creates the override directive definition
  */
-internal fun overrideDirectiveDefinition(): graphql.schema.GraphQLDirective {
+internal fun overrideDirectiveDefinition(federationVersion: String = FEDERATION_SPEC_LATEST_URL): graphql.schema.GraphQLDirective {
     val builder = graphql.schema.GraphQLDirective.newDirective()
         .name(OVERRIDE_DIRECTIVE_NAME)
         .description(OVERRIDE_DIRECTIVE_DESCRIPTION)
@@ -66,16 +67,16 @@ internal fun overrideDirectiveDefinition(): graphql.schema.GraphQLDirective {
                 .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
                 .description("Name of the subgraph to override field resolution")
                 .type(GraphQLNonNull(Scalars.GraphQLString))
-                .build()
         )
 
-    builder.argument(
-        GraphQLArgument.newArgument()
-            .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
-            .description("The value must follow the format of 'percent(number)'")
-            .type(Scalars.GraphQLString)
-            .build()
-    )
+    if (isFederationVersionAtLeast(federationVersion, 2, 7)) {
+        builder.argument(
+            GraphQLArgument.newArgument()
+                .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
+                .description("The value must follow the format of 'percent(number)'")
+                .type(Scalars.GraphQLString)
+        )
+    }
 
     return builder.build()
 }
@@ -94,18 +95,22 @@ internal fun graphql.schema.GraphQLDirective.toAppliedOverrideDirective(directiv
 
     val builder = GraphQLAppliedDirective.newDirective()
         .name(this.name)
-        .argument(GraphQLAppliedDirectiveArgument.newArgument()
+        .argument(
+            GraphQLAppliedDirectiveArgument.newArgument()
             .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
             .type(GraphQLNonNull(Scalars.GraphQLString))
             .valueProgrammatic(overrideDirective.from)
-            .build())
+            .build()
+        )
 
     if (!label.isNullOrEmpty()) {
-        builder.argument(GraphQLAppliedDirectiveArgument.newArgument()
+        builder.argument(
+            GraphQLAppliedDirectiveArgument.newArgument()
             .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
             .type(Scalars.GraphQLString)
             .valueProgrammatic(label)
-            .build())
+            .build()
+        )
     }
 
     return builder.build()

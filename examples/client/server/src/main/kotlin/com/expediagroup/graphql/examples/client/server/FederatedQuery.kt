@@ -96,7 +96,7 @@ data class ProductVariation(
 data class User(
     @ExternalDirective
     val email: String,
-    @OverrideDirective(from = "users", label = "Migrating name field")
+    @OverrideDirective(from = "users")
     val name: String,
     @ExternalDirective
     val totalProductsCreated: Int? = null
