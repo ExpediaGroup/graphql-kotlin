@@ -21,6 +21,8 @@ import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.directives.ComposeDirective
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
@@ -126,6 +128,31 @@ class ComposeDirectiveTest {
         val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
         assertNotNull(entityUnion)
         assertTrue(entityUnion.types.contains(fooType))
+    }
+
+    @Test
+    fun `verify ComposeDirective is not created for federation v2_0`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.compose"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                    namespace = FEDERATION_SPEC,
+                    imports = emptyMap(),
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.0"
+                )
+            }
+        )
+        val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
+            toFederatedSchema(
+                queries = listOf(TopLevelObject(FooQuery())),
+                schemaObject = TopLevelObject(CustomSchema()),
+                config = config
+            )
+        }
+        Assertions.assertEquals(
+            "@composeDirective directive requires Federation 2.1 or later, but version https://specs.apollo.dev/federation/v2.0 was specified",
+            exception.message
+        )
     }
 
     @LinkDirective(url = "https://www.myspecs.dev/myspec/v1.0", `as` = "myspec", import = [LinkImport("@custom")])

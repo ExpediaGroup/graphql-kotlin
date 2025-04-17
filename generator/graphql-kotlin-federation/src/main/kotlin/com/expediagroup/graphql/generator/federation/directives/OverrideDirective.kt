@@ -85,31 +85,35 @@ internal fun overrideDirectiveDefinition(federationVersion: String = FEDERATION_
  * Converts a GraphQL directive to an applied override directive with proper validation
  * and handling of optional label argument.
  */
-internal fun graphql.schema.GraphQLDirective.toAppliedOverrideDirective(directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
+internal fun graphql.schema.GraphQLDirective.toAppliedOverrideDirective(directiveInfo: DirectiveMetaInformation, federationVersion: String = FEDERATION_SPEC_LATEST_URL): GraphQLAppliedDirective {
     val overrideDirective = directiveInfo.directive as OverrideDirective
     val label = overrideDirective.label.takeIf { it.isNotEmpty() }
 
+    if (!label.isNullOrEmpty() && !isFederationVersionAtLeast(federationVersion, 2, 7)) {
+        throw IllegalArgumentException("@override directive 'label' parameter requires Federation 2.7+")
+    }
+
     if (!label.isNullOrEmpty() && !validateLabel(label)) {
-        throw Exception("@override label must follow the format 'percent(number)', got: $label")
+        throw IllegalArgumentException("@override label must follow the format 'percent(number)', got: $label")
     }
 
     val builder = GraphQLAppliedDirective.newDirective()
         .name(this.name)
         .argument(
             GraphQLAppliedDirectiveArgument.newArgument()
-            .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
-            .type(GraphQLNonNull(Scalars.GraphQLString))
-            .valueProgrammatic(overrideDirective.from)
-            .build()
+                .name(OVERRIDE_DIRECTIVE_FROM_PARAM)
+                .type(GraphQLNonNull(Scalars.GraphQLString))
+                .valueProgrammatic(overrideDirective.from)
+                .build()
         )
 
     if (!label.isNullOrEmpty()) {
         builder.argument(
             GraphQLAppliedDirectiveArgument.newArgument()
-            .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
-            .type(Scalars.GraphQLString)
-            .valueProgrammatic(label)
-            .build()
+                .name(OVERRIDE_DIRECTIVE_LABEL_PARAM)
+                .type(Scalars.GraphQLString)
+                .valueProgrammatic(label)
+                .build()
         )
     }
 

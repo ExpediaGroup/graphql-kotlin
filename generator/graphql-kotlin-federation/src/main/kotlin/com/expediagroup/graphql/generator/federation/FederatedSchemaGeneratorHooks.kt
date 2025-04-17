@@ -97,8 +97,13 @@ open class FederatedSchemaGeneratorHooks(
     private val resolvers: List<FederatedTypeResolver>
 ) : FlowSubscriptionSchemaGeneratorHooks() {
     private val validator: FederatedSchemaValidator = FederatedSchemaValidator()
+
     data class LinkSpec(val namespace: String, val imports: Map<String, String>, val url: String? = FEDERATION_SPEC_LATEST_URL)
+
     public val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
+
+    private val federationUrl: String
+        get() = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
 
     // workaround to https://github.com/ExpediaGroup/graphql-kotlin/issues/1815
     // since those scalars can be renamed, we need to ensure we only generate those scalars just once
@@ -218,19 +223,23 @@ open class FederatedSchemaGeneratorHooks(
     }
 
     override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? {
-        val federationSpec = linkSpecs[FEDERATION_SPEC]
-        val federationUrl = federationSpec?.url ?: FEDERATION_SPEC_LATEST_URL
+        // Directive requires minimum fed version.
+        when (directiveInfo.effectiveName) {
+            POLICY_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 6))
+            REQUIRES_SCOPE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 7))
+            COMPOSE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 1))
+        }
 
         return when (directiveInfo.effectiveName) {
             CONTACT_DIRECTIVE_NAME -> CONTACT_DIRECTIVE_TYPE
             EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
             LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
-            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition(federationUrl)
-            POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar, federationUrl)
+            POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar)
             PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
             REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
             REQUIRES_SCOPE_DIRECTIVE_NAME -> requiresScopesDirectiveType(scopesScalar)
+            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition(federationUrl)
             else -> super.willGenerateDirective(directiveInfo)
         }
     }
@@ -240,12 +249,15 @@ open class FederatedSchemaGeneratorHooks(
             REQUIRES_SCOPE_DIRECTIVE_NAME -> {
                 directive.toAppliedRequiresScopesDirective(directiveInfo)
             }
+
             POLICY_DIRECTIVE_NAME -> {
                 directive.toAppliedPolicyDirective(directiveInfo)
             }
+
             OVERRIDE_DIRECTIVE_NAME -> {
                 directive.toAppliedOverrideDirective(directiveInfo)
             }
+
             else -> {
                 super.willApplyDirective(directiveInfo, directive)
             }
@@ -303,7 +315,6 @@ open class FederatedSchemaGeneratorHooks(
                 // only add @link directive definition if it doesn't exist yet
                 builder.additionalDirective(linkDirective)
             }
-            val federationUrl = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
             builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(federationUrl, null, fed2Imports))
         }
 
@@ -379,5 +390,12 @@ open class FederatedSchemaGeneratorHooks(
         val kClass = this.getObject<Any>().javaClass.kotlin
         return kClass.findAnnotation<GraphQLName>()?.value
             ?: kClass.simpleName
+    }
+
+    private fun checkDirectiveVersionCompatibility(directiveName: String, requiredVersion: Pair<Int, Int>) {
+        val federationUrl = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
+        if (!isFederationVersionAtLeast(federationUrl, requiredVersion.first, requiredVersion.second)) {
+            throw IllegalArgumentException("@$directiveName directive requires Federation ${requiredVersion.first}.${requiredVersion.second} or later, but version $federationUrl was specified")
+        }
     }
 }
