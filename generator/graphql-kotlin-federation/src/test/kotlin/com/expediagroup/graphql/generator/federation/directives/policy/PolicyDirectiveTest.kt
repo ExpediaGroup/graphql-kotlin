@@ -20,6 +20,8 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.POLICY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.Policies
 import com.expediagroup.graphql.generator.federation.directives.Policy
@@ -99,6 +101,30 @@ class PolicyDirectiveTest {
         val fooQuery = query.getField("foo")
         assertNotNull(fooQuery)
         assertNotNull(fooQuery.hasAppliedDirective(POLICY_DIRECTIVE_NAME))
+    }
+
+    @Test
+    fun `verify PolicyDirective is not created for federation v2_5`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.policy"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                    namespace = FEDERATION_SPEC,
+                    imports = emptyMap(),
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.5"
+                )
+            }
+        )
+        val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
+            toFederatedSchema(
+                queries = listOf(TopLevelObject(com.expediagroup.graphql.generator.federation.directives.policy.PolicyDirectiveTest.FooQuery())),
+                config = config
+            )
+        }
+        Assertions.assertEquals(
+            "@policy directive requires Federation 2.6 or later, but version https://specs.apollo.dev/federation/v2.5 was specified",
+            exception.message
+        )
     }
 
     class FooQuery {

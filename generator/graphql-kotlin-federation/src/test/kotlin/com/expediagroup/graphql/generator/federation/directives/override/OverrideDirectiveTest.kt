@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.federation.directives.OverrideDirective
@@ -166,9 +167,9 @@ class OverrideDirectiveTest {
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.override"),
             hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
-                    namespace = "federation",
+                    namespace = FEDERATION_SPEC,
                     imports = mapOf("override" to "override"),
-                    url = "https://specs.apollo.dev/federation/v2.0"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.0"
                 )
             }
         )
