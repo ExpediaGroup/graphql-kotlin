@@ -100,9 +100,9 @@ open class FederatedSchemaGeneratorHooks(
 
     data class LinkSpec(val namespace: String, val imports: Map<String, String>, val url: String? = FEDERATION_SPEC_LATEST_URL)
 
-    public val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
+    val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
 
-    private val federationUrl: String
+    val federationUrl: String
         get() = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
 
     // workaround to https://github.com/ExpediaGroup/graphql-kotlin/issues/1815
