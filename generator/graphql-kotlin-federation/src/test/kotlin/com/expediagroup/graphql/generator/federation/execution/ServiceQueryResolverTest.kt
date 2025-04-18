@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import kotlin.test.assertNotNull
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
   query: Query
 }
 
@@ -70,7 +70,7 @@ scalar link__Import
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
+schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.7"){
   query: Query
 }
 

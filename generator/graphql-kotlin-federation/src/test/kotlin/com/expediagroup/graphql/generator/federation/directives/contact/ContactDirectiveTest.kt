@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class ContactDirectiveTest {
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @contact(description : "Send emails to foo@myteamname.com", name : "My Team Name", url : "https://myteam.slack.com/room") @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
