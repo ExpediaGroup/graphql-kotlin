@@ -22,6 +22,7 @@ testing {
         val integrationTest by registering(JvmTestSuite::class) {
             dependencies {
                 implementation(project())
+                implementation(libs.junit.platform.launcher)
             }
 
             targets {

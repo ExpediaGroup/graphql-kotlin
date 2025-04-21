@@ -32,6 +32,7 @@ commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
 compile-testing = "0.5.1"
 icu = "75.1"
 junit = "5.10.2"
+junit-platform = "1.10.1"
 logback = "1.5.6"
 mockk = "1.13.13"
 rxjava = "3.1.8"
@@ -89,6 +90,7 @@ spring-webflux = { group = "org.springframework", name = "spring-webflux", versi
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
 fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
 fastjson2-spring = { group = "com.alibaba.fastjson2", name = "fastjson2-extension-spring6", version.ref = "fastjson2" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 
 # security vulnerabilities overrides
 commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
