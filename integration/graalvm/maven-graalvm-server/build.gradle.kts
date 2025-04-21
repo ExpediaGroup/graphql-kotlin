@@ -23,7 +23,7 @@ tasks {
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.ext["version"],
         "graphqlJavaVersion" to libs.versions.graphql.java.get(),
-        "junitVersion" to libs.versions.junit.get(),
+        "junitVersion" to libs.versions.junit.asProvider().get(),
         "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to libs.versions.kotlin.get(),
         "ktorVersion" to libs.versions.ktor.get(),
