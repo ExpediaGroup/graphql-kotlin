@@ -44,7 +44,7 @@ tasks {
         "kotlinxSerializationVersion" to libs.versions.kotlinx.serialization.get(),
         "ktorVersion" to libs.versions.ktor.get(),
         "reactorVersion" to libs.versions.reactor.core.get(),
-        "junitVersion" to libs.versions.junit.get()
+        "junitVersion" to libs.versions.junit.asProvider().get()
     )
     var wireMockServer: WireMockServerRunner? = null
     var wireMockServerPort: Int? = null
