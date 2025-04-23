@@ -20,6 +20,7 @@ import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.genera
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import com.expediagroup.graphql.generator.federation.directives.AUTHENTICATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_TYPE
@@ -223,11 +224,12 @@ open class FederatedSchemaGeneratorHooks(
     }
 
     override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? {
-        // Directive requires minimum fed version.
         when (directiveInfo.effectiveName) {
-            POLICY_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 6))
-            REQUIRES_SCOPE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 7))
             COMPOSE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 1))
+            INTERFACE_OBJECT_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 3))
+            AUTHENTICATED_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
+            REQUIRES_SCOPE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
+            POLICY_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 6))
         }
 
         return when (directiveInfo.effectiveName) {

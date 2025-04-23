@@ -1,6 +1,6 @@
 services:
   router:
-    image: ghcr.io/apollographql/router:v1.45.1
+    image: ghcr.io/apollographql/router:v1.49.0
     volumes:
       - ./router.yaml:/dist/config/router.yaml
       - ./supergraph.graphql:/dist/config/supergraph.graphql

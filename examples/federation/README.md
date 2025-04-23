@@ -18,14 +18,8 @@ See individual projects READMEs for detailed instructions on how to run them.
     2. Start router and compose products schema using [rover dev command](https://www.apollographql.com/docs/rover/commands/dev)
 
     ```shell
-    # start up router and compose products schema
-    rover dev --name products --url http://localhost:8080/graphql
-    ```
-
-    3. In **another** shell run `rover dev` to compose reviews schema
-
-    ```shell
-    rover dev --name reviews --url http://localhost:8081/graphql
+    # start up router and compose supergraph schema, assuming
+    rover dev --supergraph-config <path to supergraph.yaml>
     ```
 
 4. Open http://localhost:3000 for the query editor

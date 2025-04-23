@@ -104,25 +104,25 @@ class RequiresScopesDirectiveTest {
     }
 
     @Test
-    fun `verify ComposeDirective is not created for federation v2_0`() {
+    fun `verify requiresScopes directive is not created for federation v2_4`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.requiresscope"),
             hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = emptyMap(),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.0"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.4"
                 )
             }
         )
         val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
             toFederatedSchema(
-                queries = listOf(TopLevelObject(com.expediagroup.graphql.generator.federation.directives.requiresscope.RequiresScopesDirectiveTest.FooQuery())),
+                queries = listOf(TopLevelObject(FooQuery())),
                 config = config
             )
         }
         Assertions.assertEquals(
-            "@requiresScopes directive requires Federation 2.7 or later, but version https://specs.apollo.dev/federation/v2.0 was specified",
+            "@requiresScopes directive requires Federation 2.5 or later, but version https://specs.apollo.dev/federation/v2.4 was specified",
             exception.message
         )
     }

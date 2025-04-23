@@ -117,7 +117,7 @@ class PolicyDirectiveTest {
         )
         val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
             toFederatedSchema(
-                queries = listOf(TopLevelObject(com.expediagroup.graphql.generator.federation.directives.policy.PolicyDirectiveTest.FooQuery())),
+                queries = listOf(TopLevelObject(FooQuery())),
                 config = config
             )
         }
