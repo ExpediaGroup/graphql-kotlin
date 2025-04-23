@@ -33,14 +33,18 @@ internal object SingletonPropertyDataFetcher : LightDataFetcher<Any?> {
         environmentSupplier: Supplier<DataFetchingEnvironment>
     ): Any? =
         sourceObject?.let {
-            getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]?.call(sourceObject) ?: run {
-                sourceObject::class.memberProperties
-                    .find { it.name == fieldDefinition.name }
-                    ?.let { kProperty ->
-                        kProperty.getter.call(sourceObject).also {
-                            register(sourceObject::class, kProperty)
+            val getter = getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]
+            when {
+                getter != null -> getter.call(sourceObject)
+                else -> {
+                    sourceObject::class.memberProperties
+                        .find { it.name == fieldDefinition.name }
+                        ?.let { kProperty ->
+                            kProperty.getter.call(sourceObject).also {
+                                register(sourceObject::class, kProperty)
+                            }
                         }
-                    }
+                }
             } ?: run {
                 logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
             }
