@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +19,34 @@ package com.expediagroup.graphql.dataloader
 import graphql.GraphQLContext
 import io.mockk.mockk
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
+import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
 import org.junit.jupiter.api.Test
+import reactor.kotlin.core.publisher.toFlux
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class KotlinDataLoaderRegistryFactoryTest {
     @Test
     fun `generate registry with empty list`() {
-        val registry = KotlinDataLoaderRegistryFactory(emptyList()).generate(mockk())
-        assertTrue(registry.dataLoaders.isEmpty())
-    }
-
-    @Test
-    fun `generate registry with no args`() {
         val registry = KotlinDataLoaderRegistryFactory().generate(mockk())
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
     @Test
-    fun `generate registry with basic loader`() {
+    fun `generate registry with basic loader and instrumentation`() {
         val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "MockDataLoader"
-            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> = mockk()
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader { keys ->
+                    keys.toFlux().map(String::uppercase).collectList().toFuture()
+                }
         }
 
-        val registry = KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate(mockk())
+        val registry = KotlinDataLoaderRegistryFactory(
+            listOf(mockLoader)
+        ).generate(mockk())
         assertEquals(1, registry.dataLoaders.size)
+        assertTrue(registry.instrumentation is ChainedDataLoaderInstrumentation)
     }
 }

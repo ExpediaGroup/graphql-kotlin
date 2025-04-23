@@ -35,6 +35,7 @@ import graphql.introspection.Introspection
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactory
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
@@ -217,7 +218,7 @@ class GeneratePropertyTest : TypeTestHelper() {
         val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
 
         every { mockDataFetcherFactoryProvider.propertyDataFetcherFactory(any(), any()) } returns mockFactory
-        every { mockFactory.get(any()) } returns mockDataFetcher
+        every { mockFactory.get(ofType<GraphQLFieldDefinition>()) } returns mockDataFetcher
 
         val localConfig = SchemaGeneratorConfig(
             supportedPackages = emptyList(),

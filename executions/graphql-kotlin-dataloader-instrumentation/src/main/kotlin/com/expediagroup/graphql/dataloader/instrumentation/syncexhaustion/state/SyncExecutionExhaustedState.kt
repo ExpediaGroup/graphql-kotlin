@@ -33,7 +33,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
@@ -43,8 +43,7 @@ class SyncExecutionExhaustedState(
     totalOperations: Int,
     private val dataLoaderRegistry: KotlinDataLoaderRegistry
 ) {
-
-    private val totalExecutions: AtomicReference<Int> = AtomicReference(totalOperations)
+    private val totalExecutions: AtomicInteger = AtomicInteger(totalOperations)
     val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
 
     /**
@@ -123,10 +122,13 @@ class SyncExecutionExhaustedState(
         val executionId = parameters.executionContext.executionInput.executionId
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
+        val fieldName = field.name
+        val path = fieldExecutionStrategyPath.toString()
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : FieldFetchingInstrumentationContext {
             override fun onFetchedValue(fetchedValue: Any?) {
+                println("${fieldName}:$path")
                 executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, fetchedValue)
                     executionState
@@ -139,6 +141,7 @@ class SyncExecutionExhaustedState(
 
             override fun onCompleted(result: Any?, t: Throwable?) {
                 executions.computeIfPresent(executionId) { _, executionState ->
+                    println("${fieldName}:$path")
                     executionState.fieldToCompletedState(field, fieldExecutionStrategyPath, result)
                     executionState
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,12 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Nasa
+import com.expediagroup.graphql.dataloader.DataLoaderDependantsStateInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.schema.DataFetcher
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
@@ -47,6 +49,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
 
 object AstronautGraphQL {
     private val schema = """
@@ -209,23 +212,25 @@ object AstronautGraphQL {
         executionInputs: List<ExecutionInput>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
     ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> {
+        val graphQLContext = GraphQLContext.newContext().build()
+
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
-                AstronautDataLoader(),
-                MissionDataLoader(), MissionsByAstronautDataLoader(),
-                PlanetsByMissionDataLoader()
-            ).generate(mockk())
+                listOf(
+                    AstronautDataLoader(),
+                    MissionDataLoader(), MissionsByAstronautDataLoader(),
+                    PlanetsByMissionDataLoader()
+                )
+            ).generate(graphQLContext)
         )
 
-        val graphQLContext = mapOf(
-            when (dataLoaderInstrumentationStrategy) {
-                DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
-                    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                        executionInputs.size,
-                        kotlinDataLoaderRegistry
-                    )
-            }
-        )
+        when (dataLoaderInstrumentationStrategy) {
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
+                graphQLContext.put(
+                    SyncExecutionExhaustedState::class,
+                    SyncExecutionExhaustedState(executionInputs.size, kotlinDataLoaderRegistry)
+                )
+        }
 
         val results = runBlocking {
             executionInputs.map { executionInput ->
@@ -236,7 +241,7 @@ object AstronautGraphQL {
                                 executionInput.transform { builder ->
                                     builder
                                         .dataLoaderRegistry(kotlinDataLoaderRegistry)
-                                        .graphQLContext(graphQLContext)
+                                        .graphQLContext { it.of(graphQLContext) }
                                         .build()
                                 }
                             ).await()

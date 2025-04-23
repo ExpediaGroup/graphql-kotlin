@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 
 class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     private val dataLoaderSyncExecutionExhaustedInstrumentation = DataLoaderSyncExecutionExhaustedInstrumentation()
-    private val graphQL = AstronautGraphQL.builder
+    private val astronautGraphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAutomaticallyDispatchDataLoader()
@@ -50,17 +50,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
             "{ astronaut(id: 1) { name } }",
-            "{ astronaut(id: 2) { id name } }",
-            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 3) { id } }",
+            "{ astronaut(id: 2) { id } }",
             "{ mission(id: 4) { designation } }"
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
-
         assertEquals(4, results.size)
 
         val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
@@ -87,7 +86,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -103,7 +102,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
+        verify(exactly = 1) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -112,9 +111,9 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch transactions on different levels`() {
         val queries = listOf(
             // L2 astronaut - L3 missions
-            "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
+            "{ nasa { astronaut(id: 1) { missions { designation } } } }",
             // L1 astronaut - L2 missions
-            "{ astronaut(id: 2) { id name missions { designation } } }",
+            "{ astronaut(id: 2) { missions { designation } } }",
             // L2 mission
             "{ nasa { mission(id: 3) { designation } } }",
             // L1 mission
@@ -122,7 +121,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -166,7 +165,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -204,7 +203,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -255,7 +254,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -301,7 +300,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -342,7 +341,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -382,7 +381,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -424,7 +423,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -472,7 +471,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -568,7 +567,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -589,7 +588,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -620,7 +619,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
-            graphQL,
+            astronautGraphQL,
             executions,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )

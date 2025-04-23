@@ -16,28 +16,40 @@
 
 package com.expediagroup.graphql.dataloader
 
-import org.dataloader.DataLoaderRegistry
 import graphql.GraphQLContext
+import org.dataloader.DataLoaderRegistry
+import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 
 /**
  * Generates a [KotlinDataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.
  */
 class KotlinDataLoaderRegistryFactory(
-    private val dataLoaders: List<KotlinDataLoader<*, *>>
+    private val dataLoaders: List<KotlinDataLoader<*, *>>,
+    private val dataLoaderInstrumentations: List<DataLoaderInstrumentation>
 ) {
-
-    constructor(vararg dataLoaders: KotlinDataLoader<*, *>) : this(dataLoaders.toList())
-
+    constructor(): this(emptyList(), emptyList())
+    constructor(dataLoaders: List<KotlinDataLoader<*, *>>): this(dataLoaders, emptyList())
     /**
      * Generate [KotlinDataLoaderRegistry] to be used for GraphQL request execution.
      */
-    fun generate(graphQLContext: GraphQLContext): KotlinDataLoaderRegistry =
-        KotlinDataLoaderRegistry(
-            dataLoaders.fold(DataLoaderRegistry()) { registry, kotlinDataLoader ->
-                registry.register(
-                    kotlinDataLoader.dataLoaderName,
-                    kotlinDataLoader.getDataLoader(graphQLContext)
-                )
-            }
+    fun generate(graphQLContext: GraphQLContext): KotlinDataLoaderRegistry {
+        val builder = DataLoaderRegistry.newRegistry()
+        builder.instrumentation(
+            ChainedDataLoaderInstrumentation(
+                dataLoaderInstrumentations.toMutableList().also {
+                    it.add(DataLoaderDependantsStateInstrumentation(graphQLContext))
+                }
+            )
         )
+        dataLoaders.forEach { kotlinDataLoader ->
+            builder.register(
+                kotlinDataLoader.dataLoaderName,
+                kotlinDataLoader.getDataLoader(graphQLContext)
+            )
+        }
+        return KotlinDataLoaderRegistry(builder.build()).also {
+            graphQLContext.put(KotlinDataLoaderRegistry::class, it)
+        }
+    }
 }

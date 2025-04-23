@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import kotlinx.coroutines.supervisorScope
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
+    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory
 ) {
 
     private val batchDataLoaderInstrumentationType: Class<Instrumentation>? =
@@ -75,7 +75,7 @@ open class GraphQLRequestHandler(
         graphQLRequest: GraphQLServerRequest,
         graphQLContext: GraphQLContext = GraphQLContext.of(emptyMap<Any, Any>())
     ): GraphQLServerResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
+        val dataLoaderRegistry = dataLoaderRegistryFactory.generate(graphQLContext)
         return when (graphQLRequest) {
             is GraphQLRequest -> {
                 val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
@@ -97,7 +97,7 @@ open class GraphQLRequestHandler(
     private suspend fun execute(
         graphQLRequest: GraphQLRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry?
+        dataLoaderRegistry: KotlinDataLoaderRegistry
     ): GraphQLResponse<*> =
         try {
             graphQL.executeAsync(
@@ -111,7 +111,7 @@ open class GraphQLRequestHandler(
     private suspend fun executeSequentially(
         batchRequest: GraphQLBatchRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry?,
+        dataLoaderRegistry: KotlinDataLoaderRegistry,
     ): GraphQLBatchResponse =
         GraphQLBatchResponse(
             batchRequest.requests.map { request ->
@@ -122,7 +122,7 @@ open class GraphQLRequestHandler(
     private suspend fun executeConcurrently(
         batchRequest: GraphQLBatchRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry?,
+        dataLoaderRegistry: KotlinDataLoaderRegistry,
     ): GraphQLBatchResponse {
         val responses = supervisorScope {
             batchRequest.requests.map { request ->
@@ -136,16 +136,15 @@ open class GraphQLRequestHandler(
 
     private fun getBatchContext(
         batchSize: Int,
-        dataLoaderRegistry: KotlinDataLoaderRegistry?
-    ): Map<*, Any> {
-        dataLoaderRegistry ?: return emptyMap<Any, Any>()
-        return when (batchDataLoaderInstrumentationType) {
+        dataLoaderRegistry: KotlinDataLoaderRegistry
+    ): Map<*, Any> =
+        when (batchDataLoaderInstrumentationType) {
             DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
+                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
                 SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
             )
             else -> emptyMap<Any, Any>()
         }
-    }
 
     /**
      * Execute a GraphQL subscription operation in a non-blocking fashion.
@@ -154,7 +153,7 @@ open class GraphQLRequestHandler(
         graphQLRequest: GraphQLRequest,
         graphQLContext: GraphQLContext,
     ): Flow<GraphQLResponse<*>> {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
+        val dataLoaderRegistry = dataLoaderRegistryFactory.generate(graphQLContext)
         val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
         val executionResult = graphQL.execute(input)
 

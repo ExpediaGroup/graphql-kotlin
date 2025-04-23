@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package com.expediagroup.graphql.dataloader
 import org.dataloader.CacheMap
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.dataloader.stats.Statistics
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Function
 
 /**
@@ -32,7 +34,10 @@ class KotlinDataLoaderRegistry(
     private val registry: DataLoaderRegistry = DataLoaderRegistry()
 ) : DataLoaderRegistry() {
 
-    private val onDispatchFutures: MutableList<CompletableFuture<*>> = mutableListOf()
+    // count number of loads
+    private val onLoadCounter: AtomicInteger = AtomicInteger(0)
+    // take snapshot of load counts when dispatchAll is invoked, then on every load complete decrement it
+    private val onDispatchLoadCounter: AtomicInteger = AtomicInteger(0)
 
     override fun register(key: String, dataLoader: DataLoader<*, *>): DataLoaderRegistry = registry.register(key, dataLoader)
     override fun <K, V> computeIfAbsent(key: String, mappingFunction: Function<String, DataLoader<*, *>>): DataLoader<K, V> = registry.computeIfAbsent(key, mappingFunction)
@@ -45,27 +50,7 @@ class KotlinDataLoaderRegistry(
     override fun dispatchAllWithCount(): Int = registry.dispatchAllWithCount()
     override fun dispatchDepth(): Int = registry.dispatchDepth()
     override fun getStatistics(): Statistics = registry.statistics
-
-    /**
-     * will return a list of futures that represents the state of the [CompletableFuture]s from each
-     * [DataLoader] cacheMap when [dispatchAll] was invoked.
-     *
-     * @return list of current completable futures.
-     */
-    fun getOnDispatchFutures(): List<CompletableFuture<*>> = onDispatchFutures
-
-    /**
-     * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
-     * [DataLoader] [CacheMap].
-     *
-     * @return list of current completable futures.
-     */
-    fun getCurrentFutures(): List<CompletableFuture<*>> =
-        registry.dataLoaders.map { dataLoader ->
-            synchronized(dataLoader) {
-                dataLoader.cacheMap.all.toList()
-            }
-        }.flatten()
+    override fun getInstrumentation(): DataLoaderInstrumentation = registry.instrumentation
 
     /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
@@ -73,12 +58,19 @@ class KotlinDataLoaderRegistry(
      * [onDispatchFutures]
      */
     override fun dispatchAll() {
-        synchronized(onDispatchFutures) {
-            onDispatchFutures.clear()
-            onDispatchFutures.addAll(getCurrentFutures())
-            registry.dispatchAll()
-        }
+        onDispatchLoadCounter.set(onLoadCounter.get())
+        onLoadCounter.set(0)
+        registry.dispatchAll()
     }
+
+    /**
+     * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
+     * [DataLoader] [CacheMap].
+     *
+     * @return list of current completable futures.
+     */
+    fun getCurrentFutures(): Number =
+        onLoadCounter.get()
 
     /**
      * Will signal when all dependants of all [onDispatchFutures] were invoked,
@@ -88,16 +80,20 @@ class KotlinDataLoaderRegistry(
      * @return weather or not all futures gathered before [dispatchAll] were handled
      */
     fun onDispatchFuturesHandled(): Boolean =
-        synchronized(onDispatchFutures) {
-            onDispatchFutures.all { it.numberOfDependents == 0 }
-        }
+        onDispatchLoadCounter.get() == 0
 
     /**
      * Will signal if more dataLoaders where invoked during the [dispatchAll] invocation
      * @return weather or not futures where loaded during [dispatchAll]
      */
     fun dataLoadersInvokedOnDispatch(): Boolean =
-        synchronized(onDispatchFutures) {
-            getCurrentFutures().size > onDispatchFutures.size
-        }
+        onLoadCounter.get() > 0
+
+    fun onDataLoaderPromiseDispatched() {
+        onLoadCounter.incrementAndGet()
+    }
+
+    fun onDataLoaderPromiseCompleted() {
+        onDispatchLoadCounter.decrementAndGet()
+    }
 }

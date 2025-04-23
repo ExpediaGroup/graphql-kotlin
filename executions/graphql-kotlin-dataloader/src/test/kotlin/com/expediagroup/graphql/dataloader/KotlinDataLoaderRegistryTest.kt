@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.dataloader
 
 import graphql.GraphQLContext
-import io.mockk.mockk
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
@@ -38,7 +37,6 @@ class KotlinDataLoaderRegistryTest {
                     keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
                 }
         }
-
         val stringToLowerCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToLowercaseDataLoader"
             override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
@@ -47,9 +45,10 @@ class KotlinDataLoaderRegistryTest {
                 }
         }
 
+        val graphQLContext = GraphQLContext.newContext().build()
         val registry = KotlinDataLoaderRegistryFactory(
-            stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
-        ).generate(mockk())
+            listOf(stringToUpperCaseDataLoader, stringToLowerCaseDataLoader)
+        ).generate(graphQLContext)
 
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase2").handle { _, _ -> }
@@ -60,13 +59,7 @@ class KotlinDataLoaderRegistryTest {
         registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ -> }
 
         val futuresToComplete = registry.getCurrentFutures()
-        assertEquals(4, futuresToComplete.size)
-
-        assertEquals(2, futuresToComplete[0].numberOfDependents) // 2 dependants of touppercase1
-        assertEquals(1, futuresToComplete[1].numberOfDependents) // 1 dependant of touppercase2
-
-        assertEquals(2, futuresToComplete[2].numberOfDependents) // 2 dependants of TOLOWERCASE1
-        assertEquals(1, futuresToComplete[3].numberOfDependents) // 1 dependant of TOLOWERCASE2
+        assertEquals(6, futuresToComplete)
 
         registry.dispatchAll()
         assertFalse(registry.onDispatchFuturesHandled())
@@ -100,7 +93,7 @@ class KotlinDataLoaderRegistryTest {
         )
 
         val registry = KotlinDataLoaderRegistryFactory(
-            prefixDataLoader
+            listOf(prefixDataLoader)
         ).generate(graphQLContext)
 
         registry.getDataLoader<String, String>("PrefixDataLoader").load("toprefix1").handle { _, _ -> }
@@ -108,13 +101,11 @@ class KotlinDataLoaderRegistryTest {
         registry.getDataLoader<String, String>("PrefixDataLoader").load("toprefix1").handle { _, _ -> }
 
         val futures = registry.getCurrentFutures()
+        assertEquals(3, futures)
 
-        assertEquals(2, futures.size)
         registry.dispatchAll()
 
         Thread.sleep(500)
         assertTrue(registry.onDispatchFuturesHandled())
-        assertEquals("foo-toprefix1", futures[0].get())
-        assertEquals("foo-toprefix2", futures[1].get())
     }
 }

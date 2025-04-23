@@ -24,10 +24,12 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
+import com.expediagroup.graphql.dataloader.DataLoaderDependantsStateInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.schema.DataFetcher
 import graphql.schema.SelectedField
 import graphql.schema.idl.RuntimeWiring
@@ -40,6 +42,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
 import java.util.concurrent.CompletableFuture
 
 object ProductGraphQL {
@@ -111,21 +114,23 @@ object ProductGraphQL {
         queries: List<String>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
     ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
+        val graphQLContext = GraphQLContext.newContext().build()
+
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
-                ProductDataLoader()
-            ).generate(mockk())
+                listOf(
+                    ProductDataLoader()
+                )
+            ).generate(graphQLContext)
         )
 
-        val graphQLContext = mapOf(
-            when (dataLoaderInstrumentationStrategy) {
-                DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
-                    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                        queries.size,
-                        kotlinDataLoaderRegistry
-                    )
-            }
-        )
+        when (dataLoaderInstrumentationStrategy) {
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
+                graphQLContext.put(
+                    SyncExecutionExhaustedState::class,
+                    SyncExecutionExhaustedState(queries.size, kotlinDataLoaderRegistry)
+                )
+        }
 
         val results = runBlocking {
             queries.map { query ->
@@ -134,7 +139,7 @@ object ProductGraphQL {
                         ExecutionInput
                             .newExecutionInput(query)
                             .dataLoaderRegistry(kotlinDataLoaderRegistry)
-                            .graphQLContext(graphQLContext)
+                            .graphQLContext { it.of(graphQLContext)  }
                             .build()
                     ).await()
                 }
