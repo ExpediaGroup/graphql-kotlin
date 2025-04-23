@@ -5,25 +5,26 @@ import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.LightDataFetcher
+import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
 
 /**
  * Singleton Property [DataFetcher] that stores references to underlying properties getters.
  */
 internal object SingletonPropertyDataFetcher : LightDataFetcher<Any?> {
 
-    private val factory: DataFetcherFactory<Any?> = DataFetcherFactory<Any?> { SingletonPropertyDataFetcher }
-
+    private val logger = LoggerFactory.getLogger(SingletonPropertyDataFetcher::class.java)
+    val factory: DataFetcherFactory<Any?> = DataFetcherFactory<Any?> { SingletonPropertyDataFetcher }
     private val getters: ConcurrentHashMap<String, KProperty.Getter<*>> = ConcurrentHashMap()
 
-    fun getFactoryAndRegister(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> {
+    fun register(kClass: KClass<*>, kProperty: KProperty<*>) {
         getters.computeIfAbsent("${kClass.java.name}.${kProperty.name}") {
             kProperty.getter
         }
-        return factory
     }
 
     override fun get(
@@ -32,7 +33,17 @@ internal object SingletonPropertyDataFetcher : LightDataFetcher<Any?> {
         environmentSupplier: Supplier<DataFetchingEnvironment>
     ): Any? =
         sourceObject?.let {
-            getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]?.call(sourceObject)
+            getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]?.call(sourceObject) ?: run {
+                sourceObject::class.memberProperties
+                    .find { it.name == fieldDefinition.name }
+                    ?.let { kProperty ->
+                        kProperty.getter.call(sourceObject).also {
+                            register(sourceObject::class, kProperty)
+                        }
+                    }
+            } ?: run {
+                logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
+            }
         }
 
     override fun get(environment: DataFetchingEnvironment): Any? =
