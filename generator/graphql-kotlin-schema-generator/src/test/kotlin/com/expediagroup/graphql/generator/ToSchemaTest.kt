@@ -88,6 +88,22 @@ class ToSchemaTest {
 
     @ParameterizedTest(name = "{index} ==> {1}")
     @MethodSource("toSchemaTestArguments")
+    fun `SchemaGenerator generates resolvers for parent classes`(provider: KotlinDataFetcherFactoryProvider, name: String) {
+        val schema = toSchema(
+            queries = listOf(TopLevelObject(QueryObject())),
+            mutations = listOf(TopLevelObject(MutationObject())),
+            config = testSchemaConfig(provider)
+        )
+        val graphQL = GraphQL.newGraphQL(schema).build()
+
+        val result = graphQL.execute(" { range { start { day } end { day } } }")
+        val data: Map<String, Map<String, Map<String, Any>>>? = result.getData()
+        assertEquals(30, data?.get("range")?.get("start")?.get("day"))
+        assertEquals(14, data?.get("range")?.get("end")?.get("day"))
+    }
+
+    @ParameterizedTest(name = "{index} ==> {1}")
+    @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator generates a simple GraphQL schema with default builder`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schemaGenerator = SchemaGenerator(testSchemaConfig(provider))
         val schema = schemaGenerator.use {
@@ -405,9 +421,21 @@ class ToSchemaTest {
         fun foo(): String = "bar"
     }
 
+    open class ParentDate(val day: Int, val month: Int, val year: Int)
+
+    data class DateRange(val start: ParentDate, val end: ParentDate)
+
+    class ChildDate(day: Int, month: Int, year: Int) : ParentDate(day, month, year)
+
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
+        fun range(): DateRange {
+            return DateRange(
+                ChildDate(30, 5, 1992),
+                ChildDate(14, 6, 1992),
+            )
+        }
     }
 
     class QueryWithIgnored {
