@@ -395,7 +395,6 @@ open class FederatedSchemaGeneratorHooks(
     }
 
     private fun checkDirectiveVersionCompatibility(directiveName: String, requiredVersion: Pair<Int, Int>) {
-        val federationUrl = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
         if (!isFederationVersionAtLeast(federationUrl, requiredVersion.first, requiredVersion.second)) {
             throw IllegalArgumentException("@$directiveName directive requires Federation ${requiredVersion.first}.${requiredVersion.second} or later, but version $federationUrl was specified")
         }
