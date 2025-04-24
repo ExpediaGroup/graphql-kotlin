@@ -16,29 +16,16 @@
 
 package com.expediagroup.graphql.dataloader
 
-import graphql.GraphQLContext
 import org.dataloader.DataLoader
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.dataloader.instrumentation.DataLoaderInstrumentationContext
 
-class DataLoaderDependantsStateInstrumentation(
-    private val graphQLContext: GraphQLContext
+open class KotlinDataLoaderInstrumentation(
+    private val context: DataLoaderInstrumentationContext<Any?>
 ) : DataLoaderInstrumentation {
     override fun beginLoad(
         dataLoader: DataLoader<*, *>,
         key: Any,
         loadContext: Any?
-    ): DataLoaderInstrumentationContext<Any> =
-        object : DataLoaderInstrumentationContext<Any> {
-            override fun onDispatched() {
-                graphQLContext
-                    .get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-                    ?.onDataLoaderPromiseDispatched()
-            }
-            override fun onCompleted(result: Any?, t: Throwable?) {
-                graphQLContext
-                    .get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-                    ?.onDataLoaderPromiseCompleted()
-            }
-        }
+    ): DataLoaderInstrumentationContext<Any?> = context
 }

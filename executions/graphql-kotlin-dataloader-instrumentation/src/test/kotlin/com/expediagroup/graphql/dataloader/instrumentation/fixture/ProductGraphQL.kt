@@ -24,7 +24,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
-import com.expediagroup.graphql.dataloader.DataLoaderDependantsStateInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -36,13 +35,11 @@ import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
-import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
 import java.util.concurrent.CompletableFuture
 
 object ProductGraphQL {

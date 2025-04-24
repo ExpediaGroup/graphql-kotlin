@@ -19,7 +19,7 @@ package com.expediagroup.graphql.server.spring
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.DataLoaderDependantsStateInstrumentation
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderInstrumentation
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler
@@ -63,7 +63,7 @@ class GraphQLExecutionConfiguration {
             instrumentations.addAll(it)
         }
         if (config.batching.enabled) {
-            instrumentations.add(DataLoaderDependantsStateInstrumentation())
+            instrumentations.add(KotlinDataLoaderInstrumentation())
         }
         return KotlinDataLoaderRegistryFactory(
             dataLoaders.orElse(emptyList()),

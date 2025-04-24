@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderInstrumentationForSyncExecutionExhausted
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import com.expediagroup.graphql.generator.extensions.plus
@@ -46,6 +47,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.supervisorScope
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
@@ -73,21 +75,25 @@ open class GraphQLRequestHandler(
      */
     open suspend fun executeRequest(
         graphQLRequest: GraphQLServerRequest,
-        graphQLContext: GraphQLContext = GraphQLContext.of(emptyMap<Any, Any>())
+        graphQLContext: GraphQLContext = GraphQLContext.getDefault()
     ): GraphQLServerResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory.generate(graphQLContext)
         return when (graphQLRequest) {
             is GraphQLRequest -> {
-                val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
+                val (batchContext, dataLoaderInstrumentation) = getBatchContext(1)
+                val batchGraphQLContext = graphQLContext + batchContext
+                val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
                 execute(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
             }
-
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
-                    val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
+                    val (batchContext, dataLoaderInstrumentation) = getBatchContext(1)
+                    val batchGraphQLContext = graphQLContext + batchContext
+                    val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
                     executeSequentially(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
                 } else {
-                    val batchGraphQLContext = graphQLContext + getBatchContext(graphQLRequest.requests.size, dataLoaderRegistry)
+                    val (batchContext, dataLoaderInstrumentation) = getBatchContext(graphQLRequest.requests.size)
+                    val batchGraphQLContext = graphQLContext + batchContext
+                    val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
                     executeConcurrently(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
                 }
             }
@@ -134,17 +140,18 @@ open class GraphQLRequestHandler(
         return GraphQLBatchResponse(responses)
     }
 
-    private fun getBatchContext(
-        batchSize: Int,
-        dataLoaderRegistry: KotlinDataLoaderRegistry
-    ): Map<*, Any> =
-        when (batchDataLoaderInstrumentationType) {
-            DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
-                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
-                SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
-            )
-            else -> emptyMap<Any, Any>()
+    private fun getBatchContext(batchSize: Int): Pair<GraphQLContext, DataLoaderInstrumentation?> {
+        return when (batchDataLoaderInstrumentationType) {
+            DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> {
+                val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize)
+                GraphQLContext.of(
+                    mapOf(SyncExecutionExhaustedState::class to syncExecutionExhaustedState)
+                ) to DataLoaderInstrumentationForSyncExecutionExhausted(syncExecutionExhaustedState)
+            }
+
+            else -> GraphQLContext.getDefault() to null
         }
+    }
 
     /**
      * Execute a GraphQL subscription operation in a non-blocking fashion.

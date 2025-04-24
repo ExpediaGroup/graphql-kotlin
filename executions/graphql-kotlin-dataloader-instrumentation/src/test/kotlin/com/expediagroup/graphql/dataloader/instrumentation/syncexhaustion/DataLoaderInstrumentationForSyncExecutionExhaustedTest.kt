@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DataLoaderSyncExecutionExhaustedInstrumentationTest {
+class DataLoaderInstrumentationForSyncExecutionExhaustedTest {
     private val dataLoaderSyncExecutionExhaustedInstrumentation = DataLoaderSyncExecutionExhaustedInstrumentation()
     private val astronautGraphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
@@ -71,7 +71,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
+        verify(exactly = 1) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }

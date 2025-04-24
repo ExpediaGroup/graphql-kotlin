@@ -39,10 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
  * when a certain state is reached will invoke [OnSyncExecutionExhaustedCallback]
  */
-class SyncExecutionExhaustedState(
-    totalOperations: Int,
-    private val dataLoaderRegistry: KotlinDataLoaderRegistry
-) {
+class SyncExecutionExhaustedState(totalOperations: Int) {
     private val totalExecutions: AtomicInteger = AtomicInteger(totalOperations)
     val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
 
@@ -128,7 +125,7 @@ class SyncExecutionExhaustedState(
 
         return object : FieldFetchingInstrumentationContext {
             override fun onFetchedValue(fetchedValue: Any?) {
-                println("${fieldName}:$path")
+                //println("${fieldName}:$path")
                 executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, fetchedValue)
                     executionState
@@ -141,7 +138,7 @@ class SyncExecutionExhaustedState(
 
             override fun onCompleted(result: Any?, t: Throwable?) {
                 executions.computeIfPresent(executionId) { _, executionState ->
-                    println("${fieldName}:$path")
+                    println("completed: ${fieldName}:$path")
                     executionState.fieldToCompletedState(field, fieldExecutionStrategyPath, result)
                     executionState
                 }
@@ -154,6 +151,14 @@ class SyncExecutionExhaustedState(
             override fun onDispatched() {
             }
         }
+    }
+
+    fun onDataLoaderPromiseDispatched() {
+        dataLoaderRegistry.onDataLoaderPromiseDispatched()
+    }
+
+    fun onDataLoaderPromiseCompleted() {
+        dataLoaderRegistry.onDataLoaderPromiseCompleted()
     }
 
     /**
