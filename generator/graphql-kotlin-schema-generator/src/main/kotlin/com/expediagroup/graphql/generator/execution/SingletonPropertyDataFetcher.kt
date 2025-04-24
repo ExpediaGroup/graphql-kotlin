@@ -31,23 +31,22 @@ internal object SingletonPropertyDataFetcher : LightDataFetcher<Any?> {
         fieldDefinition: GraphQLFieldDefinition,
         sourceObject: Any?,
         environmentSupplier: Supplier<DataFetchingEnvironment>
-    ): Any? =
-        sourceObject?.let {
-            val getter = getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]
-            if (getter != null) {
-                getter.call(sourceObject)
-            } else {
-                sourceObject::class.memberProperties
-                    .find { it.name == fieldDefinition.name }
-                    ?.let { kProperty ->
-                        kProperty.getter.call(sourceObject).also {
-                            register(sourceObject::class, kProperty)
-                        }
-                    } ?: run {
-                        logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
-                    }
+    ): Any? {
+        if (sourceObject == null) return null
+
+        val getter = getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]
+        if (getter != null) return getter.call(sourceObject)
+
+        return sourceObject::class.memberProperties
+            .find { it.name == fieldDefinition.name }
+            ?.let { kProperty ->
+                register(sourceObject::class, kProperty)
+                return kProperty.getter.call(sourceObject)
+            } ?: run {
+                logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
+                return null
             }
-        }
+    }
 
     override fun get(environment: DataFetchingEnvironment): Any? =
        get(environment.fieldDefinition, environment.getSource()) { environment }
