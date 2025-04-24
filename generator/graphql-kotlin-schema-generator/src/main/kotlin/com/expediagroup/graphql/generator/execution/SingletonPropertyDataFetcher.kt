@@ -34,24 +34,21 @@ internal object SingletonPropertyDataFetcher : LightDataFetcher<Any?> {
     ): Any? =
         sourceObject?.let {
             val getter = getters["${sourceObject.javaClass.name}.${fieldDefinition.name}"]
-            when {
-                getter != null -> getter.call(sourceObject)
-                else -> {
-                    sourceObject::class.memberProperties
-                        .find { it.name == fieldDefinition.name }
-                        ?.let { kProperty ->
-                            kProperty.getter.call(sourceObject).also {
-                                register(sourceObject::class, kProperty)
-                            }
+            if (getter != null) {
+                getter.call(sourceObject)
+            } else {
+                sourceObject::class.memberProperties
+                    .find { it.name == fieldDefinition.name }
+                    ?.let { kProperty ->
+                        kProperty.getter.call(sourceObject).also {
+                            register(sourceObject::class, kProperty)
                         }
-                }
-            } ?: run {
-                logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
+                    } ?: run {
+                        logger.error("getter method not found: ${sourceObject.javaClass.name}.${fieldDefinition.name}")
+                    }
             }
         }
 
     override fun get(environment: DataFetchingEnvironment): Any? =
-        environment.getSource<Any?>()?.let { sourceObject ->
-            getters["${sourceObject.javaClass.name}.${environment.fieldDefinition.name}"]?.call(sourceObject)
-        }
+       get(environment.fieldDefinition, environment.getSource()) { environment }
 }
