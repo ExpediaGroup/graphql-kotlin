@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_SCOPE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.RequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.directives.Scope
@@ -35,7 +37,7 @@ class RequiresScopesDirectiveTest {
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -99,6 +101,30 @@ class RequiresScopesDirectiveTest {
         val fooQuery = query.getField("foo")
         assertNotNull(fooQuery)
         assertNotNull(fooQuery.hasAppliedDirective(REQUIRES_SCOPE_DIRECTIVE_NAME))
+    }
+
+    @Test
+    fun `verify requiresScopes directive is not created for federation v2_4`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.requiresscope"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                    namespace = FEDERATION_SPEC,
+                    imports = emptyMap(),
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.4"
+                )
+            }
+        )
+        val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
+            toFederatedSchema(
+                queries = listOf(TopLevelObject(FooQuery())),
+                config = config
+            )
+        }
+        Assertions.assertEquals(
+            "@requiresScopes directive requires Federation 2.5 or later, but version https://specs.apollo.dev/federation/v2.4 was specified",
+            exception.message
+        )
     }
 
     class FooQuery {
