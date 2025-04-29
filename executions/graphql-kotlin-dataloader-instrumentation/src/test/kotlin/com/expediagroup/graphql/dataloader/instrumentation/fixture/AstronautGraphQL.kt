@@ -16,10 +16,8 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.fixture
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.CreateAstronautServiceRequest
@@ -27,11 +25,13 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.M
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetsByMissionDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetsByMissionDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Nasa
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedDataLoaderDispatcher
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -47,6 +47,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.dataloader.DataLoaderRegistry
 
 object AstronautGraphQL {
     private val schema = """
@@ -197,7 +198,7 @@ object AstronautGraphQL {
         graphQL: GraphQL,
         queries: List<String>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
-    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> =
+    ): Triple<List<Result<ExecutionResult>>, DataLoaderRegistry, GraphQLContext> =
         execute(
             graphQL,
             queries.map { query -> ExecutionInput.newExecutionInput(query).build() },
@@ -208,25 +209,26 @@ object AstronautGraphQL {
         graphQL: GraphQL,
         executionInputs: List<ExecutionInput>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
-    ): Pair<List<Result<ExecutionResult>>, KotlinDataLoaderRegistry> {
-        val graphQLContext = GraphQLContext.newContext().build()
+    ): Triple<List<Result<ExecutionResult>>, DataLoaderRegistry, GraphQLContext> {
+        val graphQLContext = spyk(GraphQLContext.getDefault())
 
-        val kotlinDataLoaderRegistry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                listOf(
-                    AstronautDataLoader(),
-                    MissionDataLoader(), MissionsByAstronautDataLoader(),
-                    PlanetsByMissionDataLoader()
+        val dataLoaderRegistry = when (dataLoaderInstrumentationStrategy) {
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION -> {
+                val syncExecutionExhaustedState = SyncExecutionExhaustedState(executionInputs.size) {
+                    graphQLContext.get(DataLoaderRegistry::class)
+                }
+                graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
+                KotlinDataLoaderRegistryFactory(
+                    listOf(
+                        AstronautDataLoader(),
+                        MissionDataLoader(), MissionsByAstronautDataLoader(),
+                        PlanetsByMissionDataLoader()
+                    )
+                ).generate(
+                    graphQLContext,
+                    DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(syncExecutionExhaustedState)
                 )
-            ).generate(graphQLContext)
-        )
-
-        when (dataLoaderInstrumentationStrategy) {
-            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
-                graphQLContext.put(
-                    SyncExecutionExhaustedState::class,
-                    SyncExecutionExhaustedState(executionInputs.size, kotlinDataLoaderRegistry)
-                )
+            }
         }
 
         val results = runBlocking {
@@ -237,7 +239,7 @@ object AstronautGraphQL {
                             graphQL.executeAsync(
                                 executionInput.transform { builder ->
                                     builder
-                                        .dataLoaderRegistry(kotlinDataLoaderRegistry)
+                                        .dataLoaderRegistry(dataLoaderRegistry)
                                         .graphQLContext { it.of(graphQLContext) }
                                         .build()
                                 }
@@ -249,6 +251,6 @@ object AstronautGraphQL {
                 }
             }.awaitAll()
         }
-        return Pair(results, kotlinDataLoaderRegistry)
+        return Triple(results, dataLoaderRegistry, graphQLContext)
     }
 }

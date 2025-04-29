@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.fixture
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductService
@@ -24,6 +23,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.P
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedDataLoaderDispatcher
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -40,6 +40,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.dataloader.DataLoaderRegistry
 import java.util.concurrent.CompletableFuture
 
 object ProductGraphQL {
@@ -110,23 +111,26 @@ object ProductGraphQL {
         graphQL: GraphQL,
         queries: List<String>,
         dataLoaderInstrumentationStrategy: DataLoaderInstrumentationStrategy
-    ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
-        val graphQLContext = GraphQLContext.newContext().build()
+    ): Triple<List<ExecutionResult>, DataLoaderRegistry, GraphQLContext> {
+        val graphQLContext = spyk(GraphQLContext.getDefault())
 
-        val kotlinDataLoaderRegistry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                listOf(
-                    ProductDataLoader()
+        val dataLoaderRegistry = when (dataLoaderInstrumentationStrategy) {
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION -> {
+                val syncExecutionExhaustedState = SyncExecutionExhaustedState(queries.size) {
+                    graphQLContext.get(DataLoaderRegistry::class)
+                }
+                graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
+                KotlinDataLoaderRegistryFactory(
+                    listOf(
+                        ProductDataLoader()
+                    )
+                ).generate(
+                    graphQLContext,
+                    DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(
+                        syncExecutionExhaustedState
+                    )
                 )
-            ).generate(graphQLContext)
-        )
-
-        when (dataLoaderInstrumentationStrategy) {
-            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
-                graphQLContext.put(
-                    SyncExecutionExhaustedState::class,
-                    SyncExecutionExhaustedState(queries.size, kotlinDataLoaderRegistry)
-                )
+            }
         }
 
         val results = runBlocking {
@@ -135,7 +139,7 @@ object ProductGraphQL {
                     graphQL.executeAsync(
                         ExecutionInput
                             .newExecutionInput(query)
-                            .dataLoaderRegistry(kotlinDataLoaderRegistry)
+                            .dataLoaderRegistry(dataLoaderRegistry)
                             .graphQLContext { it.of(graphQLContext)  }
                             .build()
                     ).await()
@@ -143,6 +147,6 @@ object ProductGraphQL {
             }.awaitAll()
         }
 
-        return Pair(results, kotlinDataLoaderRegistry)
+        return Triple(results, dataLoaderRegistry, graphQLContext)
     }
 }

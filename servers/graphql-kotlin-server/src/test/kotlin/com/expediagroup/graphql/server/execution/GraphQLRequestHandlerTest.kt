@@ -18,7 +18,7 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.GraphQLSyncExecutionExhaustedDataLoaderDispatcher
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
@@ -271,7 +271,7 @@ class GraphQLRequestHandlerTest {
                 GraphQLRequest(query = """query { user(id: 1) { id name } }"""),
                 GraphQLRequest(query = """query { user(id: 2) { id name } }"""),
             )
-            val batchingRequestHandler = getBatchingRequestHandler(DataLoaderSyncExecutionExhaustedInstrumentation())
+            val batchingRequestHandler = getBatchingRequestHandler(GraphQLSyncExecutionExhaustedDataLoaderDispatcher())
             batchingRequestHandler.executeRequest(request) as GraphQLBatchResponse
         }
 
@@ -303,7 +303,7 @@ class GraphQLRequestHandlerTest {
             )
             val batchingRequestHandler = getBatchingRequestHandler(
                 ChainedInstrumentation(
-                    DataLoaderSyncExecutionExhaustedInstrumentation()
+                    GraphQLSyncExecutionExhaustedDataLoaderDispatcher()
                 )
             )
             batchingRequestHandler.executeRequest(request) as GraphQLBatchResponse

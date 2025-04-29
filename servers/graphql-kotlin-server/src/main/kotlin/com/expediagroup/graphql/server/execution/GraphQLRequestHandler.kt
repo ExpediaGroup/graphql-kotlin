@@ -16,12 +16,10 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderInstrumentationForSyncExecutionExhausted
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedDataLoaderDispatcher
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.GraphQLSyncExecutionExhaustedDataLoaderDispatcher
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
-import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.extensions.containsMutation
 import com.expediagroup.graphql.server.extensions.isBatchDataLoaderInstrumentation
 import com.expediagroup.graphql.server.extensions.toExecutionInput
@@ -47,6 +45,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.supervisorScope
+import org.dataloader.DataLoaderRegistry
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 
 open class GraphQLRequestHandler(
@@ -62,7 +61,6 @@ open class GraphQLRequestHandler(
                         .firstOrNull(Instrumentation::isBatchDataLoaderInstrumentation)
                         ?.javaClass
                 }
-
                 instrumentation.isBatchDataLoaderInstrumentation() -> instrumentation.javaClass
                 else -> null
             }
@@ -75,27 +73,22 @@ open class GraphQLRequestHandler(
      */
     open suspend fun executeRequest(
         graphQLRequest: GraphQLServerRequest,
-        graphQLContext: GraphQLContext = GraphQLContext.getDefault()
-    ): GraphQLServerResponse {
-        return when (graphQLRequest) {
-            is GraphQLRequest -> {
-                val (batchContext, dataLoaderInstrumentation) = getBatchContext(1)
-                val batchGraphQLContext = graphQLContext + batchContext
-                val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
-                execute(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
-            }
-            is GraphQLBatchRequest -> {
-                if (graphQLRequest.containsMutation()) {
-                    val (batchContext, dataLoaderInstrumentation) = getBatchContext(1)
-                    val batchGraphQLContext = graphQLContext + batchContext
-                    val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
-                    executeSequentially(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
-                } else {
-                    val (batchContext, dataLoaderInstrumentation) = getBatchContext(graphQLRequest.requests.size)
-                    val batchGraphQLContext = graphQLContext + batchContext
-                    val dataLoaderRegistry = dataLoaderRegistryFactory.generate(batchGraphQLContext, dataLoaderInstrumentation)
-                    executeConcurrently(graphQLRequest, batchGraphQLContext, dataLoaderRegistry)
-                }
+        graphQLContext: GraphQLContext
+    ): GraphQLServerResponse = when (graphQLRequest) {
+        is GraphQLRequest -> {
+            val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, 1)
+            val dataLoaderRegistry = dataLoaderRegistryFactory.generate(context, dataLoaderInstrumentation)
+            execute(graphQLRequest, context, dataLoaderRegistry)
+        }
+        is GraphQLBatchRequest -> {
+            if (graphQLRequest.containsMutation()) {
+                val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, 1)
+                val dataLoaderRegistry = dataLoaderRegistryFactory.generate(context, dataLoaderInstrumentation)
+                executeSequentially(graphQLRequest, context, dataLoaderRegistry)
+            } else {
+                val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, graphQLRequest.requests.size)
+                val dataLoaderRegistry = dataLoaderRegistryFactory.generate(context, dataLoaderInstrumentation)
+                executeConcurrently(graphQLRequest, context, dataLoaderRegistry)
             }
         }
     }
@@ -103,7 +96,7 @@ open class GraphQLRequestHandler(
     private suspend fun execute(
         graphQLRequest: GraphQLRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry
+        dataLoaderRegistry: DataLoaderRegistry
     ): GraphQLResponse<*> =
         try {
             graphQL.executeAsync(
@@ -117,7 +110,7 @@ open class GraphQLRequestHandler(
     private suspend fun executeSequentially(
         batchRequest: GraphQLBatchRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry,
+        dataLoaderRegistry: DataLoaderRegistry,
     ): GraphQLBatchResponse =
         GraphQLBatchResponse(
             batchRequest.requests.map { request ->
@@ -128,7 +121,7 @@ open class GraphQLRequestHandler(
     private suspend fun executeConcurrently(
         batchRequest: GraphQLBatchRequest,
         batchGraphQLContext: GraphQLContext,
-        dataLoaderRegistry: KotlinDataLoaderRegistry,
+        dataLoaderRegistry: DataLoaderRegistry,
     ): GraphQLBatchResponse {
         val responses = supervisorScope {
             batchRequest.requests.map { request ->
@@ -140,16 +133,18 @@ open class GraphQLRequestHandler(
         return GraphQLBatchResponse(responses)
     }
 
-    private fun getBatchContext(batchSize: Int): Pair<GraphQLContext, DataLoaderInstrumentation?> {
+    private fun getBatchContext(
+        graphQLContext: GraphQLContext,
+        batchSize: Int,
+    ): Pair<GraphQLContext, DataLoaderInstrumentation?> {
         return when (batchDataLoaderInstrumentationType) {
-            DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> {
-                val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize)
-                GraphQLContext.of(
-                    mapOf(SyncExecutionExhaustedState::class to syncExecutionExhaustedState)
-                ) to DataLoaderInstrumentationForSyncExecutionExhausted(syncExecutionExhaustedState)
+            GraphQLSyncExecutionExhaustedDataLoaderDispatcher::class.java -> {
+                val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize) { graphQLContext.get(DataLoaderRegistry::class) }
+                graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
+                graphQLContext to DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(syncExecutionExhaustedState)
             }
 
-            else -> GraphQLContext.getDefault() to null
+            else -> graphQLContext to null
         }
     }
 

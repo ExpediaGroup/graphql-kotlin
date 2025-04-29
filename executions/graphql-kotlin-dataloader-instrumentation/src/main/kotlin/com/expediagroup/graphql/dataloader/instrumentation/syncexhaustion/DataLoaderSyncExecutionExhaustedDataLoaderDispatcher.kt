@@ -16,23 +16,29 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
+import org.dataloader.DataLoader
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.dataloader.instrumentation.DataLoaderInstrumentationContext
 
-internal class DataLoaderInstrumentationContext(
+class DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(
     private val syncExecutionExhaustedState: SyncExecutionExhaustedState
-): DataLoaderInstrumentationContext<Any?> {
-    override fun onDispatched() {
-        syncExecutionExhaustedState.onDataLoaderPromiseDispatched()
-    }
-    override fun onCompleted(result: Any?, t: Throwable?) {
-        syncExecutionExhaustedState.onDataLoaderPromiseCompleted()
-    }
-}
+): DataLoaderInstrumentation {
 
-class DataLoaderInstrumentationForSyncExecutionExhausted(
-    syncExecutionExhaustedState: SyncExecutionExhaustedState
-) : KotlinDataLoaderInstrumentation(
-    DataLoaderInstrumentationContext(syncExecutionExhaustedState)
-)
+    private val contextForSyncExecutionExhausted: DataLoaderInstrumentationContext<Any?> =
+        object: DataLoaderInstrumentationContext<Any?> {
+            override fun onDispatched() {
+                syncExecutionExhaustedState.onDataLoaderPromiseDispatched()
+            }
+            override fun onCompleted(result: Any?, t: Throwable?) {
+                syncExecutionExhaustedState.onDataLoaderPromiseCompleted(result, t)
+            }
+        }
+
+    override fun beginLoad(
+        dataLoader: DataLoader<*, *>,
+        key: Any,
+        loadContext: Any?
+    ): DataLoaderInstrumentationContext<Any?> =
+        contextForSyncExecutionExhausted
+}

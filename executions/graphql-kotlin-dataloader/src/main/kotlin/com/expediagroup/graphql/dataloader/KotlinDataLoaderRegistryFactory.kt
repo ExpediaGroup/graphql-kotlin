@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,23 @@ package com.expediagroup.graphql.dataloader
 
 import graphql.GraphQLContext
 import org.dataloader.DataLoaderRegistry
-import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 
 /**
- * Generates a [KotlinDataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.
+ * Generates a [DataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.
  */
 class KotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
 ) {
+    constructor(): this(emptyList())
+
     /**
-     * Generate [KotlinDataLoaderRegistry] to be used for GraphQL request execution.
+     * Generate [DataLoaderRegistry] to be used for GraphQL request execution.
      */
     fun generate(
         graphQLContext: GraphQLContext,
         dataLoaderInstrumentation: DataLoaderInstrumentation? = null,
-    ): KotlinDataLoaderRegistry {
+    ): DataLoaderRegistry {
         val builder = DataLoaderRegistry.newRegistry()
         dataLoaderInstrumentation?.let {
             builder.instrumentation(dataLoaderInstrumentation)
@@ -44,6 +45,8 @@ class KotlinDataLoaderRegistryFactory(
                 kotlinDataLoader.getDataLoader(graphQLContext)
             )
         }
-        return KotlinDataLoaderRegistry(builder.build())
+        return builder.build().also {
+            graphQLContext.put(DataLoaderRegistry::class, it)
+        }
     }
 }
