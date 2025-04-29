@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ class GenerateCustomSDLTest {
     fun `verify we can generate SDL using custom hooks provider`() {
         val expectedSchema =
             """
-                schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+                schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
                   query: Query
                 }
 

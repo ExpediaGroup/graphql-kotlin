@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQuery
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_URL
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
@@ -34,7 +37,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -159,7 +162,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify generator does not add federation queries for non-federated schemas`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -218,7 +221,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify a schema with self nested query still works`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.6"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
               query: Query
             }
 
@@ -277,5 +280,23 @@ class FederatedSchemaGeneratorTest {
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(NestedQuery())))
         assertEquals(expectedSchema, schema.print(includeDirectives = true).trim())
+    }
+
+    @Test
+    fun `verify federationUrl property returns correct URL`() {
+        val hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+            this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                namespace = FEDERATION_SPEC,
+                imports = emptyMap(),
+                url = "$FEDERATION_SPEC_URL_PREFIX/v2.5"
+            )
+        }
+        assertEquals("$FEDERATION_SPEC_URL_PREFIX/v2.5", hooks.federationUrl)
+    }
+
+    @Test
+    fun `verify federationUrl property returns default when not specified`() {
+        val hooks = FederatedSchemaGeneratorHooks(emptyList())
+        assertEquals(FEDERATION_SPEC_LATEST_URL, hooks.federationUrl)
     }
 }

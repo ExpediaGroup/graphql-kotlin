@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.genera
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import com.expediagroup.graphql.generator.federation.directives.AUTHENTICATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_TYPE
@@ -47,11 +48,13 @@ import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECT
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
+import com.expediagroup.graphql.generator.federation.directives.overrideDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.policyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresScopesDirectiveType
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
+import com.expediagroup.graphql.generator.federation.directives.toAppliedOverrideDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedPolicyDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedRequiresScopesDirective
 import com.expediagroup.graphql.generator.federation.exception.DuplicateSpecificationLinkImport
@@ -95,8 +98,13 @@ open class FederatedSchemaGeneratorHooks(
     private val resolvers: List<FederatedTypeResolver>
 ) : FlowSubscriptionSchemaGeneratorHooks() {
     private val validator: FederatedSchemaValidator = FederatedSchemaValidator()
-    data class LinkSpec(val namespace: String, val imports: Map<String, String>)
-    private val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
+
+    data class LinkSpec(val namespace: String, val imports: Map<String, String>, val url: String? = FEDERATION_SPEC_LATEST_URL)
+
+    val linkSpecs: MutableMap<String, LinkSpec> = HashMap()
+
+    val federationUrl: String
+        get() = linkSpecs[FEDERATION_SPEC]?.url ?: FEDERATION_SPEC_LATEST_URL
 
     // workaround to https://github.com/ExpediaGroup/graphql-kotlin/issues/1815
     // since those scalars can be renamed, we need to ensure we only generate those scalars just once
@@ -172,7 +180,7 @@ open class FederatedSchemaGeneratorHooks(
                     normalizeImportName(import.name) to normalizeImportName(importedName)
                 }
 
-                val linkSpec = LinkSpec(nameSpace, imports)
+                val linkSpec = LinkSpec(nameSpace, imports, appliedDirectiveAnnotation.url)
                 linkSpecs[spec] = linkSpec
             }
         }
@@ -215,8 +223,16 @@ open class FederatedSchemaGeneratorHooks(
         else -> super.willGenerateGraphQLType(type)
     }
 
-    override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? =
+    override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? {
         when (directiveInfo.effectiveName) {
+            COMPOSE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 1))
+            INTERFACE_OBJECT_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 3))
+            AUTHENTICATED_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
+            REQUIRES_SCOPE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
+            POLICY_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 6))
+        }
+
+        return when (directiveInfo.effectiveName) {
             CONTACT_DIRECTIVE_NAME -> CONTACT_DIRECTIVE_TYPE
             EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
@@ -225,17 +241,25 @@ open class FederatedSchemaGeneratorHooks(
             PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
             REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
             REQUIRES_SCOPE_DIRECTIVE_NAME -> requiresScopesDirectiveType(scopesScalar)
+            OVERRIDE_DIRECTIVE_NAME -> overrideDirectiveDefinition(federationUrl)
             else -> super.willGenerateDirective(directiveInfo)
         }
+    }
 
     override fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? {
         return when (directiveInfo.effectiveName) {
             REQUIRES_SCOPE_DIRECTIVE_NAME -> {
                 directive.toAppliedRequiresScopesDirective(directiveInfo)
             }
+
             POLICY_DIRECTIVE_NAME -> {
                 directive.toAppliedPolicyDirective(directiveInfo)
             }
+
+            OVERRIDE_DIRECTIVE_NAME -> {
+                directive.toAppliedOverrideDirective(directiveInfo)
+            }
+
             else -> {
                 super.willApplyDirective(directiveInfo, directive)
             }
@@ -293,7 +317,7 @@ open class FederatedSchemaGeneratorHooks(
                 // only add @link directive definition if it doesn't exist yet
                 builder.additionalDirective(linkDirective)
             }
-            builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(FEDERATION_SPEC_LATEST_URL, null, fed2Imports))
+            builder.withSchemaAppliedDirective(linkDirective.toAppliedLinkDirective(federationUrl, null, fed2Imports))
         }
 
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
@@ -368,5 +392,11 @@ open class FederatedSchemaGeneratorHooks(
         val kClass = this.getObject<Any>().javaClass.kotlin
         return kClass.findAnnotation<GraphQLName>()?.value
             ?: kClass.simpleName
+    }
+
+    private fun checkDirectiveVersionCompatibility(directiveName: String, requiredVersion: Pair<Int, Int>) {
+        if (!isFederationVersionAtLeast(federationUrl, requiredVersion.first, requiredVersion.second)) {
+            throw IllegalArgumentException("@$directiveName directive requires Federation ${requiredVersion.first}.${requiredVersion.second} or later, but version $federationUrl was specified")
+        }
     }
 }
