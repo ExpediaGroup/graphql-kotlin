@@ -44,7 +44,6 @@ class KotlinDataLoaderRegistryFactoryTest {
         }
 
         val customInstrumentation = object : DataLoaderInstrumentation {
-
         }
         val registry = KotlinDataLoaderRegistryFactory(
             listOf(mockLoader)
