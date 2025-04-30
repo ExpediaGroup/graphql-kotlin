@@ -30,7 +30,6 @@ import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
-import graphql.execution.instrumentation.parameters.InstrumentationFieldCompleteParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 
 /**
@@ -74,12 +73,4 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstru
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginFieldFetching(parameters)
-
-    override fun beginFieldCompletion(
-        parameters: InstrumentationFieldCompleteParameters,
-        state: InstrumentationState?
-    ): InstrumentationContext<Any>? {
-        println("field completed: ${parameters.fetchedValue}")
-        return super.beginFieldCompletion(parameters, state)
-    }
 }

@@ -29,6 +29,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
+import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -42,9 +43,9 @@ class SyncExecutionExhaustedState(
     totalOperations: Int,
     private val dataLoaderRegistryProvider: () -> DataLoaderRegistry
 ) {
-    private val totalExecutions: AtomicInteger = AtomicInteger(totalOperations)
+    private val totalExecutions = AtomicInteger(totalOperations)
     private val executions = ConcurrentHashMap<ExecutionId, ExecutionInputState>()
-    private val dataLoadersDispatchState = DataLoaderDispatchState()
+    private val dataLoadersDispatchState = DataLoaderRegistryState()
 
     /**
      * Create the [ExecutionInputState] When a specific [ExecutionInput] starts his execution
@@ -107,7 +108,7 @@ class SyncExecutionExhaustedState(
     }
 
     /**
-     * This is called just before a field [DataFetcher] is invoked
+     * This is invoked just before a field [DataFetcher] is invoked
      *
      * @param parameters contains information of which field will start the fetching
      * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
@@ -153,16 +154,21 @@ class SyncExecutionExhaustedState(
         }
     }
 
-    fun dataLoadersInvokedAfterDispatch(): Boolean =
-        dataLoadersDispatchState.dataLoadersInvokedAfterDispatch()
+    fun dataLoadersLoadInvokedAfterDispatchAll(): Boolean =
+        dataLoadersDispatchState.dataLoadersLoadInvokedAfterDispatchAll()
 
-    fun onDataLoaderPromiseDispatched() {
-        dataLoadersDispatchState.onDataLoaderPromiseDispatched()
+    /**
+     * This is invoked right after a [DataLoader.load] was dispatched
+     */
+    fun onDataLoaderLoadDispatched() {
+        dataLoadersDispatchState.onDataLoaderLoadDispatched()
     }
 
-    fun onDataLoaderPromiseCompleted(result: Any?, t: Throwable?) {
-        dataLoadersDispatchState.onDataLoaderPromiseCompleted(result, t)
-        // println("completed dataloader promise: $result")
+    /**
+     * This is invoked right after a [DataLoader.load] was completed
+     */
+    fun onDataLoaderLoadCompleted() {
+        dataLoadersDispatchState.onDataLoaderLoadCompleted()
         if (allSyncExecutionsExhausted()) {
             dataLoaderRegistryProvider.invoke().dispatchAll()
         }
@@ -175,7 +181,7 @@ class SyncExecutionExhaustedState(
      */
     fun allSyncExecutionsExhausted(): Boolean =
         synchronized(executions) {
-            if (executions.size < totalExecutions.get() || !dataLoadersDispatchState.onDispatchFuturesHandled())
+            if (executions.size < totalExecutions.get() || !dataLoadersDispatchState.onDispatchAllFuturesCompleted())
                 return false
 
             if (executions.values.all(ExecutionInputState::isSyncExecutionExhausted)) {

@@ -39,7 +39,7 @@ fun <V> CompletableFuture<V>.dispatchIfNeeded(
         .get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
         ?: throw MissingInstrumentationStateException()
 
-    if (syncExecutionExhaustedState.dataLoadersInvokedAfterDispatch() && syncExecutionExhaustedState.allSyncExecutionsExhausted()) {
+    if (syncExecutionExhaustedState.dataLoadersLoadInvokedAfterDispatchAll() && syncExecutionExhaustedState.allSyncExecutionsExhausted()) {
         dataLoaderRegistry.dispatchAll()
     }
     return this

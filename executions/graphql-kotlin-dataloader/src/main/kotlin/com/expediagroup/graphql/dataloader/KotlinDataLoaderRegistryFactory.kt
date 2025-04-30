@@ -26,7 +26,7 @@ import org.dataloader.instrumentation.DataLoaderInstrumentation
 class KotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
 ) {
-    constructor(): this(emptyList())
+    constructor() : this(emptyList())
 
     /**
      * Generate [DataLoaderRegistry] to be used for GraphQL request execution.

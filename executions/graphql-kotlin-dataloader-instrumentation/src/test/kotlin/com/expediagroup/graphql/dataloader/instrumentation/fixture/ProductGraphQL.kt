@@ -140,7 +140,7 @@ object ProductGraphQL {
                         ExecutionInput
                             .newExecutionInput(query)
                             .dataLoaderRegistry(dataLoaderRegistry)
-                            .graphQLContext { it.of(graphQLContext)  }
+                            .graphQLContext { it.of(graphQLContext) }
                             .build()
                     ).await()
                 }

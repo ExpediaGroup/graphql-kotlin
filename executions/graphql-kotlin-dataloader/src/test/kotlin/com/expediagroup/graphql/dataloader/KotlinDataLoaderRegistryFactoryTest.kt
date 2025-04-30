@@ -20,7 +20,7 @@ import graphql.GraphQLContext
 import io.mockk.mockk
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
-import org.dataloader.instrumentation.ChainedDataLoaderInstrumentation
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import kotlin.test.assertEquals
@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 class KotlinDataLoaderRegistryFactoryTest {
     @Test
     fun `generate registry with empty list`() {
-        val registry = KotlinDataLoaderRegistryFactory().generate(mockk())
+        val registry = KotlinDataLoaderRegistryFactory().generate(mockk(relaxed = true))
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
@@ -43,10 +43,16 @@ class KotlinDataLoaderRegistryFactoryTest {
                 }
         }
 
+        val customInstrumentation = object : DataLoaderInstrumentation {
+
+        }
         val registry = KotlinDataLoaderRegistryFactory(
             listOf(mockLoader)
-        ).generate(mockk())
+        ).generate(
+            mockk(relaxed = true),
+            customInstrumentation
+        )
         assertEquals(1, registry.dataLoaders.size)
-        assertTrue(registry.instrumentation is ChainedDataLoaderInstrumentation)
+        assertEquals(customInstrumentation, registry.instrumentation)
     }
 }

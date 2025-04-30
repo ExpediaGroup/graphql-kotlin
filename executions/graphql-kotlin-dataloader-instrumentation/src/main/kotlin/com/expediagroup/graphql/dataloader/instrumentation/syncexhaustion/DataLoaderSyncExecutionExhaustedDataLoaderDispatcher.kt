@@ -16,22 +16,26 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.DataLoaderRegistryState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import org.dataloader.DataLoader
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.dataloader.instrumentation.DataLoaderInstrumentationContext
 
+/**
+ * Custom [DataLoaderInstrumentation] implementation that helps to calculate the state of [DataLoader]s in the
+ * [DataLoaderRegistryState] that lives inside the [syncExecutionExhaustedState]
+ */
 class DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(
     private val syncExecutionExhaustedState: SyncExecutionExhaustedState
-): DataLoaderInstrumentation {
-
+) : DataLoaderInstrumentation {
     private val contextForSyncExecutionExhausted: DataLoaderInstrumentationContext<Any?> =
-        object: DataLoaderInstrumentationContext<Any?> {
+        object : DataLoaderInstrumentationContext<Any?> {
             override fun onDispatched() {
-                syncExecutionExhaustedState.onDataLoaderPromiseDispatched()
+                syncExecutionExhaustedState.onDataLoaderLoadDispatched()
             }
             override fun onCompleted(result: Any?, t: Throwable?) {
-                syncExecutionExhaustedState.onDataLoaderPromiseCompleted(result, t)
+                syncExecutionExhaustedState.onDataLoaderLoadCompleted()
             }
         }
 
