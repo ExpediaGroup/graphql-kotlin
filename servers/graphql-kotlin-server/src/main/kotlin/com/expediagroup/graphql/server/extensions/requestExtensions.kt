@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
@@ -30,7 +29,7 @@ internal val EMPTY_EXTENSIONS = emptyMap<String, Any?>()
  * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
-    graphQLContext: GraphQLContext = emptyMap<Any, Any>().toGraphQLContext(),
+    graphQLContext: GraphQLContext = GraphQLContext.getDefault(),
     dataLoaderRegistry: DataLoaderRegistry? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
