@@ -258,14 +258,6 @@ class GraphQLSchemaExtensionsTest {
             """
                 directive @customDirective on FIELD_DEFINITION
 
-                "This directive allows results to be deferred during execution"
-                directive @defer(
-                    "Deferred behaviour is controlled by this argument"
-                    if: Boolean! = true,
-                    "A unique label that represents the fragment being deferred"
-                    label: String
-                  ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
-
                 "Marks the field, argument, input field or enum value as deprecated"
                 directive @deprecated(
                     "The reason for the deprecation"

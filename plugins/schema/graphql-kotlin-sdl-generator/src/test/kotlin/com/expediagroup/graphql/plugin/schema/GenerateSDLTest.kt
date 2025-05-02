@@ -24,45 +24,47 @@ class GenerateSDLTest {
 
     @Test
     fun `verify we can generate SDL using default hooks provider`() {
-        val expectedSchema =
-            """
-                schema {
-                  query: Query
-                }
+        val expectedSchema = """
+            schema {
+              query: Query
+            }
 
-                "Marks the field, argument, input field or enum value as deprecated"
-                directive @deprecated(
-                    "The reason for the deprecation"
-                    reason: String = "No longer supported"
-                  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+            "Marks the field, argument, input field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String! = "No longer supported"
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-                "Directs the executor to include this field or fragment only when the `if` argument is true"
-                directive @include(
-                    "Included when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
-                "Indicates an Input Object is a OneOf Input Object."
-                directive @oneOf on INPUT_OBJECT
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                "Directs the executor to skip this field or fragment when the `if` argument is true."
-                directive @skip(
-                    "Skipped when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
-                "Exposes a URL that specifies the behaviour of this scalar."
-                directive @specifiedBy(
-                    "The URL that specifies the behaviour of this scalar."
-                    url: String!
-                  ) on SCALAR
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                type Query {
-                  helloWorld(name: String): String!
-                }
-            """.trimIndent()
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
+
+            type Query {
+              helloWorld(name: String): String!
+            }
+        """.trimIndent()
         val generatedSchema = generateSDL(listOf("com.expediagroup.graphql.plugin.test"))
-
+        println("generatedSchema: $generatedSchema")
         assertEquals(expectedSchema, generatedSchema.trim())
     }
 

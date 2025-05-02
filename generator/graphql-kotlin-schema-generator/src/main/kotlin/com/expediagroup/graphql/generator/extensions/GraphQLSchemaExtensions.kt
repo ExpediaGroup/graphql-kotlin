@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import graphql.Directives
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
 import java.util.function.Predicate
@@ -38,15 +39,17 @@ fun GraphQLSchema.print(
     includeDirectives: Boolean = true,
     includeDirectivesFilter: Predicate<String> = Predicate { includeDirectives },
     includeDirectiveDefinitions: Boolean = true
-): String {
-    val schemaPrinter = SchemaPrinter(
+): String =
+    SchemaPrinter(
         SchemaPrinter.Options.defaultOptions()
             .includeIntrospectionTypes(includeIntrospectionTypes)
             .includeScalarTypes(includeScalarTypes)
             .includeSchemaDefinition(includeDefaultSchemaDefinition)
             .includeDirectives(includeDirectives)
-            .includeDirectives(includeDirectivesFilter)
+            .includeDirectives(
+                includeDirectivesFilter.and { directiveName ->
+                    directiveName != Directives.DeferDirective.name
+                }
+            )
             .includeDirectiveDefinitions(includeDirectiveDefinitions)
-    )
-    return schemaPrinter.print(this)
-}
+    ).print(this)

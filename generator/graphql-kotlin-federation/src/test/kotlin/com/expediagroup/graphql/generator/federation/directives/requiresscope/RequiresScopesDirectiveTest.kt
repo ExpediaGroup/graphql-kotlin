@@ -44,8 +44,11 @@ class RequiresScopesDirectiveTest {
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String = "No longer supported"
+                reason: String! = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
             "Indicates to composition that the target element is accessible only to the authenticated supergraph users with the appropriate JWT scopes"
             directive @federation__requiresScopes(scopes: [[federation__Scope]!]!) on SCALAR | OBJECT | FIELD_DEFINITION | INTERFACE | ENUM

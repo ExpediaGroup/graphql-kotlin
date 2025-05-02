@@ -33,6 +33,7 @@ import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import graphql.ExecutionResult
+import graphql.ExperimentalApi
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.ChainedInstrumentation
@@ -74,21 +75,26 @@ open class GraphQLRequestHandler(
     open suspend fun executeRequest(
         graphQLRequest: GraphQLServerRequest,
         graphQLContext: GraphQLContext = GraphQLContext.getDefault()
-    ): GraphQLServerResponse = when (graphQLRequest) {
-        is GraphQLRequest -> {
-            val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, 1)
-            val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(context, dataLoaderInstrumentation)
-            execute(graphQLRequest, context, dataLoaderRegistry)
-        }
-        is GraphQLBatchRequest -> {
-            if (graphQLRequest.containsMutation()) {
+    ): GraphQLServerResponse {
+        // disable defer, pending http implementation
+        graphQLContext.put(ExperimentalApi.ENABLE_INCREMENTAL_SUPPORT, false)
+        return when (graphQLRequest) {
+            is GraphQLRequest -> {
                 val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, 1)
                 val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(context, dataLoaderInstrumentation)
-                executeSequentially(graphQLRequest, context, dataLoaderRegistry)
-            } else {
-                val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, graphQLRequest.requests.size)
-                val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(context, dataLoaderInstrumentation)
-                executeConcurrently(graphQLRequest, context, dataLoaderRegistry)
+                execute(graphQLRequest, context, dataLoaderRegistry)
+            }
+
+            is GraphQLBatchRequest -> {
+                if (graphQLRequest.containsMutation()) {
+                    val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, 1)
+                    val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(context, dataLoaderInstrumentation)
+                    executeSequentially(graphQLRequest, context, dataLoaderRegistry)
+                } else {
+                    val (context, dataLoaderInstrumentation) = getBatchContext(graphQLContext, graphQLRequest.requests.size)
+                    val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(context, dataLoaderInstrumentation)
+                    executeConcurrently(graphQLRequest, context, dataLoaderRegistry)
+                }
             }
         }
     }
@@ -136,17 +142,15 @@ open class GraphQLRequestHandler(
     private fun getBatchContext(
         graphQLContext: GraphQLContext,
         batchSize: Int,
-    ): Pair<GraphQLContext, DataLoaderInstrumentation?> {
-        return when (batchDataLoaderInstrumentationType) {
+    ): Pair<GraphQLContext, DataLoaderInstrumentation?> =
+        when (batchDataLoaderInstrumentationType) {
             GraphQLSyncExecutionExhaustedDataLoaderDispatcher::class.java -> {
                 val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize) { graphQLContext.get(DataLoaderRegistry::class) }
                 graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
                 graphQLContext to DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(syncExecutionExhaustedState)
             }
-
             else -> graphQLContext to null
         }
-    }
 
     /**
      * Execute a GraphQL subscription operation in a non-blocking fashion.
