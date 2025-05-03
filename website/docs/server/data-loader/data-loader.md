@@ -86,13 +86,6 @@ val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
 val dataLoaderRegistry = dataLoaderRegistryFactory.generate()
 ```
 
-## `KotlinDataLoaderRegistry`
-
-[KotlinDataLoaderRegistry](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader/src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt)
-is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
-that keeps track of all underlying `DataLoader`s futures. By keeping track of to cache map containing returned futures,
-we get more granular control when to dispatch data loader calls.
-
 ## `getValueFromDataLoader`
 
 `graphql-kotlin-server` includes a helpful extension function on the `DataFetchingEnvironment` so that you can easily retrieve values from the data loaders in your schema code.

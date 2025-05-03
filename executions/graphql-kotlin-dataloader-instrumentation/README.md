@@ -3,7 +3,7 @@
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-dataloader-instrumentation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-dataloader-instrumentation)
 
 `graphql-kotlin-dataloader-instrumentation` is set of custom instrumentations that will signal when is the right moment
-to dispatch a `KotlinDataLoaderRegistry`.
+to dispatch a `DataLoaderRegistry`.
 
 This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
 
@@ -32,19 +32,17 @@ implementation("com.expediagroup:graphql-kotlin-dataloader-instrumentation:$late
 
 ## Use it
 
-When creating your `GraphQL` instance make sure to include either
-`DataLoaderLevelDispatchedInstrumentation` or `DataLoaderSyncExecutionExhaustedInstrumentation`.
+When creating your `GraphQL` instance make sure to include an instance of `GraphQLSyncExecutionExhaustedDataLoaderDispatcher`
 
 ```kotlin
 GraphQL
-    .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+    .instrumentation(GraphQLSyncExecutionExhaustedDataLoaderDispatcher())
     // configure schema, type wiring, etc.
     .build()
 ```
 
-When ready to execute an operation or operations create a `GraphQLContext` instance with one of the following entries:
-- An instance of `ExecutionLevelDispatchedState` if you choose `DataLoaderLevelDispatchedInstrumentation`.
-- An instance of `SyncExecutionExhaustedState` if you choose `DataLoaderSyncExecutionExhaustedInstrumentation`.
+When ready to execute an operation or operations create a `GraphQLContext` instance with an instance of
+`SyncExecutionExhaustedState`
 
 
 ```kotlin
@@ -66,22 +64,19 @@ val queries = [
 ]
 
 val graphQLContext = mapOf(
-    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-        queries.size,
-        kotlinDataLoaderRegistry
-    )
+    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(queries.size) {
+        dataLoaderRegistry
+    }
 )
 
-val executionInput1 = ExecutionInput.newExecutionInput(queries[0]).graphQLContext(graphQLContext).dataLoaderRegistry(kotlinDataLoaderRegistry).build()
-val executionInput2 = ExecutionInput.newExecutionInput(queries[1]).graphQLContext(graphQLContext).dataLoaderRegistry(kotlinDataLoaderRegistry).build()
+val executionInput1 = ExecutionInput.newExecutionInput(queries[0]).graphQLContext(graphQLContext).dataLoaderRegistry(dataLoaderRegistry).build()
+val executionInput2 = ExecutionInput.newExecutionInput(queries[1]).graphQLContext(graphQLContext).dataLoaderRegistry(dataLoaderRegistry).build()
 
 val result1 = graphQL.executeAsync(executionInput1)
 val result2 = graphQL.executeAsync(executionInput2)
 ```
 
-- `DataLoaderLevelDispatchedInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
-  a certain level of all executionInputs was dispatched (all DataFetchers were invoked).
-- `DataLoaderSyncExecutionExhaustedInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
+the `GraphQLSyncExecutionExhaustedDataLoaderDispatcher` will dispatch the `DataLoaderRegistry` when
   the synchronous execution of an operation exhausted (synchronous execution will be exhausted when all data fetchers
   of all paths executed up until a scalar leaf, or a `CompletableFuture`).
 
