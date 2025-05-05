@@ -120,13 +120,10 @@ class SyncExecutionExhaustedState(
         val executionId = parameters.executionContext.executionInput.executionId
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
-        val fieldName = field.name
-        val path = fieldExecutionStrategyPath.toString()
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : FieldFetchingInstrumentationContext {
             override fun onFetchedValue(fetchedValue: Any?) {
-                // println("${fieldName}:$path")
                 executions.computeIfPresent(executionId) { _, executionState ->
                     executionState.fieldToDispatchedState(field, fieldExecutionStrategyPath, fieldGraphQLType, fetchedValue)
                     executionState
@@ -139,7 +136,6 @@ class SyncExecutionExhaustedState(
 
             override fun onCompleted(result: Any?, t: Throwable?) {
                 executions.computeIfPresent(executionId) { _, executionState ->
-                    // println("completed: ${fieldName}:$path")
                     executionState.fieldToCompletedState(field, fieldExecutionStrategyPath, result)
                     executionState
                 }
