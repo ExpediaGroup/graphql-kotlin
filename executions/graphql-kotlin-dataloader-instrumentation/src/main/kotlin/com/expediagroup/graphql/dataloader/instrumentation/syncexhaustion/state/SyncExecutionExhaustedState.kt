@@ -68,7 +68,7 @@ class SyncExecutionExhaustedState(
              * - an exception during execution was thrown
              */
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
-                if ((result != null && result.errors.size > 0) || t != null) {
+                if ((result != null && result.errors.isNotEmpty()) || t != null) {
                     if (executions.containsKey(parameters.executionInput.executionId)) {
                         synchronized(executions) {
                             executions.remove(parameters.executionInput.executionId)
