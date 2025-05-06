@@ -20,7 +20,6 @@ import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import com.expediagroup.graphql.generator.execution.OptionalInput
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.withNullability
 import kotlin.reflect.jvm.jvmErasure
 
