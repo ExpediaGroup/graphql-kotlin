@@ -35,7 +35,6 @@ import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.starProjectedType
 
 internal class TypesCache(private val supportedPackages: List<String>) : Closeable {
@@ -126,7 +125,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
 
             when {
                 kClass.isListType(cacheKey.isDirective) -> null
-                kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
+                Enum::class.java.isAssignableFrom(kClass.java) -> kClass.getSimpleName()
                 isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
                 else -> type.getSimpleName(cacheKey.inputType)
             }
