@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ internal fun KType.getKClass() = this.jvmErasure
 
 internal fun KType.getJavaClass(): Class<*> = this.getKClass().java
 
-internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
+internal fun KType.isSubclassOf(kClass: KClass<*>) = kClass.java.isAssignableFrom(this.getJavaClass())
 
 internal fun KType.isList() = this.isSubclassOf(List::class)
 

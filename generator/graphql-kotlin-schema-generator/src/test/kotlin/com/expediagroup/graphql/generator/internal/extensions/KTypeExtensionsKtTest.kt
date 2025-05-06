@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,8 @@ class KTypeExtensionsKtTest {
     interface SimpleInterface
 
     class SimpleClass(val id: String) : SimpleInterface
+
+    enum class SimpleEnum { ONE, TWO, THREE }
 
     @Test
     fun getTypeOfFirstArgument() {
@@ -92,6 +94,7 @@ class KTypeExtensionsKtTest {
     fun isSubclassOf() {
         assertTrue(MyClass::class.starProjectedType.isSubclassOf(MyClass::class))
         assertTrue(SimpleClass::class.starProjectedType.isSubclassOf(SimpleInterface::class))
+        assertTrue(SimpleEnum::class.starProjectedType.isSubclassOf(Enum::class))
         assertFalse(SimpleInterface::class.starProjectedType.isSubclassOf(SimpleClass::class))
         assertFalse(MyClass::class.starProjectedType.isSubclassOf(SimpleInterface::class))
     }
