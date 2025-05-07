@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2015 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKParameterException
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -34,6 +35,8 @@ class KParameterExtensionsKtTest {
 
     @GraphQLDescription("class description")
     data class MyClass(val foo: String)
+
+    data class MyGraphQLContext(val foo: String) : GraphQLContext
 
     interface MyInterface {
         val value: String
@@ -63,6 +66,8 @@ class KParameterExtensionsKtTest {
         fun paramDescription(@GraphQLDescription("param description") myClass: MyClass) = myClass
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
+
+        fun graphQLContext(graphQLContext: MyGraphQLContext): String = graphQLContext.foo
     }
 
     class MyKotlinClass {
@@ -125,5 +130,11 @@ class KParameterExtensionsKtTest {
     fun `invalid DataFetchingEnvironment fails`() {
         val param = Container::interfaceInput.findParameterByName("myInterface")
         assertFalse(param?.isDataFetchingEnvironment().isTrue())
+    }
+
+    @Test
+    fun `is graphQLContext`() {
+        val param = Container::graphQLContext.findParameterByName("graphQLContext")
+        assertTrue(param?.isGraphQLContext().isTrue())
     }
 }

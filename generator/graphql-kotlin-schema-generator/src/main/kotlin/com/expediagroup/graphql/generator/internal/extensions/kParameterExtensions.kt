@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,11 @@ import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKParameter
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.isSubclassOf
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
 @Deprecated("GraphQLContext parameter injection is deprecated and will be removed in next major release")
-internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class)
+internal fun KParameter.isGraphQLContext() = GraphQLContext::class.java.isAssignableFrom(this.type.getKClass().java)
 
 internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == DataFetchingEnvironment::class
 
