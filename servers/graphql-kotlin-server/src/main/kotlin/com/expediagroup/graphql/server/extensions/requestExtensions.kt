@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,32 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
 import graphql.GraphQLContext
+import org.dataloader.DataLoaderRegistry
+
+internal val EMPTY_VARIABLES = emptyMap<String, Any?>()
+internal val EMPTY_EXTENSIONS = emptyMap<String, Any?>()
 
 /**
  * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
-    graphQLContext: GraphQLContext = emptyMap<Any, Any>().toGraphQLContext(),
-    dataLoaderRegistry: KotlinDataLoaderRegistry? = null
+    graphQLContext: GraphQLContext = GraphQLContext.getDefault(),
+    dataLoaderRegistry: DataLoaderRegistry? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
-        .variables(this.variables ?: emptyMap())
-        .extensions(this.extensions ?: emptyMap())
-        .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
+        .variables(this.variables ?: EMPTY_VARIABLES)
+        .extensions(this.extensions ?: EMPTY_EXTENSIONS)
+        .also { builder ->
+            dataLoaderRegistry?.let {
+                builder.dataLoaderRegistry(dataLoaderRegistry)
+            }
+        }
         .graphQLContext { graphQLContextBuilder ->
             graphQLContextBuilder.of(graphQLContext)
         }

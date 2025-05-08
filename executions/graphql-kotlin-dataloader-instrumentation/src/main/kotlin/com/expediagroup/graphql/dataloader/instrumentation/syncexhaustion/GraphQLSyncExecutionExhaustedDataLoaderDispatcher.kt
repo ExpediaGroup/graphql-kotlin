@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
+package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.isMutation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
-import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
 import graphql.execution.ExecutionContext
-import graphql.execution.ExecutionId
 import graphql.execution.instrumentation.ExecuteObjectInstrumentationContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.FieldFetchingInstrumentationContext
@@ -35,25 +33,10 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionStra
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 
 /**
- * typealias that represents the signature of a callback that will be executed when sync execution is exhausted
- */
-internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionId>) -> Unit
-
-/**
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
  * of all GraphQL operations sharing the same [GraphQLContext]
  */
-abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantInstrumentation() {
-    /**
-     * This is invoked each time instrumentation attempts to calculate exhaustion state, this can be called from either
-     * `beginFieldField.dispatch` or `beginFieldFetch.complete`.
-     *
-     * @param parameters contains information of which [ExecutionInput] caused the calculation
-     * @return [OnSyncExecutionExhaustedCallback] to invoke when the synchronous execution of all operations was exhausted
-     */
-    abstract fun getOnSyncExecutionExhaustedCallback(
-        parameters: SyncExecutionExhaustedInstrumentationParameters
-    ): OnSyncExecutionExhaustedCallback
+class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstrumentation() {
 
     override fun beginExecution(
         parameters: InstrumentationExecutionParameters,
@@ -61,12 +44,7 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
     ): InstrumentationContext<ExecutionResult>? =
         parameters.graphQLContext
             ?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginExecution(
-                parameters,
-                this.getOnSyncExecutionExhaustedCallback(
-                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionInput)
-                )
-            )
+            ?.beginExecution(parameters)
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
@@ -94,10 +72,5 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantI
     ): FieldFetchingInstrumentationContext? =
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
-            ?.beginFieldFetching(
-                parameters,
-                this.getOnSyncExecutionExhaustedCallback(
-                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext.executionInput)
-                )
-            )
+            ?.beginFieldFetching(parameters)
 }

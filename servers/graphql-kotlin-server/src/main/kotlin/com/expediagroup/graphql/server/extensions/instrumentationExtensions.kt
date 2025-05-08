@@ -1,7 +1,7 @@
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.GraphQLSyncExecutionExhaustedDataLoaderDispatcher
 import graphql.execution.instrumentation.Instrumentation
 
 internal fun Instrumentation.isBatchDataLoaderInstrumentation(): Boolean =
-    javaClass == DataLoaderSyncExecutionExhaustedInstrumentation::class.java
+    javaClass == GraphQLSyncExecutionExhaustedDataLoaderDispatcher::class.java

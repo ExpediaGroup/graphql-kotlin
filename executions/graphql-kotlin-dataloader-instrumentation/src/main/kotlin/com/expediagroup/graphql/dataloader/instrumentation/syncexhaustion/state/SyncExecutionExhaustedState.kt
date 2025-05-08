@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhaustedCallback
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
@@ -31,52 +29,53 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderRegistry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
- * when a certain state is reached will invoke [OnSyncExecutionExhaustedCallback]
+ * Orchestrate the [ExecutionInputState] of all [ExecutionInput] sharing the same [GraphQLContext],
+ * when a synchronous execution state is exhausted will dispatch DataLoaderRegistry from [dataLoaderRegistryProvider]
  */
 class SyncExecutionExhaustedState(
     totalOperations: Int,
-    private val dataLoaderRegistry: KotlinDataLoaderRegistry
+    private val dataLoaderRegistryProvider: () -> DataLoaderRegistry
 ) {
-
-    private val totalExecutions: AtomicReference<Int> = AtomicReference(totalOperations)
-    val executions = ConcurrentHashMap<ExecutionId, ExecutionBatchState>()
+    private val totalExecutions = AtomicInteger(totalOperations)
+    private val executions = ConcurrentHashMap<ExecutionId, ExecutionInputState>()
+    private val dataLoadersDispatchState = DataLoaderRegistryState()
 
     /**
-     * Create the [ExecutionBatchState] When a specific [ExecutionInput] starts his execution
+     * Create the [ExecutionInputState] When a specific [ExecutionInput] starts his execution
      *
      * @param parameters contains information of which [ExecutionInput] will start his execution
      * @return a non null [InstrumentationContext] object
      */
     fun beginExecution(
-        parameters: InstrumentationExecutionParameters,
-        onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
+        parameters: InstrumentationExecutionParameters
     ): InstrumentationContext<ExecutionResult> {
         executions.computeIfAbsent(parameters.executionInput.executionId) {
-            ExecutionBatchState()
+            ExecutionInputState(parameters.executionInput)
         }
         return object : SimpleInstrumentationContext<ExecutionResult>() {
             /**
-             * Remove an [ExecutionBatchState] from the state in case operation does not qualify for starting or completing execution,
+             * Remove an [ExecutionInputState] from the state in case operation does not qualify for starting or completing execution,
              * for example:
              * - parsing, validation errors
              * - persisted query errors
              * - an exception during execution was thrown
              */
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
-                if ((result != null && result.errors.size > 0) || t != null) {
+                if ((result != null && result.errors.isNotEmpty()) || t != null) {
                     if (executions.containsKey(parameters.executionInput.executionId)) {
                         synchronized(executions) {
                             executions.remove(parameters.executionInput.executionId)
                             totalExecutions.set(totalExecutions.get() - 1)
                         }
-                        ifAllSyncExecutionsExhausted { executionIds ->
-                            onSyncExecutionExhausted(executionIds)
+                        if (allSyncExecutionsExhausted()) {
+                            dataLoaderRegistryProvider.invoke().dispatchAll()
                         }
                     }
                 }
@@ -85,7 +84,7 @@ class SyncExecutionExhaustedState(
     }
 
     /**
-     * Add [ExecutionStrategyState] into operation [ExecutionBatchState] for the object that
+     * Add [ExecutionStrategyState] into operation [ExecutionInputState] for the object that
      * just started an ExecutionStrategy
      *
      * @param parameters contains information of which [ExecutionInput] started an executionStrategy
@@ -109,16 +108,14 @@ class SyncExecutionExhaustedState(
     }
 
     /**
-     * This is called just before a field [DataFetcher] is invoked
+     * This is invoked just before a field [DataFetcher] is invoked
      *
      * @param parameters contains information of which field will start the fetching
-     * @param onSyncExecutionExhausted invoke when the sync execution fo all operations is exhausted
      * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
      * dispatches and completes
      */
     fun beginFieldFetching(
-        parameters: InstrumentationFieldFetchParameters,
-        onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
+        parameters: InstrumentationFieldFetchParameters
     ): FieldFetchingInstrumentationContext {
         val executionId = parameters.executionContext.executionInput.executionId
         val field = parameters.executionStepInfo.field.singleField
@@ -132,8 +129,8 @@ class SyncExecutionExhaustedState(
                     executionState
                 }
 
-                ifAllSyncExecutionsExhausted { executionIds ->
-                    onSyncExecutionExhausted(executionIds)
+                if (allSyncExecutionsExhausted()) {
+                    dataLoaderRegistryProvider.invoke().dispatchAll()
                 }
             }
 
@@ -143,8 +140,8 @@ class SyncExecutionExhaustedState(
                     executionState
                 }
 
-                ifAllSyncExecutionsExhausted { executionIds ->
-                    onSyncExecutionExhausted(executionIds)
+                if (allSyncExecutionsExhausted()) {
+                    dataLoaderRegistryProvider.invoke().dispatchAll()
                 }
             }
 
@@ -153,19 +150,41 @@ class SyncExecutionExhaustedState(
         }
     }
 
+    fun dataLoadersLoadInvokedAfterDispatchAll(): Boolean =
+        dataLoadersDispatchState.dataLoadersLoadInvokedAfterDispatchAll()
+
     /**
-     * execute a given [predicate] when all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution.
+     * This is invoked right after a [DataLoader.load] was dispatched
+     */
+    fun onDataLoaderLoadDispatched() {
+        dataLoadersDispatchState.onDataLoaderLoadDispatched()
+    }
+
+    /**
+     * This is invoked right after a [DataLoader.load] was completed
+     */
+    fun onDataLoaderLoadCompleted() {
+        dataLoadersDispatchState.onDataLoaderLoadCompleted()
+        if (allSyncExecutionsExhausted()) {
+            dataLoaderRegistryProvider.invoke().dispatchAll()
+        }
+    }
+
+    /**
+     * check if all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution.
      * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
      * a scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
      */
-    fun ifAllSyncExecutionsExhausted(predicate: (List<ExecutionId>) -> Unit) =
+    fun allSyncExecutionsExhausted(): Boolean =
         synchronized(executions) {
-            val operationsToExecute = totalExecutions.get()
-            if (executions.size < operationsToExecute || !dataLoaderRegistry.onDispatchFuturesHandled())
-                return@synchronized
+            if (executions.size < totalExecutions.get() || !dataLoadersDispatchState.onDispatchAllFuturesCompleted())
+                return false
 
-            if (executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)) {
-                predicate(executions.keys().toList())
+            if (executions.values.all(ExecutionInputState::isSyncExecutionExhausted)) {
+                dataLoadersDispatchState.takeSnapshot()
+                return true
+            } else {
+                return false
             }
         }
 }

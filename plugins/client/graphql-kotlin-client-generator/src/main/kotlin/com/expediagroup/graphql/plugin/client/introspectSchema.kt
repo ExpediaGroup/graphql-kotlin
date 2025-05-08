@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client
 
+import graphql.Directives
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.HttpClient
@@ -175,6 +176,9 @@ fun introspectSchema(
             .includeScalarTypes(true)
             .includeSchemaDefinition(true)
             .includeDirectives(true)
+            .includeDirectives { directiveName ->
+                directiveName != Directives.DeferDirective.name
+            }
         SchemaPrinter(options).print(graphQLDocument)
     }
 }

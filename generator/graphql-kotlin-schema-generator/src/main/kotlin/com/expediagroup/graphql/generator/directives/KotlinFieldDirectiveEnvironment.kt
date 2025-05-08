@@ -40,7 +40,7 @@ class KotlinFieldDirectiveEnvironment(
     /**
      * Update target element data fetcher.
      */
-    fun setDataFetcher(newDataFetcher: DataFetcher<Any>) {
+    fun setDataFetcher(newDataFetcher: DataFetcher<*>) {
         codeRegistry.dataFetcher(coordinates, newDataFetcher)
     }
 }

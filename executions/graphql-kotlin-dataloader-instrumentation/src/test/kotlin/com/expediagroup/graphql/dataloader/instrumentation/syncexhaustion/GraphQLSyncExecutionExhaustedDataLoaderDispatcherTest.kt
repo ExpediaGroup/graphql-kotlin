@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,22 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQ
 import graphql.ExecutionInput
 import io.mockk.clearAllMocks
 import io.mockk.verify
+import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DataLoaderSyncExecutionExhaustedInstrumentationTest {
-    private val dataLoaderSyncExecutionExhaustedInstrumentation = DataLoaderSyncExecutionExhaustedInstrumentation()
-    private val graphQL = AstronautGraphQL.builder
-        .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
+class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
+    private val graphQLSyncExecutionExhaustedDataLoaderDispatcher = GraphQLSyncExecutionExhaustedDataLoaderDispatcher()
+    private val astronautGraphQL = AstronautGraphQL.builder
+        .instrumentation(graphQLSyncExecutionExhaustedDataLoaderDispatcher)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAutomaticallyDispatchDataLoader()
         .build()
 
     private val productGraphQL = ProductGraphQL.builder
-        .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+        .instrumentation(GraphQLSyncExecutionExhaustedDataLoaderDispatcher())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAutomaticallyDispatchDataLoader()
         .build()
@@ -50,21 +51,20 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
             "{ astronaut(id: 1) { name } }",
-            "{ astronaut(id: 2) { id name } }",
-            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 3) { id } }",
+            "{ astronaut(id: 2) { id } }",
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
-
         assertEquals(4, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(2, astronautStatistics?.batchLoadCount)
@@ -73,7 +73,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(2, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -86,16 +86,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(4, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(2, astronautStatistics?.batchLoadCount)
@@ -104,7 +104,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(2, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -112,26 +112,26 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch transactions on different levels`() {
         val queries = listOf(
             // L2 astronaut - L3 missions
-            "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
+            "{ nasa { astronaut(id: 1) { missions { designation } } } }",
             // L1 astronaut - L2 missions
-            "{ astronaut(id: 2) { id name missions { designation } } }",
+            "{ astronaut(id: 2) { missions { designation } } }",
             // L2 mission
             "{ nasa { mission(id: 3) { designation } } }",
             // L1 mission
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(4, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         // Level 1 and 2
@@ -146,7 +146,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -165,16 +165,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(3, astronautStatistics?.batchLoadCount)
@@ -183,7 +183,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -203,16 +203,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(2, astronautStatistics?.batchLoadCount)
@@ -221,7 +221,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -254,17 +254,17 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(2, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(3, astronautStatistics?.batchLoadCount)
@@ -276,7 +276,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -300,17 +300,17 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(4, astronautStatistics?.batchLoadCount)
@@ -322,7 +322,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -330,28 +330,26 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch transactions for list of lists without arguments`() {
         val queries = listOf(
             """
-                fragment AstronautFragment on Astronaut { name missions { designation } }
-                fragment MissionFragment on Mission { designation }
                 {
-                    astronauts { ...AstronautFragment }
+                    astronauts { name missions { designation } }
                     nasa {
-                        missions { ...MissionFragment }
+                        missions { designation }
                     }
                 }
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
         assertEquals(0, astronautStatistics?.batchInvokeCount)
         assertEquals(0, missionStatistics?.batchInvokeCount)
@@ -362,27 +360,24 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation multiple dataLoaders per field`() {
         val queries = listOf(
             """
-                fragment MissionFragment on Mission { id designation planets { id name } }
                 {
-                    missions(ids: [1, 2]) { ...MissionFragment }
+                    missions(ids: [1, 2]) { id designation planets { id name } }
                 }
             """.trimIndent(),
             """
-                fragment MissionFragment on Mission { id designation planets { id name } }
                 {
-                    missions(ids: [3, 4]) { ...MissionFragment }
+                    missions(ids: [3, 4]) { id designation planets { id name } }
                 }
             """.trimIndent(),
             """
-                fragment MissionFragment on Mission { id designation planets { id name } }
                 {
-                    missions(ids: [2, 8, 9]) { ...MissionFragment }
+                    missions(ids: [2, 8, 9]) { id designation planets { id name } }
                 }
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -393,8 +388,8 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             assertTrue(result.getOrThrow().errors.isEmpty())
         }
 
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
-        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val planetStatistics = dataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(1, planetStatistics?.batchInvokeCount)
@@ -404,27 +399,24 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     fun `Instrumentation should batch chained dataLoaders per field dataFetcher`() {
         val queries = listOf(
             """
-                fragment AstronautFragment on Astronaut { planets { name } }
                 {
-                    astronaut(id: 1) { ...AstronautFragment }
+                    astronaut(id: 1) { planets { name } }
                 }
             """.trimIndent(),
             """
-                fragment AstronautFragment on Astronaut { planets { name } }
                 {
-                    astronaut(id: 3) { ...AstronautFragment }
+                    astronaut(id: 3) { planets { name } }
                 }
             """.trimIndent(),
             """
-                fragment AstronautFragment on Astronaut { planets { name } }
                 {
-                    astronauts(ids: [4, 5]) { ...AstronautFragment }
+                    astronauts(ids: [4, 5]) { planets { name } }
                 }
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
@@ -434,9 +426,9 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             assertTrue(result.getOrThrow().errors.isEmpty())
         }
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
-        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetStatistics = dataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
@@ -471,15 +463,15 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent(),
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
-        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetStatistics = dataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
         assertEquals(2, results.size)
         results.forEach { result ->
@@ -514,7 +506,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+        val (results, dataLoaderRegistry, _) = ProductGraphQL.execute(
             productGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -522,7 +514,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(2, results.size)
 
-        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
+        val productStatistics = dataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
 
         assertEquals(1, productStatistics?.batchInvokeCount)
         assertEquals(2, productStatistics?.batchLoadCount)
@@ -547,7 +539,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+        val (results, dataLoaderRegistry, _) = ProductGraphQL.execute(
             productGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -555,7 +547,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(2, results.size)
 
-        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
+        val productStatistics = dataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
 
         assertEquals(1, productStatistics?.batchInvokeCount)
         assertEquals(2, productStatistics?.batchLoadCount)
@@ -567,15 +559,15 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
         verify(exactly = 0) {
-            dataLoaderSyncExecutionExhaustedInstrumentation.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -588,16 +580,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.executeOperations(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+            astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(4, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(1, astronautStatistics?.batchLoadCount)
@@ -606,7 +598,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(2, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 
@@ -619,16 +611,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             ExecutionInput.newExecutionInput("query test4 { mission(id: 4) { designation } }").operationName("test4").build()
         )
 
-        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
-            graphQL,
+        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.execute(
+            astronautGraphQL,
             executions,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(4, results.size)
 
-        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
-        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
         assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(1, astronautStatistics?.batchLoadCount)
@@ -637,7 +629,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
-            kotlinDataLoaderRegistry.dispatchAll()
+            graphQLContext.get(DataLoaderRegistry::class)
         }
     }
 }

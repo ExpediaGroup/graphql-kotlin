@@ -89,7 +89,7 @@ class SchemaConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(KotlinDataLoaderRegistryFactory::class.java)
                 val registryFactory = ctx.getBean(KotlinDataLoaderRegistryFactory::class.java)
-                val registry = registryFactory.generate(mockk())
+                val registry = registryFactory.generate(mockk(relaxed = true))
                 assertEquals(1, registry.dataLoaders.size)
                 assertEquals(FooDataLoader.name, registry.keys.first())
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)

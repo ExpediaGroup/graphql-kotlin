@@ -46,10 +46,7 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 
 ## KotlinDataLoaderRegistryFactory
 
-Factory that facilitates the instantiation of a [KotlinDataLoaderRegistry](src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt) which is just
-a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
-with the addition of allowing access to the state of the `CacheMap` (futures cache) of each `DataLoader` in order to know
-all futures state.
+Factory that facilitates the instantiation of the `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
 
 ## Install it
 

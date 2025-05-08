@@ -20,60 +20,61 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class GenerateCustomSDLTest {
-
     @Test
     fun `verify we can generate SDL using custom hooks provider`() {
-        val expectedSchema =
-            """
-                schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
-                  query: Query
-                }
+        val expectedSchema = """
+            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
+              query: Query
+            }
 
-                "Marks the field, argument, input field or enum value as deprecated"
-                directive @deprecated(
-                    "The reason for the deprecation"
-                    reason: String = "No longer supported"
-                  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+            "Marks the field, argument, input field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String! = "No longer supported"
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-                "Directs the executor to include this field or fragment only when the `if` argument is true"
-                directive @include(
-                    "Included when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
-                "Links definitions within the document to external schemas."
-                directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                "Indicates an Input Object is a OneOf Input Object."
-                directive @oneOf on INPUT_OBJECT
+            "Links definitions within the document to external schemas."
+            directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
 
-                "Directs the executor to skip this field or fragment when the `if` argument is true."
-                directive @skip(
-                    "Skipped when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Indicates an Input Object is a OneOf Input Object."
+            directive @oneOf on INPUT_OBJECT
 
-                "Exposes a URL that specifies the behaviour of this scalar."
-                directive @specifiedBy(
-                    "The URL that specifies the behaviour of this scalar."
-                    url: String!
-                  ) on SCALAR
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                type Query {
-                  _service: _Service!
-                  helloWorld(name: String): String!
-                  randomUUID: UUID!
-                }
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
 
-                type _Service {
-                  sdl: String!
-                }
+            type Query {
+              _service: _Service!
+              helloWorld(name: String): String!
+              randomUUID: UUID!
+            }
 
-                "Custom scalar representing UUID"
-                scalar UUID
+            type _Service {
+              sdl: String!
+            }
 
-                scalar link__Import
-            """.trimIndent()
+            "Custom scalar representing UUID"
+            scalar UUID
+
+            scalar link__Import
+        """.trimIndent()
         val generatedSchema = generateSDL(listOf("com.expediagroup.graphql.plugin.test"))
 
         assertEquals(expectedSchema, generatedSchema.trim())

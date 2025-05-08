@@ -26,7 +26,6 @@ import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
@@ -46,8 +45,11 @@ class FederatedSchemaGeneratorTest {
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String = "No longer supported"
+                reason: String! = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
             "Marks target field as external meaning it will be resolved by federated schema"
             directive @external on OBJECT | FIELD_DEFINITION
@@ -148,7 +150,7 @@ class FederatedSchemaGeneratorTest {
         )
 
         val schema = toFederatedSchema(config = config)
-        Assertions.assertEquals(expectedSchema, schema.print().trim())
+        assertEquals(expectedSchema, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
         assertNotNull(productType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
@@ -169,8 +171,11 @@ class FederatedSchemaGeneratorTest {
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String = "No longer supported"
+                reason: String! = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -228,8 +233,11 @@ class FederatedSchemaGeneratorTest {
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String = "No longer supported"
+                reason: String! = "No longer supported"
               ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(

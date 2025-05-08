@@ -167,8 +167,13 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         val fieldValueInfo = completeField(newExecutionContext, newParameters, fetchedValue)
         val overallResult = fieldValueInfo
-            .fieldValue
-            .thenApply { executionResult -> wrapWithRootFieldName(newParameters, executionResult) }
+            .fieldValueFuture
+            .thenApply { fv ->
+                wrapWithRootFieldName(
+                    newParameters,
+                    ExecutionResultImpl.newExecutionResult().data(fv).build()
+                )
+            }
 
         // dispatch instrumentation so they can know about each subscription event
         subscribedFieldCtx.onDispatched()

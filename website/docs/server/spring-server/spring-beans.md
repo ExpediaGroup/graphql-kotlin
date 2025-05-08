@@ -12,7 +12,7 @@ Many of the beans are conditionally created and the default behavior can be cust
 | DataFetcherExceptionHandler      | GraphQL exception handler used from the various execution strategies, defaults to [SimpleDataFetcherExceptionHandler](https://www.graphql-java.com/documentation/v16/execution/) from graphql-java. |
 | KotlinDataFetcherFactoryProvider | Factory used during schema construction to obtain `DataFetcherFactory` that should be used for target function (using Spring aware `SpringDataFetcher`) and property resolution.                    |
 | KotlinDataLoader (optional)      | Any number of beans created that implement `KotlinDataLoader`. See [Data Loaders](../data-loader/data-loader.md) for more details.                                                                  |
-| KotlinDataLoaderRegistryFactory  | A factory class that creates a `KotlinDataLoaderRegistry` of all the `KotlinDataLoaders`. Defaults to empty registry.                                                                               |
+| KotlinDataLoaderRegistryFactory  | A factory class that creates a `DataLoaderRegistry` of all the `KotlinDataLoaders`. Defaults to empty registry.                                                                                     |
 
 ## Non-Federated Schema
 
@@ -67,11 +67,11 @@ _Created only if the `Subscription` marker interface is used_
 
 :::
 
-| Bean                                    | Description                                                                                                                                                                                                                |
-|:----------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FlowSubscriptionSchemaGeneratorHooks | Schema generator hooks that provide support for using `Flow` in your subscriptions |
-| WebSocketHandlerAdapter                 | Spring class for handling web socket http requests. See [Spring documentation](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/reactive/socket/server/support/WebSocketHandlerAdapter.html) |
-| HandlerMapping | Maps websocket URL to the corresponding web socket handler |
+| Bean                                 | Description                                                                                                                                                                                                                |
+|:-------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FlowSubscriptionSchemaGeneratorHooks | Schema generator hooks that provide support for using `Flow` in your subscriptions                                                                                                                                         |
+| WebSocketHandlerAdapter              | Spring class for handling web socket http requests. See [Spring documentation](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/reactive/socket/server/support/WebSocketHandlerAdapter.html) |
+| HandlerMapping                       | Maps websocket URL to the corresponding web socket handler                                                                                                                                                                 |
 
 ### graphql-transport-ws
 

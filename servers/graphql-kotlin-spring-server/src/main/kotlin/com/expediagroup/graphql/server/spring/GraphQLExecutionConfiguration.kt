@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler
@@ -51,9 +51,9 @@ class GraphQLExecutionConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun dataLoaderRegistryFactory(
-        dataLoaders: Optional<List<KotlinDataLoader<*, *>>>
-    ): KotlinDataLoaderRegistryFactory =
-        KotlinDataLoaderRegistryFactory(
-            dataLoaders.orElse(emptyList())
-        )
+        dataLoaders: Optional<List<KotlinDataLoader<*, *>>>,
+        config: GraphQLConfigurationProperties,
+    ): KotlinDataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
+        dataLoaders.orElse(emptyList()),
+    )
 }

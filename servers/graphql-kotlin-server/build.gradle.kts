@@ -13,6 +13,7 @@ dependencies {
     api(projects.graphqlKotlinAutomaticPersistedQueries)
     api(libs.jackson)
     api(libs.fastjson2)
+    implementation(libs.slf4j)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.logback)
 }

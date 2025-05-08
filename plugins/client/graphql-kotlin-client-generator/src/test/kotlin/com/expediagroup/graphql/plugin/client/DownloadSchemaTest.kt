@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,39 +44,41 @@ class DownloadSchemaTest {
 
     @Test
     fun `verify can download SDL`() {
-        val expectedSchema =
-            """
-                schema {
-                  query: Query
-                }
+        val expectedSchema = """
+            schema {
+              query: Query
+            }
 
-                "Directs the executor to include this field or fragment only when the `if` argument is true"
-                directive @include(
-                    "Included when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                "Directs the executor to skip this field or fragment when the `if` argument is true."
-                directive @skip(
-                    "Skipped when true."
-                    if: Boolean!
-                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                "Marks the field, argument, input field or enum value as deprecated"
-                directive @deprecated(
-                    "The reason for the deprecation"
-                    reason: String! = "No longer supported"
-                  ) on FIELD_DEFINITION | ENUM_VALUE
+            "Marks the field, argument, input field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String! = "No longer supported"
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-                type Query {
-                  widget: Widget!
-                }
+            "This directive disables error propagation when a non nullable field returns null for the given operation."
+            directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
-                type Widget {
-                  id: Int!
-                  name: String!
-                }
-            """.trimIndent()
+            type Query {
+              widget: Widget!
+            }
+
+            type Widget {
+              id: Int!
+              name: String!
+            }
+        """.trimIndent()
         stubFor(
             get("/sdl").willReturn(
                 aResponse()

@@ -41,7 +41,7 @@ The process of finding values for a list of fields from the GraphQL Query, using
 
 ### Example
 
-You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest.kt).
 
 <Tabs
     defaultValue="by-sync-exhaustion-queries"
@@ -127,12 +127,12 @@ if we proceed dispatching all data loaders the execution will continue to just r
 
 ### Usage
 
-In order to enable batching by synchronous execution exhaustion, you need to configure your GraphQL instance with the `DataLoaderSyncExecutionExhaustedInstrumentation`.
+In order to enable batching by synchronous execution exhaustion, you need to configure your GraphQL instance with the `GraphQLSyncExecutionExhaustedDataLoaderDispatcher`.
 
 ```kotlin
 val graphQL = GraphQL.Builder()
     .doNotAddDefaultInstrumentations()
-    .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+    .instrumentation(GraphQLSyncExecutionExhaustedDataLoaderDispatcher())
     // configure schema, type wiring, etc.
     .build()
 ```
@@ -141,10 +141,9 @@ This data loader instrumentation relies on a global state object that needs be s
 
 ```kotlin
 val graphQLContext = mapOf(
-    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-        queries.size,
-        kotlinDataLoaderRegistry
-    )
+    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(queries.size) {
+        dataLoaderRegistry
+    }
 )
 ```
 

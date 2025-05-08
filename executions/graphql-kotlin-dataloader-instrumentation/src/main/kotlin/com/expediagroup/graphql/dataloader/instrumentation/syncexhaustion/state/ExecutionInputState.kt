@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap
  * }
  * ```
  *
- * When the [ExecutionBatchState] will be considered exhausted will have this state:
+ * The [ExecutionInputState] will be considered exhausted will have this state:
  *
  * ```
  * {
@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * once astronaut [DataFetcher] completes his value starting a new ExecutionStrategy for `astronaut` field for
  * the resolution of `id`, and `name`, once these fields are dispatched and completed
- * and exhaustion will be calculated again and the state of [ExecutionBatchState] will be the following:
+ * and exhaustion will be calculated again and the state of [ExecutionInputState] will be the following:
  *
  * ```
  * {
@@ -94,8 +94,9 @@ import java.util.concurrent.ConcurrentHashMap
  * }
  * ```
  */
-class ExecutionBatchState {
-
+class ExecutionInputState(
+    val executionInput: ExecutionInput,
+) {
     private val executionStrategiesState: ConcurrentHashMap<String, ExecutionStrategyState> = ConcurrentHashMap()
 
     /**
@@ -177,7 +178,7 @@ class ExecutionBatchState {
     }
 
     /**
-     * Recursively calculate the sync state of this [ExecutionBatchState],
+     * Recursively calculate the sync state of this [ExecutionInputState],
      * by traversing all [executionStrategiesState].
      *
      * @param executionStrategyPath the string representation of the executionStrategy which state will be calculated,

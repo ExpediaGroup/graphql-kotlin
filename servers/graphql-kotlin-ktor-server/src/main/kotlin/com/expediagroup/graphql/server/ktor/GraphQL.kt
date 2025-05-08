@@ -18,7 +18,7 @@ package com.expediagroup.graphql.server.ktor
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.GraphQLSyncExecutionExhaustedDataLoaderDispatcher
 import com.expediagroup.graphql.generator.ClasspathTypeResolver
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
@@ -137,7 +137,7 @@ class GraphQL(config: GraphQLConfiguration) {
                 builder.doNotAutomaticallyDispatchDataLoader()
                 instrumentations.add(
                     when (config.engine.batching.strategy) {
-                        GraphQLConfiguration.BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
+                        GraphQLConfiguration.BatchingStrategy.SYNC_EXHAUSTION -> GraphQLSyncExecutionExhaustedDataLoaderDispatcher()
                     }
                 )
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class RequestExtensionsKtTest {
                 override val dataLoaderName: String = "abc"
                 override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> = mockk()
             }
-        ).generate(mockk())
+        ).generate(mockk(relaxed = true))
 
         val executionInput = request.toExecutionInput(dataLoaderRegistry = dataLoaderRegistry)
         assertEquals(request.query, executionInput.query)

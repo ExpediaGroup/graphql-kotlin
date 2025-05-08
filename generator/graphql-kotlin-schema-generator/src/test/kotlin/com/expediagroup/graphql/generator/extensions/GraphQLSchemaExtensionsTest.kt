@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,8 +261,11 @@ class GraphQLSchemaExtensionsTest {
                 "Marks the field, argument, input field or enum value as deprecated"
                 directive @deprecated(
                     "The reason for the deprecation"
-                    reason: String = "No longer supported"
+                    reason: String! = "No longer supported"
                   ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+                "This directive disables error propagation when a non nullable field returns null for the given operation."
+                directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
                 "Directs the executor to include this field or fragment only when the `if` argument is true"
                 directive @include(
