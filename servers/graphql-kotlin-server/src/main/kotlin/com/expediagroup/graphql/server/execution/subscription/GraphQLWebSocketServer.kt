@@ -36,6 +36,7 @@ import graphql.GraphQLContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -81,6 +82,10 @@ abstract class GraphQLWebSocketServer<Session, Message>(
             if (graphqlContext.get() == null) {
                 closeSession(session, GraphQLSubscriptionStatus.CONNECTION_INIT_TIMEOUT)
             }
+        }
+        
+        (session as? CoroutineScope)?.coroutineContext?.job?.invokeOnCompletion {
+            subscriptions.values.forEach(Job::cancel)
         }
 
         requestParser.parseRequestFlow(session)
