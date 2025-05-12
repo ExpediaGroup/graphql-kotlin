@@ -68,10 +68,14 @@ class GenerateEnumTest : TypeTestHelper() {
         val actual = generateEnum(generator, MyTestEnum::class)
         assertEquals(expected = 4, actual = actual.values.size)
         assertEquals(expected = "MyTestEnum", actual = actual.name)
-        assertEquals(expected = "ONE", actual = actual.values[0].value)
-        assertEquals(expected = "TWO", actual = actual.values[1].value)
-        assertEquals(expected = "THREE", actual = actual.values[2].value)
-        assertEquals(expected = "customFour", actual = actual.values[3].value)
+        assertEquals(expected = "ONE", actual = actual.values[0].name)
+        assertEquals(expected = MyTestEnum.ONE, actual = actual.values[0].value)
+        assertEquals(expected = "TWO", actual = actual.values[1].name)
+        assertEquals(expected = MyTestEnum.TWO, actual = actual.values[1].value)
+        assertEquals(expected = "THREE", actual = actual.values[2].name)
+        assertEquals(expected = MyTestEnum.THREE, actual = actual.values[2].value)
+        assertEquals(expected = "customFour", actual = actual.values[3].name)
+        assertEquals(expected = MyTestEnum.FOUR, actual = actual.values[3].value)
     }
 
     @Test
