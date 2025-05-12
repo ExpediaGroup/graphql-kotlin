@@ -30,7 +30,7 @@ class, which is an *inline value class* that wraps the underlying `String` value
 :::
 
 Since `ID` is a value class, it may be represented at runtime as a wrapper or directly as underlying type. Due to the generic
-nature of the query processing logic we *always* end up with up a wrapper type when resolving the field value. As a result,
+nature of the query processing logic we *always* end up with a wrapper type when resolving the field value. As a result,
 in order to ensure that underlying scalar value is correctly serialized, we need to explicitly unwrap it by registering
 `IDValueUnboxer` with your GraphQL instance.
 
