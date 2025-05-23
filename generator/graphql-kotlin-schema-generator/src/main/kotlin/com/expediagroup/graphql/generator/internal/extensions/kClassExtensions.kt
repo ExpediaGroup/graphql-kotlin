@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2025 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findParameterByName
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -67,7 +66,7 @@ private fun KClass<*>.isDeclaredUnion() = this.isInterface() && this.declaredMem
 internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = (this.isInstance(Any::class) || this.isAnnotation()) &&
     fieldAnnotations.getUnionAnnotation() != null
 
-internal fun KClass<*>.isAnnotation(): Boolean = this.isSubclassOf(Annotation::class)
+internal fun KClass<*>.isAnnotation(): Boolean = Annotation::class.java.isAssignableFrom(this.java)
 
 /**
  * Do not add interfaces as additional types if it expects all the types
@@ -78,9 +77,9 @@ internal fun KClass<*>.isAnnotation(): Boolean = this.isSubclassOf(Annotation::c
  */
 internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = !(inputType && this.isInterface()) && !this.isGraphQLIgnored()
 
-internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
+internal fun KClass<*>.isEnum(): Boolean = Enum::class.java.isAssignableFrom(this.java)
 
-internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = this.isSubclassOf(List::class) || (isDirective && this.java.isArray)
+internal fun KClass<*>.isListType(isDirective: Boolean = false): Boolean = List::class.java.isAssignableFrom(this.java) || (isDirective && this.java.isArray)
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
