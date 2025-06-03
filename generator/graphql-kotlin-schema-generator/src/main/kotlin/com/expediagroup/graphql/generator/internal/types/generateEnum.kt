@@ -56,7 +56,7 @@ private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kC
     validateGraphQLEnumValue(name, kClass)
 
     valueBuilder.name(name)
-    valueBuilder.value(name)
+    valueBuilder.value(enum)
 
     generateEnumValueDirectives(generator, valueField, kClass.getSimpleName()).forEach {
         valueBuilder.withAppliedDirective(it)
