@@ -119,7 +119,8 @@ class GraphQLClientGenerator(
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
                 serializer = config.serializer,
-                useOptionalInputWrapper = config.useOptionalInputWrapper
+                useOptionalInputWrapper = config.useOptionalInputWrapper,
+                config = config
             )
             val queryConstName = capitalizedOperationName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
@@ -216,6 +217,7 @@ class GraphQLClientGenerator(
             // shared types
             sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
             sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
+            sharedTypes.putAll(context.responseClassToTypeSpecs.mapValues { listOf(it.value) })
             context.scalarClassToConverterTypeSpecs
                 .values
                 .forEach {

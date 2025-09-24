@@ -33,6 +33,8 @@ data class GraphQLClientGeneratorConfig(
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     /** Explicit opt-in flag to enable support for optional inputs. */
     val useOptionalInputWrapper: Boolean = false,
+    /** Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates. Defaults to false. */
+    val useSharedResponseTypes: Boolean = false,
     /** Set parser options for processing GraphQL queries and schema definition language documents */
     val parserOptions: ParserOptions.Builder.() -> Unit = {}
 )

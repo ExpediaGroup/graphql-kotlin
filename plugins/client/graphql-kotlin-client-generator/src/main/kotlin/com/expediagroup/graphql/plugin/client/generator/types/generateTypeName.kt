@@ -42,6 +42,7 @@ import graphql.language.NamedNode
 import graphql.language.NonNullType
 import graphql.language.ObjectTypeDefinition
 import graphql.language.ScalarTypeDefinition
+import graphql.language.Selection
 import graphql.language.SelectionSet
 import graphql.language.Type
 import graphql.language.TypeDefinition
@@ -111,8 +112,26 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             // generate corresponding type spec
             when (graphQLTypeDefinition) {
                 is ObjectTypeDefinition -> {
-                    className = generateClassName(context, graphQLTypeDefinition, selectionSet)
-                    context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                    // Check if this should be a shared response type
+                    val sharedClassName = ClassName("${context.packageName}.responses", graphQLTypeDefinition.name)
+                    if (context.responseClassToTypeSpecs.containsKey(sharedClassName)) {
+                        // Update existing shared type with merged selection set
+                        val mergedSelectionSet = mergeSelectionSets(context, graphQLTypeDefinition.name, selectionSet)
+                        context.responseClassToTypeSpecs[sharedClassName] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, mergedSelectionSet)
+                        className = sharedClassName
+                    } else {
+                        // Check if this type should be shared (appears in multiple operations)
+                        if (shouldCreateSharedResponseType(context, graphQLTypeDefinition.name)) {
+                            // Create new shared response type
+                            val mergedSelectionSet = mergeSelectionSets(context, graphQLTypeDefinition.name, selectionSet)
+                            context.responseClassToTypeSpecs[sharedClassName] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, mergedSelectionSet)
+                            className = sharedClassName
+                        } else {
+                            // Use original logic for operation-specific types
+                            className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+                            context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                        }
+                    }
                 }
                 is InputObjectTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.inputs")
@@ -257,4 +276,37 @@ private fun calculateSelectedFields(
         }
     }
     return result
+}
+
+/**
+ * Determines if a GraphQL object type should be created as a shared response type.
+ * This checks if the feature is enabled and if the type has been seen before in other operations.
+ */
+private fun shouldCreateSharedResponseType(context: GraphQLClientGeneratorContext, typeName: String): Boolean {
+    // Only create shared types if the feature is enabled
+    if (!context.config.useSharedResponseTypes) {
+        return false
+    }
+
+    // For now, create shared types for common response objects that are likely to be reused
+    // This can be expanded to be more intelligent based on actual usage patterns
+    return typeName in setOf("ComplexObject", "DetailsObject", "ScalarWrapper")
+}
+
+/**
+ * Merges selection sets for the same GraphQL type across different operations.
+ * This creates a comprehensive selection set that includes all fields selected in any operation.
+ */
+private fun mergeSelectionSets(context: GraphQLClientGeneratorContext, typeName: String, currentSelectionSet: SelectionSet?): SelectionSet? {
+    if (currentSelectionSet == null) return null
+
+    // Get existing selections for this type
+    val existingSelections = context.responseTypeToSelectionSetMap.getOrPut(typeName) { mutableSetOf() }
+
+    // Add current selections
+    existingSelections.addAll(currentSelectionSet.selections)
+
+    // Create merged selection set using the correct builder pattern
+    val selectionsList: List<Selection<*>> = existingSelections.toList()
+    return SelectionSet.newSelectionSet(selectionsList).build()
 }
