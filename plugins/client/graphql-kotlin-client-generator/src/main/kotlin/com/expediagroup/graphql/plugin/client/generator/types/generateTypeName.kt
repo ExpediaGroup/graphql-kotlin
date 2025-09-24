@@ -258,3 +258,17 @@ private fun calculateSelectedFields(
     }
     return result
 }
+
+/**
+ * Generate a structural signature for a response type based on GraphQL type definition and selection set.
+ * This signature is used to identify structurally identical response types across different operations.
+ */
+internal fun generateResponseTypeSignature(
+    graphQLTypeName: String,
+    selectionSet: SelectionSet?,
+    context: GraphQLClientGeneratorContext
+): String {
+    if (selectionSet == null) return graphQLTypeName
+    val selectedFields = calculateSelectedFields(context, graphQLTypeName, selectionSet)
+    return "$graphQLTypeName:${selectedFields.sorted().joinToString(",")}"
+}
