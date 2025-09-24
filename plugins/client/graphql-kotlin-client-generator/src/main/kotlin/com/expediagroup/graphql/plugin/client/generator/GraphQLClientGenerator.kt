@@ -204,7 +204,7 @@ class GraphQLClientGenerator(
                 }
                 fileSpecs.add(polymorphicTypeSpec.build())
             }
-            context.typeSpecs.minus(polymorphicTypes).forEach { (className, typeSpec) ->
+            context.typeSpecs.minus(polymorphicTypes).minus(context.responseClassToTypeSpecs.keys).forEach { (className, typeSpec) ->
                 val outputTypeFileSpec = FileSpec.builder(className.packageName, className.simpleName)
                     .addType(typeSpec)
                     .build()
@@ -213,9 +213,13 @@ class GraphQLClientGenerator(
             operationFileSpec.addType(operationTypeSpec.build())
             fileSpecs.add(operationFileSpec.build())
 
+            // Post-process to identify shared response types
+            identifySharedResponseTypes(context)
+
             // shared types
             sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
             sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
+            sharedTypes.putAll(context.responseClassToTypeSpecs.mapValues { listOf(it.value) })
             context.scalarClassToConverterTypeSpecs
                 .values
                 .forEach {
@@ -283,4 +287,48 @@ internal fun String.toUpperUnderscore(): String {
         builder.append(c.uppercaseChar())
     }
     return builder.toString()
+}
+
+/**
+ * Post-process to identify response types that can be shared across operations.
+ * This function analyzes all generated types and moves structurally identical response types to shared storage.
+ */
+private fun identifySharedResponseTypes(context: GraphQLClientGeneratorContext) {
+    val signatureToTypes = mutableMapOf<String, MutableList<Pair<ClassName, TypeSpec>>>()
+
+    // Group types by their structural signature (only for ObjectTypeDefinition with selection sets)
+    context.typeSpecs.forEach { (className, typeSpec) ->
+        // Only consider types that are not polymorphic and have a selection set signature
+        if (!context.polymorphicTypes.containsKey(className)) {
+            val packageParts = className.packageName.split(".")
+            if (packageParts.size > 2) {
+                val operationName = packageParts.last()
+                // Try to extract GraphQL type name from the class name
+                val graphQLTypeName = typeSpec.name ?: return@forEach
+
+                // Generate signature for this type (simplified approach)
+                val signature = "$graphQLTypeName:${typeSpec.propertySpecs.map { it.name }.sorted().joinToString(",")}"
+
+                signatureToTypes.getOrPut(signature) { mutableListOf() }.add(className to typeSpec)
+            }
+        }
+    }
+
+    // Move types that appear multiple times to shared storage
+    signatureToTypes.forEach { (signature, types) ->
+        if (types.size > 1) {
+            // Use the first type as the shared type
+            val (sharedClassName, sharedTypeSpec) = types.first()
+            val taggedTypeSpec = sharedTypeSpec.toBuilder()
+                .tag(String::class.java, signature)
+                .build()
+
+            context.responseClassToTypeSpecs[sharedClassName] = taggedTypeSpec
+
+            // Remove all instances from regular type specs
+            types.forEach { (className, _) ->
+                context.typeSpecs.remove(className)
+            }
+        }
+    }
 }
