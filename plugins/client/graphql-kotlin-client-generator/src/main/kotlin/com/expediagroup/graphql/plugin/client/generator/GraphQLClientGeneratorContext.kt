@@ -45,7 +45,6 @@ data class GraphQLClientGeneratorContext(
     // shared type caches
     val enumClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
-    val responseClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val scalarClassToConverterTypeSpecs: MutableMap<ClassName, ScalarConverterInfo> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
     internal fun isTypeAlias(typeName: String) = typeAliases.containsKey(typeName)
