@@ -280,7 +280,7 @@ private fun calculateSelectedFields(
 
 /**
  * Determines if a GraphQL object type should be created as a shared response type.
- * This checks if the feature is enabled and if the type has been seen before in other operations.
+ * This checks if the feature is enabled and if the type is used in multiple operations.
  */
 private fun shouldCreateSharedResponseType(context: GraphQLClientGeneratorContext, typeName: String): Boolean {
     // Only create shared types if the feature is enabled
@@ -288,9 +288,9 @@ private fun shouldCreateSharedResponseType(context: GraphQLClientGeneratorContex
         return false
     }
 
-    // For now, create shared types for common response objects that are likely to be reused
-    // This can be expanded to be more intelligent based on actual usage patterns
-    return typeName in setOf("ComplexObject", "DetailsObject", "ScalarWrapper")
+    // Use usage-based detection: create shared types for types used in multiple operations
+    val usageCount = context.typeUsageCount[typeName] ?: 0
+    return usageCount > 1
 }
 
 /**

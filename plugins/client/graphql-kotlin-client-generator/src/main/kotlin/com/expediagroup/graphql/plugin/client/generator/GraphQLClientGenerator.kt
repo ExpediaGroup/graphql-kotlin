@@ -66,8 +66,18 @@ class GraphQLClientGenerator(
      */
     fun generate(queries: List<File>): List<FileSpec> {
         val result = mutableListOf<FileSpec>()
+
+        // First pass: Analyze all queries to track type usage
+        val typeUsageTracker = mutableMapOf<String, Int>()
+        if (config.useSharedResponseTypes) {
+            for (query in queries) {
+                analyzeTypeUsage(query, typeUsageTracker)
+            }
+        }
+
+        // Second pass: Generate client code with shared types
         for (query in queries) {
-            result.addAll(generate(query))
+            result.addAll(generate(query, typeUsageTracker))
         }
 
         // common shared types
@@ -91,9 +101,102 @@ class GraphQLClientGenerator(
     }
 
     /**
+     * Analyze a query to track GraphQL type usage across operations.
+     * This is used in the first pass to identify types that should be shared.
+     */
+    private fun analyzeTypeUsage(queryFile: File, typeUsageTracker: MutableMap<String, Int>) {
+        try {
+            val queryConst = queryFile.readText().trim()
+            val queryDocument = documentParser.parseDocument(
+                ParserEnvironment.newParserEnvironment()
+                    .document(queryConst)
+                    .parserOptions(parserOptions)
+                    .build()
+            )
+
+            val operationDefinitions = queryDocument.definitions.filterIsInstance<OperationDefinition>()
+            if (operationDefinitions.isEmpty()) return
+
+            // Create a temporary context just for analysis
+            val tempContext = GraphQLClientGeneratorContext(
+                packageName = config.packageName,
+                graphQLSchema = graphQLSchema,
+                operationName = operationDefinitions.first().name?.capitalizeFirstChar() ?: queryFile.nameWithoutExtension.capitalizeFirstChar(),
+                queryDocument = queryDocument,
+                allowDeprecated = config.allowDeprecated,
+                customScalarMap = config.customScalarMap,
+                serializer = config.serializer,
+                useOptionalInputWrapper = config.useOptionalInputWrapper,
+                config = config
+            )
+
+            // Process each operation to collect type usage
+            operationDefinitions.forEach { operationDefinition ->
+                val rootType = findRootType(operationDefinition)
+                // This will populate the context with type usage information
+                processSelectionSet(tempContext, rootType, operationDefinition.selectionSet, typeUsageTracker)
+            }
+        } catch (e: Exception) {
+            // Log error but continue with other queries
+            println("Error analyzing type usage in ${queryFile.name}: ${e.message}")
+        }
+    }
+
+    /**
+     * Process a selection set to track type usage.
+     * This is a simplified version of the type generation logic that only tracks usage.
+     */
+    private fun processSelectionSet(
+        context: GraphQLClientGeneratorContext,
+        parentType: ObjectTypeDefinition,
+        selectionSet: graphql.language.SelectionSet?,
+        typeUsageTracker: MutableMap<String, Int>
+    ) {
+        if (selectionSet == null) return
+
+        selectionSet.selections.forEach { selection ->
+            when (selection) {
+                is graphql.language.Field -> {
+                    val fieldDefinition = parentType.fieldDefinitions.find { it.name == selection.name }
+                    if (fieldDefinition != null) {
+                        val fieldType = fieldDefinition.type
+                        val typeName = getTypeName(fieldType)
+                        if (typeName != null) {
+                            // Increment usage count for this type
+                            typeUsageTracker[typeName] = (typeUsageTracker[typeName] ?: 0) + 1
+
+                            // Process nested selection sets
+                            val fieldTypeDefinition = context.graphQLSchema.getType(typeName).orElse(null)
+                            if (fieldTypeDefinition is ObjectTypeDefinition && selection.selectionSet != null) {
+                                processSelectionSet(context, fieldTypeDefinition, selection.selectionSet, typeUsageTracker)
+                            }
+                        }
+                    }
+                }
+                // Handle other selection types (InlineFragment, FragmentSpread) if needed
+                else -> {
+                    // For simplicity, we're not handling these in this implementation
+                }
+            }
+        }
+    }
+
+    /**
+     * Extract the base type name from a GraphQL type.
+     */
+    private fun getTypeName(type: graphql.language.Type<*>): String? {
+        return when (type) {
+            is graphql.language.TypeName -> type.name
+            is graphql.language.ListType -> getTypeName(type.type)
+            is graphql.language.NonNullType -> getTypeName(type.type)
+            else -> null
+        }
+    }
+
+    /**
      * Generate GraphQL client wrapper class and data classes that match the specified query.
      */
-    internal fun generate(queryFile: File): List<FileSpec> {
+    internal fun generate(queryFile: File, typeUsageTracker: Map<String, Int> = emptyMap()): List<FileSpec> {
         val queryConst = queryFile.readText().trim()
         val queryDocument = documentParser.parseDocument(
             ParserEnvironment.newParserEnvironment()
@@ -122,6 +225,11 @@ class GraphQLClientGenerator(
                 useOptionalInputWrapper = config.useOptionalInputWrapper,
                 config = config
             )
+
+            // Copy type usage information from the first pass
+            if (config.useSharedResponseTypes && typeUsageTracker.isNotEmpty()) {
+                context.typeUsageCount.putAll(typeUsageTracker)
+            }
             val queryConstName = capitalizedOperationName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)

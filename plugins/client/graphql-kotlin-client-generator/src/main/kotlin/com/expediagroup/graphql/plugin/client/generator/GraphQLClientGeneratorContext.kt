@@ -57,6 +57,9 @@ data class GraphQLClientGeneratorContext(
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
     val responseTypeToSelectionSetMap: MutableMap<String, MutableSet<Selection<*>>> = mutableMapOf()
 
+    // usage tracking for shared response types
+    val typeUsageCount: MutableMap<String, Int> = mutableMapOf()
+
     private val customScalarClassNames: Set<ClassName> = customScalarMap.values.map { it.className }.toSet()
     internal fun isCustomScalar(typeName: TypeName): Boolean = customScalarClassNames.contains(typeName)
     var requireOptionalSerializer = false
