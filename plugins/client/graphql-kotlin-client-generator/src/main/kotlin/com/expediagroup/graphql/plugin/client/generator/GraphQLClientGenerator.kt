@@ -30,8 +30,10 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
+import graphql.language.Field
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
+import graphql.language.SelectionSet
 import graphql.parser.Parser
 import graphql.parser.ParserEnvironment
 import graphql.parser.ParserOptions
@@ -149,14 +151,14 @@ class GraphQLClientGenerator(
     private fun processSelectionSet(
         context: GraphQLClientGeneratorContext,
         parentType: ObjectTypeDefinition,
-        selectionSet: graphql.language.SelectionSet?,
+        selectionSet: SelectionSet?,
         typeUsageTracker: MutableMap<String, Int>
     ) {
         if (selectionSet == null) return
 
         selectionSet.selections.forEach { selection ->
             when (selection) {
-                is graphql.language.Field -> {
+                is Field -> {
                     val fieldDefinition = parentType.fieldDefinitions.find { it.name == selection.name }
                     if (fieldDefinition != null) {
                         val fieldType = fieldDefinition.type
@@ -167,7 +169,7 @@ class GraphQLClientGenerator(
 
                             // Process nested selection sets
                             val fieldTypeDefinition = context.graphQLSchema.getType(typeName).orElse(null)
-                            if (fieldTypeDefinition is ObjectTypeDefinition && selection.selectionSet != null) {
+                            if (fieldTypeDefinition is ObjectTypeDefinition) {
                                 processSelectionSet(context, fieldTypeDefinition, selection.selectionSet, typeUsageTracker)
                             }
                         }
