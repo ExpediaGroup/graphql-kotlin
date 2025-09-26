@@ -95,4 +95,32 @@ class SharedResponseTypesTest {
         )
         assertFalse(configExplicitlyDisabled.useSharedResponseTypes, "Expected useSharedResponseTypes to be false when explicitly disabled")
     }
+
+    @Test
+    fun `verify cross-operation type reuse generates exactly 3 shared types`() {
+        val configWithSharedTypes = GraphQLClientGeneratorConfig(
+            packageName = "com.expediagroup.graphql.generated",
+            useSharedResponseTypes = true
+        )
+
+        val testDir = File("src/test/data/generator/cross_operation_reuse")
+        val queries = testDir.walkTopDown()
+            .filter { it.name.endsWith(".graphql") }
+            .toList()
+
+        val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, configWithSharedTypes)
+        val fileSpecs = generator.generate(queries)
+
+        assertTrue(fileSpecs.isNotEmpty())
+
+        // Check if exactly 3 shared response types are generated
+        val sharedResponseTypes = fileSpecs.filter { it.packageName.endsWith(".responses") }
+        val complexObjectTypes = sharedResponseTypes.filter { it.name.startsWith("ComplexObject") }
+
+        assertEquals(3, complexObjectTypes.size, "Expected exactly 3 ComplexObject variants")
+
+        // Verify the specific variants exist
+        val typeNames = complexObjectTypes.map { it.name }.sorted()
+        assertEquals(listOf("ComplexObject", "ComplexObject2", "ComplexObject3"), typeNames)
+    }
 }

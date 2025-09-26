@@ -56,6 +56,7 @@ data class GraphQLClientGeneratorContext(
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
     val responseTypeToSelectionSetMap: MutableMap<String, MutableSet<Selection<*>>> = mutableMapOf()
+    val sharedTypeVariantToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
 
     // usage tracking for shared response types
     val typeUsageCount: MutableMap<String, Int> = mutableMapOf()
