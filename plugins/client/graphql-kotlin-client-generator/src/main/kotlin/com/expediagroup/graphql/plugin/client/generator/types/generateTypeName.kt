@@ -303,17 +303,10 @@ private fun calculateSelectedFields(
 
 /**
  * Determines if a GraphQL object type should be created as a shared response type.
- * This checks if the feature is enabled and if the type is used in multiple operations.
+ * This simply checks if the feature is enabled - all ObjectTypeDefinition types are candidates for reuse.
  */
 private fun shouldCreateSharedResponseType(context: GraphQLClientGeneratorContext, typeName: String): Boolean {
-    // Only create shared types if the feature is enabled
-    if (!context.config.useSharedResponseTypes) {
-        return false
-    }
-
-    // Use usage-based detection: create shared types for types used in multiple operations
-    val usageCount = context.typeUsageCount[typeName] ?: 0
-    return usageCount > 1
+    return context.config.useSharedResponseTypes
 }
 
 /**
