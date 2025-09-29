@@ -111,7 +111,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             // generate corresponding type spec
             when (graphQLTypeDefinition) {
                 is ObjectTypeDefinition -> {
-                    if (shouldCreateSharedResponseType(context, graphQLTypeDefinition.name)) {
+                    if (context.config.useSharedResponseTypes) {
                         // Use cross-operation reuse logic similar to existing single-operation logic
                         val globalCachedTypes = context.responseClassToTypeSpecs.keys.filter { it.simpleName.startsWith(graphQLTypeDefinition.name) }
 
@@ -302,14 +302,6 @@ private fun calculateSelectedFields(
 }
 
 /**
- * Determines if a GraphQL object type should be created as a shared response type.
- * This simply checks if the feature is enabled - all ObjectTypeDefinition types are candidates for reuse.
- */
-private fun shouldCreateSharedResponseType(context: GraphQLClientGeneratorContext, typeName: String): Boolean {
-    return context.config.useSharedResponseTypes
-}
-
-/**
  * Helper function to check if a cached shared type matches the current selection set.
  */
 private fun isCachedTypeApplicableForSharedType(
@@ -323,17 +315,4 @@ private fun isCachedTypeApplicableForSharedType(
     val selectedFields = calculateSelectedFields(context, graphQLTypeDefinition.name, selectionSet)
     val cachedTypeFields = context.sharedTypeVariantToSelectionSetMap[cachedClassName.simpleName]
     return selectedFields == cachedTypeFields
-}
-
-/**
- * Merges selection sets for the same GraphQL type across different operations.
- * For shared response types, we don't merge - we use exact selection sets for each variant.
- * This maintains the existing reuse_types behavior where different selection sets create different variants.
- */
-private fun mergeSelectionSets(context: GraphQLClientGeneratorContext, typeName: String, currentSelectionSet: SelectionSet?): SelectionSet? {
-    if (currentSelectionSet == null) return null
-
-    // For shared response types, we don't merge - we use the exact selection set for each variant
-    // This maintains the existing reuse_types behavior where different selection sets create different variants
-    return currentSelectionSet
 }
