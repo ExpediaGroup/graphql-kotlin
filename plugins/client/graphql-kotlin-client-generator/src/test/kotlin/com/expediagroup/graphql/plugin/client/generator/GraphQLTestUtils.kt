@@ -33,6 +33,14 @@ internal val defaultConfig = GraphQLClientGeneratorConfig(packageName = "com.exp
 internal fun locateTestCaseArguments(directory: String) = File(directory)
     .listFiles()
     ?.filter { it.isDirectory }
+    ?.filter {
+        // Exclude shared_response_types from default generator tests - it has its own test class
+        if (directory == "src/test/data/generator") {
+            it.name != "shared_response_types"
+        } else {
+            true
+        }
+    }
     ?.map {
         Arguments.of(it)
     } ?: emptyList()
