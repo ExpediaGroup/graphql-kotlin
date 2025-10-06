@@ -56,7 +56,8 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
                 parserOptions.captureIgnoredChars?.let { captureIgnoredChars(it) }
                 parserOptions.captureSourceLocation?.let { captureSourceLocation(it) }
                 parserOptions.captureLineComments?.let { captureLineComments(it) }
-            }
+            },
+            useSharedResponseTypes = false
         ).forEach {
             it.writeTo(targetDirectory)
         }
