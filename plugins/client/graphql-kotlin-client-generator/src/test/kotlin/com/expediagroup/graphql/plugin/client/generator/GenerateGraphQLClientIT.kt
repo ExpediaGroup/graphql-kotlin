@@ -26,7 +26,7 @@ class GenerateGraphQLClientIT {
     @ParameterizedTest
     @MethodSource("generatorTests")
     fun `verify generation of client code using default settings`(testDirectory: File) {
-        val config = if (testDirectory.name == "cross_operation_reuse") {
+        val config = if (testDirectory.name == "cross_operation_reuse_types") {
             defaultConfig.copy(useSharedResponseTypes = true)
         } else {
             defaultConfig
