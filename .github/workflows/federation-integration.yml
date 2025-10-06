@@ -25,7 +25,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Build Subgraphs
         working-directory: examples
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v5
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -89,7 +89,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Build compatibility app with Gradle
         run: ./gradlew bootJar graphqlGenerateSDL
