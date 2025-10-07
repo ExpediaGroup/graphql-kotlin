@@ -21,14 +21,15 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import kotlinx.coroutines.runBlocking
 import graphql.GraphQLContext
 import org.dataloader.DataLoaderFactory
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
-val BookDataLoader = object : KotlinDataLoader<Int, Book?> {
+val BookDataLoader = object : KotlinDataLoader<Int, Optional<Book>> {
     override val dataLoaderName = "BOOK_LOADER"
     override fun getDataLoader(graphQLContext: GraphQLContext) =
         DataLoaderFactory.newDataLoader { ids ->
             CompletableFuture.supplyAsync {
-                runBlocking { Book.search(ids).toMutableList() }
+                runBlocking { Book.search(ids).map { Optional.ofNullable(it) }.toMutableList() }
             }
         }
 }
