@@ -145,7 +145,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
                 captureLineComments?.let { captureLineComments(it) }
                 captureSourceLocation?.let { captureSourceLocation(it) }
             }
-        }).forEach {
+        }, useSharedResponseTypes = false).forEach {
             it.writeTo(outputDirectory)
         }
 

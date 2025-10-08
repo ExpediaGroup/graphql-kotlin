@@ -66,6 +66,8 @@ class GraphQLClientGenerator(
      */
     fun generate(queries: List<File>): List<FileSpec> {
         val result = mutableListOf<FileSpec>()
+
+        // Generate client code with shared types
         for (query in queries) {
             result.addAll(generate(query))
         }
@@ -119,8 +121,10 @@ class GraphQLClientGenerator(
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
                 serializer = config.serializer,
-                useOptionalInputWrapper = config.useOptionalInputWrapper
+                useOptionalInputWrapper = config.useOptionalInputWrapper,
+                config = config
             )
+
             val queryConstName = capitalizedOperationName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)
@@ -216,6 +220,7 @@ class GraphQLClientGenerator(
             // shared types
             sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
             sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
+            sharedTypes.putAll(context.responseClassToTypeSpecs.mapValues { listOf(it.value) })
             context.scalarClassToConverterTypeSpecs
                 .values
                 .forEach {

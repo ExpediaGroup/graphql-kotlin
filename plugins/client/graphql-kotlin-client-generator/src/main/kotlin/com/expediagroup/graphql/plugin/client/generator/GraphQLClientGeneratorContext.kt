@@ -21,6 +21,7 @@ import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Document
+import graphql.language.Selection
 import graphql.schema.idl.TypeDefinitionRegistry
 
 /**
@@ -36,7 +37,8 @@ data class GraphQLClientGeneratorContext(
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
-    val useOptionalInputWrapper: Boolean = false
+    val useOptionalInputWrapper: Boolean = false,
+    val config: GraphQLClientGeneratorConfig
 ) {
     // per operation caches
     val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
@@ -45,6 +47,7 @@ data class GraphQLClientGeneratorContext(
     // shared type caches
     val enumClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
+    val responseClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val scalarClassToConverterTypeSpecs: MutableMap<ClassName, ScalarConverterInfo> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
     internal fun isTypeAlias(typeName: String) = typeAliases.containsKey(typeName)
@@ -52,6 +55,8 @@ data class GraphQLClientGeneratorContext(
     // class name and type selection caches
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
+    val responseTypeToSelectionSetMap: MutableMap<String, MutableSet<Selection<*>>> = mutableMapOf()
+    val sharedTypeVariantToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
 
     private val customScalarClassNames: Set<ClassName> = customScalarMap.values.map { it.className }.toSet()
     internal fun isCustomScalar(typeName: TypeName): Boolean = customScalarClassNames.contains(typeName)
