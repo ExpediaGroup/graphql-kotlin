@@ -22,8 +22,10 @@ import org.dataloader.DataLoader
 /**
  * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
  * by return type and loading values in the data fetchers.
+ *
+ * Note: Both K and V must be non-nullable types. For nullable results, use Optional<V> as the value type.
  */
-interface KotlinDataLoader<K, V> {
+interface KotlinDataLoader<K : Any, V : Any> {
     val dataLoaderName: String
     fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<K, V>
 }

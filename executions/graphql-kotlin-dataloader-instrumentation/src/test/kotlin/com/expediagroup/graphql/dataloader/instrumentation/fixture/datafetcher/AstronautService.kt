@@ -37,15 +37,14 @@ import java.util.concurrent.CompletableFuture
 data class AstronautServiceRequest(val id: Int)
 data class CreateAstronautServiceRequest(val name: String)
 
-class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
+class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Optional<Astronaut>> {
     override val dataLoaderName: String = "AstronautDataLoader"
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<AstronautServiceRequest, Astronaut?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<AstronautServiceRequest, Optional<Astronaut>> =
         DataLoaderFactory.newDataLoader(
             { keys ->
                 AstronautRepository
                     .getAstronauts(keys.map(AstronautServiceRequest::id))
                     .collectList()
-                    .map(List<Optional<Astronaut>>::toListOfNullables)
                     .toFuture()
             },
             DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
@@ -58,8 +57,10 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
         environment
-            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-            ?.load(request) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
+            .getDataLoader<AstronautServiceRequest, Optional<Astronaut>>("AstronautDataLoader")
+            ?.load(request)
+            ?.thenApply { it.orElse(null) }
+            ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
 
     fun createAstronaut(
         request: CreateAstronautServiceRequest
@@ -72,8 +73,10 @@ class AstronautService {
     ): CompletableFuture<List<Astronaut?>> = when {
         requests.isNotEmpty() -> {
             environment
-                .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-                ?.loadMany(requests) ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
+                .getDataLoader<AstronautServiceRequest, Optional<Astronaut>>("AstronautDataLoader")
+                ?.loadMany(requests)
+                ?.thenApply { optionals -> optionals.map { it.orElse(null) } }
+                ?: throw IllegalArgumentException("No data loader called AstronautDataLoader was found")
         }
         else -> {
             AstronautRepository
