@@ -111,8 +111,50 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             // generate corresponding type spec
             when (graphQLTypeDefinition) {
                 is ObjectTypeDefinition -> {
-                    className = generateClassName(context, graphQLTypeDefinition, selectionSet)
-                    context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                    if (context.config.useSharedResponseTypes) {
+                        // Use cross-operation reuse logic similar to existing single-operation logic
+                        val globalCachedTypes = context.responseClassToTypeSpecs.keys.filter { it.simpleName.startsWith(graphQLTypeDefinition.name) }
+
+                        if (globalCachedTypes.isNotEmpty()) {
+                            // Check if any existing shared type matches this selection set
+                            var foundMatch = false
+                            for (cachedType in globalCachedTypes) {
+                                if (isCachedTypeApplicableForSharedType(context, cachedType, graphQLTypeDefinition, selectionSet)) {
+                                    className = cachedType
+                                    foundMatch = true
+                                    break
+                                }
+                            }
+
+                            if (!foundMatch) {
+                                // Generate new variant (ComplexObject2, ComplexObject3, etc.)
+                                val variantNumber = globalCachedTypes.size + 1
+                                val variantName = if (variantNumber == 1) graphQLTypeDefinition.name else "${graphQLTypeDefinition.name}$variantNumber"
+                                className = ClassName("${context.packageName}.responses", variantName)
+                                context.responseClassToTypeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet, variantName)
+
+                                // Track selection set for this variant
+                                if (selectionSet != null) {
+                                    val selectedFields = calculateSelectedFields(context, graphQLTypeDefinition.name, selectionSet)
+                                    context.sharedTypeVariantToSelectionSetMap[variantName] = selectedFields
+                                }
+                            }
+                        } else {
+                            // First occurrence - create base shared type
+                            className = ClassName("${context.packageName}.responses", graphQLTypeDefinition.name)
+                            context.responseClassToTypeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+
+                            // Track selection set for this variant
+                            if (selectionSet != null) {
+                                val selectedFields = calculateSelectedFields(context, graphQLTypeDefinition.name, selectionSet)
+                                context.sharedTypeVariantToSelectionSetMap[graphQLTypeDefinition.name] = selectedFields
+                            }
+                        }
+                    } else {
+                        // Use original logic for operation-specific types
+                        className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+                        context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                    }
                 }
                 is InputObjectTypeDefinition -> {
                     className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.inputs")
@@ -257,4 +299,20 @@ private fun calculateSelectedFields(
         }
     }
     return result
+}
+
+/**
+ * Helper function to check if a cached shared type matches the current selection set.
+ */
+private fun isCachedTypeApplicableForSharedType(
+    context: GraphQLClientGeneratorContext,
+    cachedClassName: ClassName,
+    graphQLTypeDefinition: TypeDefinition<*>,
+    selectionSet: SelectionSet?
+): Boolean {
+    if (selectionSet == null) return true
+
+    val selectedFields = calculateSelectedFields(context, graphQLTypeDefinition.name, selectionSet)
+    val cachedTypeFields = context.sharedTypeVariantToSelectionSetMap[cachedClassName.simpleName]
+    return selectedFields == cachedTypeFields
 }
