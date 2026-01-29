@@ -32,13 +32,15 @@ class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Optional<Produ
     override val dataLoaderName: String = "ProductDataLoader"
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<ProductServiceRequest, Optional<Product>> =
         DataLoaderFactory.newDataLoader(
-            { requests ->
+            { requests: List<ProductServiceRequest> ->
                 ProductRepository
                     .getProducts(requests)
                     .collectList()
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 

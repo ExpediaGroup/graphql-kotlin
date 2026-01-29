@@ -35,13 +35,15 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Optional<Missi
     override val dataLoaderName: String = "MissionDataLoader"
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, Optional<Mission>> =
         DataLoaderFactory.newDataLoader(
-            { keys ->
+            { keys: List<MissionServiceRequest> ->
                 MissionRepository
                     .getMissions(keys.map(MissionServiceRequest::id))
                     .collectList()
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 
@@ -49,12 +51,14 @@ class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, Li
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, List<Mission>> =
         DataLoaderFactory.newDataLoader(
-            { keys ->
+            { keys: List<MissionServiceRequest> ->
                 MissionRepository
                     .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
                     .collectList().toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 

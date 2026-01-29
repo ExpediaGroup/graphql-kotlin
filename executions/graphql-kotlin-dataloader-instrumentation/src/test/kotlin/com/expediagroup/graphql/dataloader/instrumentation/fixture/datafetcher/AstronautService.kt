@@ -41,13 +41,15 @@ class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Optional<A
     override val dataLoaderName: String = "AstronautDataLoader"
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<AstronautServiceRequest, Optional<Astronaut>> =
         DataLoaderFactory.newDataLoader(
-            { keys ->
+            { keys: List<AstronautServiceRequest> ->
                 AstronautRepository
                     .getAstronauts(keys.map(AstronautServiceRequest::id))
                     .collectList()
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 
