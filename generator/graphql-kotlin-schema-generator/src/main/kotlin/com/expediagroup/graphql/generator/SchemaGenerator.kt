@@ -28,6 +28,7 @@ import com.expediagroup.graphql.generator.internal.types.generateSchemaDirective
 import com.expediagroup.graphql.generator.internal.types.generateSubscriptions
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
@@ -96,15 +97,16 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      *
      * This function loops because while generating the additionalTypes it is possible to create more additional types that need to be processed.
      */
-    internal fun generateAdditionalTypes(): Set<GraphQLType> {
-        val graphqlTypes = this.config.additionalTypes.toMutableSet()
+    internal fun generateAdditionalTypes(): Set<GraphQLNamedType> {
+        val graphqlTypes = mutableSetOf<GraphQLNamedType>()
+        graphqlTypes.addAll(this.config.additionalTypes.filterIsInstance<GraphQLNamedType>())
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
             this.additionalTypes.clear()
             graphqlTypes.addAll(
                 currentlyProcessedTypes.map {
                     GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, GraphQLKTypeMetadata(inputType = it.inputType, fieldAnnotations = it.kType.getKClass().annotations)))
-                }
+                }.filterIsInstance<GraphQLNamedType>()
             )
         }
 

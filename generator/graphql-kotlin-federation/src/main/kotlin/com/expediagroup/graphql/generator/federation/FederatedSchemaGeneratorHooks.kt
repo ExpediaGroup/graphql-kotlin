@@ -330,7 +330,7 @@ open class FederatedSchemaGeneratorHooks(
             federatedQuery.field(entityField)
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntitiesDataFetcher(resolvers))
-            federatedCodeRegistry.typeResolver(ENTITY_UNION_NAME) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
+            federatedCodeRegistry.typeResolver(ENTITY_UNION_NAME) { env: TypeResolutionEnvironment -> env.getObjectName()?.let { env.schema.getObjectType(it) } }
 
             builder.query(federatedQuery)
                 .codeRegistry(federatedCodeRegistry.build())

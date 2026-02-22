@@ -23,7 +23,7 @@ import org.dataloader.DataLoader
  * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
  * by return type and loading values in the data fetchers.
  */
-interface KotlinDataLoader<K, V> {
+interface KotlinDataLoader<K : Any, V> {
     val dataLoaderName: String
     fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<K, V>
 }

@@ -122,7 +122,7 @@ class ExecutionInputState(
         }
 
         val parentFieldExecutionStrategyPathString = when {
-            isList(parentFieldGraphQLType) -> fieldExecutionStrategyPath.parent?.parent?.toString()
+            parentFieldGraphQLType != null && isList(parentFieldGraphQLType) -> fieldExecutionStrategyPath.parent?.parent?.toString()
             else -> fieldExecutionStrategyPath.parent?.toString()
         }
 
