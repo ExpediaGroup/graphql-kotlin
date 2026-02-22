@@ -251,7 +251,9 @@ class GraphQLClientGenerator(
             )
         }
         val rootType = operationNames[operationDefinition.operation.name]
-        return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
+            ?: error("Root type for operation ${operationDefinition.operation.name} not found")
+        return graphQLSchema.getTypeOrNull(rootType) as? ObjectTypeDefinition
+            ?: error("Root type $rootType not found in schema")
     }
 
     private fun parseSchema(path: String): TypeDefinitionRegistry {

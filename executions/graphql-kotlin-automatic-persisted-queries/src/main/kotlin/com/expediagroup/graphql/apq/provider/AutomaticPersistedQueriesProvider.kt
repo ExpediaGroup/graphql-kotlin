@@ -66,7 +66,7 @@ class AutomaticPersistedQueriesProvider(
                 PreparsedDocumentEntry(
                     GraphqlErrorBuilder.newError()
                         .errorType(persistedQueryError)
-                        .message(persistedQueryError.message)
+                        .message(persistedQueryError.message ?: "Persisted query error")
                         .extensions(
                             when (persistedQueryError) {
                                 // persistedQueryError.getExtensions()

@@ -95,7 +95,8 @@ internal fun generateTypeName(
  * selection set.
  */
 internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, graphQLType: NamedNode<*>, selectionSet: SelectionSet? = null): ClassName {
-    val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(graphQLType.name).get()
+    val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getTypeOrNull(graphQLType.name)
+        ?: error("Type ${graphQLType.name} not found in schema")
     val graphQLTypeName = graphQLTypeDefinition.name
     val cachedTypeNames = context.classNameCache[graphQLTypeName]
 

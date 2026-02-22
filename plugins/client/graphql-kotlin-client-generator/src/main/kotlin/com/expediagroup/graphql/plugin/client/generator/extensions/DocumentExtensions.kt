@@ -23,5 +23,5 @@ import graphql.language.FragmentDefinition
 
 internal fun Document.findFragmentDefinition(context: GraphQLClientGeneratorContext, targetFragment: String, targetType: String): FragmentDefinition =
     this.getDefinitionsOfType(FragmentDefinition::class.java)
-        .find { it.name == targetFragment && context.graphQLSchema.getType(it.typeCondition.name).isPresent }
+        .find { it.name == targetFragment && context.graphQLSchema.getTypeOrNull(it.typeCondition.name) != null }
         ?: throw InvalidFragmentException(context.operationName, targetFragment, targetType)
