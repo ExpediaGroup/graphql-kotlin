@@ -1,7 +1,6 @@
 [versions]
 android-plugin = "8.5.0"
-#classgraph = "4.8.184"
-classgraph = "4.8.174"
+classgraph = "4.8.184"
 dataloader = "4.0.0"
 federation = "5.2.0"
 graphql-java = "23.1"
