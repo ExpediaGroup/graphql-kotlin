@@ -32,7 +32,7 @@ commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
 compile-testing = "0.5.1"
 icu = "75.1"
 junit = "5.12.2"
-junit-platform = "1.10.1"
+junit-platform = "1.14.3"
 logback = "1.5.32"
 mockk = "1.13.13"
 rxjava = "3.1.12"
