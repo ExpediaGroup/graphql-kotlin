@@ -12,7 +12,6 @@ kotlinx-benchmark = "0.4.13"
 kotlinx-coroutines = "1.9.0"
 # TODO kotlin 1.9 upgrade: fix GraphQLTestUtils and GenerateKotlinxClientIT
 kotlinx-serialization = "1.6.3"
-#ktor = "3.4.0"
 ktor = "3.2.3"
 fastjson2 = "2.0.61"
 maven-plugin-annotation = "3.13.1"
@@ -21,13 +20,10 @@ maven-project = "2.2.1"
 poet = "1.17.0"
 ## reactor and spring versions should be the same as defined in spring-boot-dependencies
 reactor-core = "3.7.16"
-#reactor-core = "3.6.7"
 reactor-extensions = "1.2.5"
 slf4j = "2.0.17"
 spring = "6.2.16"
-#spring = "6.1.10"
 spring-boot = "3.5.11"
-#spring-boot = "3.2.7"
 
 # security vulnerabilities overrides
 commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
@@ -38,10 +34,9 @@ icu = "75.1"
 junit = "5.12.2"
 junit-platform = "1.10.1"
 logback = "1.5.32"
-#mockk = "1.14.9" Requires kotlin upgrade
 mockk = "1.13.13"
 rxjava = "3.1.12"
-wiremock = "3.7.0"
+wiremock = "3.13.2"
 
 # plugins
 detekt = "1.23.7"
