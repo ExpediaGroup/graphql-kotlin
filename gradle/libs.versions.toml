@@ -49,8 +49,7 @@ wiremock = "3.7.0"
 
 # plugins
 detekt = "1.23.7"
-#dokka = "2.1.0"
-dokka = "2.0.0"
+dokka = "2.1.0"
 jacoco = "0.8.12"
 ktlint-core = "1.5.0"
 ktlint-plugin = "12.1.2"
