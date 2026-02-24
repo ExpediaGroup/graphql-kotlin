@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jre
 EXPOSE 8081
 
 ARG JAR_FILE=build/libs/reviews-subgraph.jar

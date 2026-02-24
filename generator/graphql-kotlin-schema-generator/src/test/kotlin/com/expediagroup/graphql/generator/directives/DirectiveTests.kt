@@ -169,7 +169,7 @@ class QueryWithDeprecatedFields {
     @Deprecated("this query is also deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
     fun graphqlDeprecatedQueryWithReplacement(something: String) = something
 
-    fun graphqlQueryWithDeprecatedFields(@GraphQLDeprecated("This field is deprecated") something: String, replacement: String) = "$something -> $replacement"
+    fun graphqlQueryWithDeprecatedFields(@GraphQLDeprecated("This field is deprecated") something: String? = null, replacement: String) = "$something -> $replacement"
 }
 
 data class ClassWithDeprecatedField(

@@ -40,7 +40,7 @@ class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Product?> {
                     .map(List<Optional<Product>>::toListOfNullables)
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector).build()
         )
 }
 

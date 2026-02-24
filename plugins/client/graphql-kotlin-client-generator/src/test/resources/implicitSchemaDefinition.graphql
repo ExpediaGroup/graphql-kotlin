@@ -1,0 +1,5 @@
+"Simple type"
+type Query {
+  "A simple field"
+  hello: String!
+}

@@ -182,10 +182,12 @@ class ExecutionStrategyState(
          *
          * @return Boolean indicating if above conditions met
          */
-        fun isCompletedListOfComplexObjects(): Boolean =
-            fetchState == FieldFetchState.COMPLETED && result != null &&
-                GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+        fun isCompletedListOfComplexObjects(): Boolean {
+            val type = graphQLType ?: return false
+            return fetchState == FieldFetchState.COMPLETED && result != null &&
+                GraphQLTypeUtil.isList(type) && !GraphQLTypeUtil.isLeaf(type) &&
                 (result as? List<*>)?.filterNotNull()?.size == executionStrategyPaths.size
+        }
 
         /**
          * field [fetchState] is completed with a non-null [result] and
@@ -193,10 +195,12 @@ class ExecutionStrategyState(
          *
          * @return Boolean indicating if above conditions met
          */
-        fun isCompletedComplexObject(): Boolean =
-            fetchState == FieldFetchState.COMPLETED && result != null &&
-                !GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+        fun isCompletedComplexObject(): Boolean {
+            val type = graphQLType ?: return false
+            return fetchState == FieldFetchState.COMPLETED && result != null &&
+                !GraphQLTypeUtil.isList(type) && !GraphQLTypeUtil.isLeaf(type) &&
                 executionStrategyPaths.isNotEmpty()
+        }
 
         /**
          * field [fetchState] is [FieldFetchState.COMPLETED]
@@ -204,9 +208,11 @@ class ExecutionStrategyState(
          *
          * @return Boolean indicating if above conditions met
          */
-        fun isCompletedLeafOrNull(): Boolean =
-            fetchState == FieldFetchState.COMPLETED &&
-                (GraphQLTypeUtil.isLeaf(graphQLType) || result == null)
+        fun isCompletedLeafOrNull(): Boolean {
+            val type = graphQLType
+            return fetchState == FieldFetchState.COMPLETED &&
+                (type != null && GraphQLTypeUtil.isLeaf(type) || result == null)
+        }
 
         /**
          * field [fetchType] is [FieldFetchType.ASYNC],

@@ -56,7 +56,8 @@ class SyncExecutionExhaustedState(
     fun beginExecution(
         parameters: InstrumentationExecutionParameters
     ): InstrumentationContext<ExecutionResult> {
-        executions.computeIfAbsent(parameters.executionInput.executionId) {
+        val executionId = parameters.executionInput.executionId ?: return SimpleInstrumentationContext.noOp()
+        executions.computeIfAbsent(executionId) {
             ExecutionInputState(parameters.executionInput)
         }
         return object : SimpleInstrumentationContext<ExecutionResult>() {
@@ -69,9 +70,9 @@ class SyncExecutionExhaustedState(
              */
             override fun onCompleted(result: ExecutionResult?, t: Throwable?) {
                 if ((result != null && result.errors.isNotEmpty()) || t != null) {
-                    if (executions.containsKey(parameters.executionInput.executionId)) {
+                    if (executions.containsKey(executionId)) {
                         synchronized(executions) {
-                            executions.remove(parameters.executionInput.executionId)
+                            executions.remove(executionId)
                             totalExecutions.set(totalExecutions.get() - 1)
                         }
                         if (allSyncExecutionsExhausted()) {
@@ -93,7 +94,7 @@ class SyncExecutionExhaustedState(
     fun beginRecursiveExecution(
         parameters: InstrumentationExecutionStrategyParameters
     ) {
-        val executionId = parameters.executionContext.executionInput.executionId
+        val executionId = parameters.executionContext.executionInput.executionId ?: return
         executions.computeIfPresent(executionId) { _, executionState ->
             val executionStrategyParameters = parameters.executionStrategyParameters
 
@@ -117,7 +118,7 @@ class SyncExecutionExhaustedState(
     fun beginFieldFetching(
         parameters: InstrumentationFieldFetchParameters
     ): FieldFetchingInstrumentationContext {
-        val executionId = parameters.executionContext.executionInput.executionId
+        val executionId = parameters.executionContext.executionInput.executionId ?: return FieldFetchingInstrumentationContext.NOOP
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
