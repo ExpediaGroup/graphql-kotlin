@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jre
 EXPOSE 8080
 
 ARG JAR_FILE=build/libs/products-subgraph.jar
