@@ -39,7 +39,7 @@ class PlanetsByMissionDataLoader : KotlinDataLoader<PlanetServiceRequest, List<P
                     .collectList()
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector).build()
         )
 }
 

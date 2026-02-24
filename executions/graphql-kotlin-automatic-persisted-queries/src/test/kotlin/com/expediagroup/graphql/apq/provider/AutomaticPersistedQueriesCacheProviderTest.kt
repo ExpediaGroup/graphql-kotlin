@@ -56,8 +56,8 @@ class AutomaticPersistedQueriesCacheProviderTest {
         assertEquals(firstResultWithQueryId.errors.size, 1)
         assertTrue(firstResultWithQueryId.errors[0].errorType is PersistedQueryNotFound)
         assertEquals("PersistedQueryNotFound", firstResultWithQueryId.errors[0].message)
-        assertEquals("2ec03b0d1d2e458ffafa173a7e965de18e1c91e7c28546f0ef093778ddeeb49c", firstResultWithQueryId.errors[0].extensions["persistedQueryId"])
-        assertEquals("graphql-java", firstResultWithQueryId.errors[0].extensions["generatedBy"])
+        assertEquals("2ec03b0d1d2e458ffafa173a7e965de18e1c91e7c28546f0ef093778ddeeb49c", firstResultWithQueryId.errors[0].extensions?.get("persistedQueryId"))
+        assertEquals("graphql-java", firstResultWithQueryId.errors[0].extensions?.get("generatedBy"))
 
         // Second execution persists query string and hash
 
@@ -130,7 +130,7 @@ class AutomaticPersistedQueriesCacheProviderTest {
         assertEquals(result.errors.size, 1)
         assertTrue(result.errors[0].errorType is PersistedQueryIdInvalid)
         assertEquals("PersistedQueryIdInvalid", result.errors[0].message)
-        assertEquals("0000000000000000000000000000000000000000000000000000000000000000", result.errors[0].extensions["persistedQueryId"])
+        assertEquals("0000000000000000000000000000000000000000000000000000000000000000", result.errors[0].extensions?.get("persistedQueryId"))
     }
 
     @Test

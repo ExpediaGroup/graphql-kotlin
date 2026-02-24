@@ -48,7 +48,7 @@ class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?
                     .map(List<Optional<Astronaut>>::toListOfNullables)
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector).build()
         )
 }
 

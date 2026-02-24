@@ -42,7 +42,7 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
                     .map(List<Optional<Mission>>::toListOfNullables)
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector).build()
         )
 }
 
@@ -55,7 +55,7 @@ class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, Li
                     .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
                     .collectList().toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector).build()
         )
 }
 

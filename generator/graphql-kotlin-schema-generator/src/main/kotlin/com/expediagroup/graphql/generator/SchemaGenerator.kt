@@ -30,7 +30,6 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLSchema
-import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
