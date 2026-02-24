@@ -19,7 +19,6 @@ package com.expediagroup.graphql.plugin.client.generator
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -42,10 +41,12 @@ class GraphQLClientGeneratorTest {
     @Test
     fun `verify generation fails with multiple operations in file`(@TempDir tempDir: File) {
         val queryFile = File(tempDir, "MultiOp.graphql")
-        queryFile.writeText("""
+        queryFile.writeText(
+            """
             query FirstQuery { hello }
             query SecondQuery { hello }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val config = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.generated")
         val generator = GraphQLClientGenerator("implicitSchemaDefinition.graphql", config)
