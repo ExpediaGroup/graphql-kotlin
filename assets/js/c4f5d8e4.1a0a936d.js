@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgraphql_kotlin_docs=self.webpackChunkgraphql_kotlin_docs||[]).push([[52634],{30192(l,r,s){s.r(r),s.d(r,{default:()=>o});var t=s(22195),n=s(74848);function o(){return(0,n.jsx)(t.rd,{to:"/graphql-kotlin/docs"})}}}]);
