@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     testImplementation(libs.junit.api)
     testImplementation(libs.junit.engine)
+    testImplementation(libs.junit.platform-engine)
 }
 
 graphql {

@@ -32,7 +32,6 @@ commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
 compile-testing = "0.5.1"
 icu = "75.1"
 junit = "5.12.2"
-junit-platform = "1.12.2"
 logback = "1.5.32"
 mockk = "1.13.13"
 rxjava = "3.1.12"
@@ -91,7 +90,6 @@ spring-webflux = { group = "org.springframework", name = "spring-webflux", versi
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
 fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
 fastjson2-spring = { group = "com.alibaba.fastjson2", name = "fastjson2-extension-spring6", version.ref = "fastjson2" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 
 # security vulnerabilities overrides
 commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
@@ -99,14 +97,13 @@ commons-codec = { group = "commons-codec", name = "commons-codec", version.ref =
 # test dependencies
 compile-testing = { group = "dev.zacsweers.kctfork", name = "core", version.ref = "compile-testing" }
 icu = { group = "com.ibm.icu", name = "icu4j", version.ref = "icu" }
-logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
-junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
-junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
-junit-platform-engine = { group = "org.junit.platform", name = "junit-platform-engine", version.ref = "junit-platform" }
-kotlin-junit-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 kotlin-annotation-processing = { group = "org.jetbrains.kotlin", name = "kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
 kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlin-junit-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
