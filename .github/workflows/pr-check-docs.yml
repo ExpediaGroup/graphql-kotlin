@@ -16,19 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Build website
         run: |
           cd website
-          npm install
-          npm run build
+          bun install --frozen-lockfile
+          bun run build

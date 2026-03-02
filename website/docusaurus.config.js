@@ -10,10 +10,12 @@ module.exports = {
     repoUrl: "https://github.com/ExpediaGroup/graphql-kotlin"
   },
   markdown: {
-    mermaid: true
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    }
   },
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
   onDuplicateRoutes: 'throw',
   presets: [
     [
@@ -21,14 +23,14 @@ module.exports = {
       {
         docs: {
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/website",
-          lastVersion: '8.x.x',
+          lastVersion: '9.x.x',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
               label: 'pre-release',
-              path: '9.x.x'
+              path: '10.x.x'
             }
           }
         }

@@ -1,0 +1,473 @@
+---
+id: client-serialization
+title: Client Serialization
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+GraphQL Kotlin build plugins can generate GraphQL client data classes that are compatible with [`Jackson`](https://github.com/FasterXML/jackson)
+(default) or [`kotlinx.serialization`](https://github.com/Kotlin/kotlinx.serialization) data models. By default, GraphQL
+clients will attempt to pick up the appropriate serializer from a classpath - `graphql-kotlin-spring-client` defines implicit
+dependency on `Jackson` based serializer and `graphql-kotlin-ktor-client` define a dependency on a `kotlinx.serialization`.
+
+`GraphQLClientSerializer` is a service provider interface that expose generic serialize/deserialize methods that are used
+by the GraphQL clients to serialize requests to String and deserialize responses from String. By utilizing Java [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
+mechanism we can dynamically load appropriate serializer from the classpath. If there are multiple providers on the classpath,
+we default to select the first one available one on the classpath.
+
+## GraphQL Kotlin Spring Client
+
+### Using Jackson
+
+`Jackson` is the default serializer used by the build plugins and by GraphQL Kotlin Spring Client.
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-spring-client", $graphQLKotlinVersion) {
+}
+
+graphql {
+  client {
+    endpoint = "http://localhost:8080/graphql"
+    packageName = "com.example.generated"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<project>
+    <!-- other elements omitted for brewity -->
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-spring-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>introspect-schema</goal>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <packageName>com.example.generated</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</TabItem>
+</Tabs>
+
+By default, `ServiceLoader` mechanism will load the first available GraphQL client serializer from the classpath.
+
+```kotlin
+val client = GraphQLWebClient(
+  url = "http://localhost:8080/graphql"
+  serializer = GraphQLClientJacksonSerializer()
+)
+```
+
+### Using Kotlinx Serialization
+
+In order to use `kotlinx.serialization` we need to
+
+* add dependency on `graphql-kotlin-client-serialization`
+* configure GraphQL plugin to generate `kotlinx.serialization` compatible data models
+* configure corresponding compiler plugin
+* explicitly specify the target serializer during client construction OR exclude `graphql-kotlin-client-jackson` dependency
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+plugins {
+    kotlin("plugin.serialization") version $kotlinVersion
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-spring-client", $graphQLKotlinVersion) {
+        exclude("com.expediagroup", "graphql-kotlin-client-jackson")
+    }
+    implementation("com.expediagroup", "graphql-kotlin-client-serialization", $graphQLKotlinVersion)
+}
+
+graphql {
+  client {
+    endpoint = "http://localhost:8080/graphql"
+    packageName = "com.example.generated"
+    serializer = GraphQLSerializer.KOTLINX
+  }
+}
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<project>
+    <!-- other elements omitted for brewity -->
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-spring-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.expediagroup</groupId>
+                    <artifactId>graphql-kotlin-client-jackson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-client-serialization</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlinx-serialization.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>introspect-schema</goal>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <packageName>com.example.generated</packageName>
+                            <serializer>KOTLINX</serializer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</TabItem>
+</Tabs>
+
+By default, `ServiceLoader` mechanism will load the first available GraphQL client serializer from the classpath. We can
+also explicitly specify serializer during client construction
+
+```kotlin
+val client = GraphQLWebClient(
+  url = "http://localhost:8080/graphql"
+  serializer = GraphQLClientKotlinxSerializer()
+)
+```
+
+## GraphQL Kotlin Ktor Client
+
+### Using Kotlinx Serialization
+
+`kotlinx.serialization` is the default serializer used by the GraphQL Kotlin Ktor Client. Build plugins default to use
+`Jackson` so we have to explicitly configure the tasks/mojos to use appropriate serializer.
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+plugins {
+    kotlin("plugin.serialization") version $kotlinVersion
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-ktor-client", $graphQLKotlinVersion) {
+}
+
+graphql {
+  client {
+    endpoint = "http://localhost:8080/graphql"
+    packageName = "com.example.generated"
+    serializer = GraphQLSerializer.KOTLINX
+  }
+}
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<project>
+    <!-- other elements omitted for brewity -->
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-ktor-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlinx-serialization.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>introspect-schema</goal>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <packageName>com.example.generated</packageName>
+                            <serializer>KOTLINX</serializer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</TabItem>
+</Tabs>
+
+By default, `ServiceLoader` mechanism will load the first available GraphQL client serializer from the classpath.
+
+```kotlin
+val client = GraphQLKtorClient(
+  url = URL("http://localhost:8080/graphql")
+  serializer = GraphQLClientKotlinxSerializer()
+)
+```
+
+### Using Jackson
+
+In order to use `Jackson` we need to
+
+* add dependency on `graphql-kotlin-client-jackson`
+* explicitly specify the target serializer during client construction OR exclude `graphql-kotlin-client-serialization` dependency
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-ktor-client", $graphQLKotlinVersion) {
+        exclude("com.expediagroup", "graphql-kotlin-client-serialization")
+    }
+    implementation("com.expediagroup", "graphql-kotlin-client-jackson", $graphQLKotlinVersion)
+}
+
+graphql {
+  client {
+    endpoint = "http://localhost:8080/graphql"
+    packageName = "com.example.generated"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<project>
+    <!-- other elements omitted for brewity -->
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-ktor-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.expediagroup</groupId>
+                    <artifactId>graphql-kotlin-client-serialization</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-client-jackson</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>introspect-schema</goal>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <packageName>com.example.generated</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</TabItem>
+</Tabs>
+
+By default, `ServiceLoader` mechanism will load the first available GraphQL client serializer from the classpath. We can
+also explicitly specify serializer during client construction
+
+```kotlin
+val client = GraphQLKtorClient(
+  url = URL("http://localhost:8080/graphql")
+  serializer = GraphQLClientJacksonSerializer()
+)
+```
