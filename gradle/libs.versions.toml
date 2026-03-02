@@ -7,12 +7,11 @@ graphql-java = "23.1"
 graalvm = "0.10.2"
 jackson = "2.17.1"
 # kotlin version has to match the compile-testing compiler version
-kotlin = "2.0.0"
+kotlin = "2.2.20"
 kotlinx-benchmark = "0.4.13"
-kotlinx-coroutines = "1.9.0"
-# TODO kotlin 1.9 upgrade: fix GraphQLTestUtils and GenerateKotlinxClientIT
-kotlinx-serialization = "1.6.3"
-ktor = "3.0.3"
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.9.0"
+ktor = "3.3.0"
 fastjson2 = "2.0.56"
 maven-plugin-annotation = "3.13.1"
 maven-plugin-api = "3.9.8"
@@ -29,7 +28,7 @@ spring-boot = "3.2.7"
 commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
 
 # test dependencies
-compile-testing = "0.5.1"
+compile-testing = "0.10.0"
 icu = "75.1"
 junit = "5.10.2"
 junit-platform = "1.10.1"
