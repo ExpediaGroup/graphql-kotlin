@@ -1,0 +1,270 @@
+---
+id: gradle-plugin-usage-graalvm
+title: Gradle Plugin GraalVM Usage
+sidebar_label: GraalVM Native Image
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+[GraalVm](https://www.graalvm.org/) is a high performance runtime from Oracle that supports Ahead-of-Time (AOT) compilation
+that allows you to build native images. By shifting compilation to the build time, we can create binaries that are
+**already optimized so they start almost instantaneously with immediate peak performance**. Compiled code is also much
+more memory efficient as we no longer need the big memory overhead of running the JVM.
+
+In order to generate GraalVM Native image we need to provide the information about all the dynamic JVM features that our
+application relies on. Since `graphql-kotlin` generates schema directly from your source code using reflections, we need
+to capture this information to make it available at build time. By default, `graphql-kotlin` also relies on classpath scanning
+to look up all polymorphic types implementations as well as to locate all the (Apollo) Federated entity types.
+
+## Ktor GraalVM Native Image
+
+Given following schema
+
+```kotlin
+class NativeExampleQuery : Query {
+    fun helloWorld() = "Hello World"
+}
+```
+
+We first need to configure our server to avoid class scanning. Even though our example schema does not contain any
+polymorphic types, **we still need to explicitly opt-out of class scanning by providing type hierarchy**.
+
+```kotlin
+fun Application.graphQLModule() {
+    install(GraphQL) {
+        schema {
+            packages = listOf("com.example")
+            queries = listOf(
+                HelloWorldQuery()
+            )
+            // mapping between interfaces/union KClass and their implementation KClasses
+            typeHierarchy = mapOf()
+        }
+    }
+    install(Routing) {
+        graphQLPostRoute()
+        graphiQLRoute()
+    }
+}
+```
+
+We then need to update our build with native configuration
+
+<Tabs
+defaultValue="native"
+values={[
+{ label: 'Original Build File', value: 'original' },
+{ label: 'Native Build File', value: 'native' }
+]
+}>
+
+<TabItem value="original">
+
+```kotlin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    kotlin("jvm") version "1.7.21"
+    application
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-ktor-server", $latestGraphQLKotlinVersion)
+    implementation("ch.qos.logback", "logback-classic", "1.4.7")
+    implementation("io.ktor", "ktor-client-cio", "2.2.4")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
+}
+
+application {
+    mainClass.set("com.example.ApplicationKt")
+}
+```
+
+</TabItem>
+<TabItem value="native">
+
+```kotlin
+import com.expediagroup.graphql.plugin.gradle.graphql
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    kotlin("jvm") version "1.7.21"
+    application
+    id("org.graalvm.buildtools.native") version "0.9.21" // (1)
+    id("com.expediagroup.graphql") version $latestGraphQLKotlinVersion // (2)
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-ktor-server", $latestGraphQLKotlinVersion)
+    implementation("ch.qos.logback", "logback-classic", "1.4.7")
+    implementation("io.ktor", "ktor-client-cio", "2.2.4")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
+}
+
+application {
+    mainClass.set("com.example.ApplicationKt")
+}
+
+graalvmNative { // (3)
+    toolchainDetection.set(false)
+    binaries {
+        named("main") {
+            verbose.set(true)
+            buildArgs.add("--initialize-at-build-time=io.ktor,kotlin,ch.qos.logback,org.slf4j")
+            buildArgs.add("-H:+ReportExceptionStackTraces")
+        }
+        // enable using reachability metadata repository
+        metadataRepository {
+            enabled.set(true)
+        }
+    }
+}
+
+graphql { // (4)
+    graalVm {
+        packages = listOf("com.example")
+    }
+}
+```
+
+We need to make couple changes to our build file to be able to generate GraalVM native image:
+
+1. Apply [GraalVM Native Gradle plugin](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
+2. Apply GraphQL Kotlin Gradle plugin
+3. Configure GraalVM native image
+4. Configure GraphQL Kotlin GraalVM extension
+
+</TabItem>
+</Tabs>
+
+Once the build is configured we can then generate our native image by running `nativeCompile` task.
+
+```shell
+> ./gradlew nativeCompile
+```
+
+Native executable image will then be generated under `build/native/nativeCompile` directory.
+
+## Spring GraalVM Native Image
+
+Given following schema
+
+```kotlin
+@Component
+class NativeExampleQuery : Query {
+    fun helloWorld() = "Hello World"
+}
+```
+
+We first need to configure our server to avoid class scanning. Even though our example schema does not contain any
+polymorphic types, **we still need to explicitly opt-out of class scanning by providing type hierarchy**.
+
+```kotlin
+@SpringBootApplication
+class Application {
+    @Bean
+    fun typeResolver(): GraphQLTypeResolver = SimpleTypeResolver(mapOf())
+}
+
+fun main(args: Array<String>) {
+    runApplication<Application>(*args)
+}
+```
+
+We then need to update our build with native configuration
+
+<Tabs
+defaultValue="native"
+values={[
+{ label: 'Original Build File', value: 'original' },
+{ label: 'Native Build File', value: 'native' }
+]
+}>
+
+<TabItem value="original">
+
+```kotlin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    kotlin("jvm") version "1.7.21"
+    kotlin("plugin.spring") version "1.7.21"
+    id("org.springframework.boot") version "3.0.5"
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-spring-server", $latestGraphQLKotlinVersion)
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
+}
+```
+
+</TabItem>
+<TabItem value="native">
+
+```kotlin
+import com.expediagroup.graphql.plugin.gradle.graphql
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    kotlin("jvm") version "1.7.21"
+    kotlin("plugin.spring") version "1.7.21"
+    id("org.springframework.boot") version "3.0.6"
+    id("org.graalvm.buildtools.native") version "0.9.21" // (1)
+    id("com.expediagroup.graphql") version $latestGraphQLKotlinVersion // (2)
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-spring-server", $latestGraphQLKotlinVersion)
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
+}
+
+graalvmNative { // (3)
+    toolchainDetection.set(false)
+    binaries {
+        named("main") {
+            verbose.set(true)
+        }
+        // enable using reachability metadata repository
+        metadataRepository {
+            enabled.set(true)
+        }
+    }
+}
+
+graphql { // (4)
+    graalVm {
+        packages = listOf("com.example")
+    }
+}
+```
+
+We need to make couple changes to our build file to be able to generate GraalVM native image:
+
+1. Apply [GraalVM Native Gradle plugin](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
+2. Apply GraphQL Kotlin Gradle plugin
+3. Configure GraalVM native image
+4. Configure GraphQL Kotlin GraalVM extension
+
+</TabItem>
+</Tabs>
+
+Once the build is configured we can then generate our native image by running `nativeCompile` task.
+
+```shell
+> ./gradlew nativeCompile
+```
+
+Native executable image will then be generated under `build/native/nativeCompile` directory.

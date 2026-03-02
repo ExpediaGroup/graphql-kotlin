@@ -1,0 +1,171 @@
+---
+id: gradle-plugin-usage-sdl
+title: Gradle Plugin SDL Usage
+sidebar_label: Generating SDL
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+GraphQL Kotlin follows a code-first approach where schema is auto generated from your source code at runtime. GraphQL Kotlin
+plugins can be used to generate schema as a build time artifact. This allows you to seamlessly integrate with various
+GraphQL tools that may require a schema artifact as an input (e.g. to perform backwards compatibility checks, etc).
+
+## Generating SDL
+
+GraphQL schema can be generated directly from your source code using reflections. `graphqlGenerateSDL` will scan your
+classpath looking for classes implementing `Query`, `Mutation` and `Subscription` marker interfaces and then generates the
+corresponding GraphQL schema using `graphql-kotlin-schema-generator` and default `NoopSchemaGeneratorHooks`. In order to
+limit the amount of packages to scan, this task requires users to provide a list of `packages` that can contain GraphQL
+types.
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
+
+<TabItem value="kotlin">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+graphql {
+  schema {
+    packages = listOf("com.example")
+  }
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
+
+val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
+    packages.set(listOf("com.example"))
+}
+```
+
+</TabItem>
+<TabItem value="groovy">
+
+```groovy
+// build.gradle
+graphql {
+  schema {
+    packages = ["com.example"]
+  }
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```groovy
+//build.gradle
+graphqlGenerateSDL {
+    packages = ["com.example"]
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::
+
+## Using Custom Hooks Provider
+
+Plugin will default to use `NoopSchemaGeneratorHooks` to generate target GraphQL schema. If your project uses custom hooks
+or needs to generate the federated GraphQL schema, you will need to provide an instance of `SchemaGeneratorHooksProvider`
+service provider that will be used to create an instance of your custom hooks.
+
+`graphqlGenerateSDL` utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
+mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
+can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
+See [Schema Generator Hooks Provider](./hooks-provider.mdx) for additional details on how to create custom hooks service provider.
+Configuration below shows how to configure GraphQL Kotlin plugin with explicitly provided artifact to generate federated
+GraphQL schema.
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
+
+<TabItem value="kotlin">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+graphql {
+  schema {
+    packages = listOf("com.example")
+  }
+}
+
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
+
+val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
+    packages.set(listOf("com.example"))
+}
+
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
+```
+
+</TabItem>
+<TabItem value="groovy">
+
+```groovy
+// build.gradle
+graphql {
+  schema {
+    packages = ["com.example"]
+  }
+}
+
+dependencies {
+    graphqlSDL "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```groovy
+//build.gradle
+graphqlGenerateSDL {
+    packages = ["com.example"]
+}
+
+dependencies {
+    graphqlSDL "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::
