@@ -9,7 +9,9 @@ dependencies {
     implementation(projects.commonGraalvmServer)
     implementation(libs.logback)
     implementation(libs.ktor.server.cio)
-    testImplementation(libs.junit.api)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.ktor.client.content)
     testImplementation(libs.ktor.server.test.host)
@@ -23,7 +25,7 @@ tasks {
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.ext["version"],
         "graphqlJavaVersion" to libs.versions.graphql.java.get(),
-        "junitVersion" to libs.versions.junit.asProvider().get(),
+        "junitVersion" to libs.versions.junit.get(),
         "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to libs.versions.kotlin.get(),
         "ktorVersion" to libs.versions.ktor.get(),
