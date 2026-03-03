@@ -20,6 +20,7 @@ android {
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-ktor-client")
     implementation(libs.kotlin.stdlib)
+    testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.engine)
     testImplementation(libs.junit.platform-engine)
