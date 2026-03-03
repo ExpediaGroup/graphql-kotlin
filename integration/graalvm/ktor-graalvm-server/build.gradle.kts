@@ -12,7 +12,7 @@ dependencies {
     implementation(projects.commonGraalvmServer)
     implementation(libs.logback)
     implementation(libs.ktor.server.cio)
-    testImplementation(libs.junit.api)
+    testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.ktor.client.content)
     testImplementation(libs.ktor.server.test.host)
