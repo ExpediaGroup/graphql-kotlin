@@ -23,10 +23,10 @@ tasks {
     }
     val kotlinJvmVersion: String by project
     withType<KotlinCompile> {
-        kotlinOptions {
+        compilerOptions {
             // intellij gets confused without it
-            jvmTarget = kotlinJvmVersion
-            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(kotlinJvmVersion))
+            freeCompilerArgs.set(listOf("-Xjsr305=strict"))
         }
     }
 
