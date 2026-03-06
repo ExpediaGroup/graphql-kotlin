@@ -144,8 +144,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.jdk8)
     testImplementation(libs.kotlin.test)
     testImplementation(platform(libs.junit.bom))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlin.junit.test)
     testImplementation(libs.mockk)
 }
