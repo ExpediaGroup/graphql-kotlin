@@ -19,10 +19,12 @@ import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.introspection.IntrospectionQuery
 import org.hamcrest.core.StringContains
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -37,7 +39,14 @@ import kotlin.random.Random
     ]
 )
 @EnableAutoConfiguration
-class IntrospectionIT(@Autowired private val testClient: WebTestClient) {
+class IntrospectionIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify custom jackson bindings work with function data fetcher`() {

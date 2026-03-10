@@ -28,11 +28,13 @@ import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
+import org.springframework.boot.jackson2.autoconfigure.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -47,7 +49,14 @@ import kotlin.reflect.jvm.jvmErasure
     properties = ["graphql.packages=com.expediagroup.graphql.server.spring.execution"]
 )
 @EnableAutoConfiguration
-class DataFetcherIT(@Autowired private val testClient: WebTestClient) {
+class DataFetcherIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify custom jackson bindings work with function data fetcher`() {

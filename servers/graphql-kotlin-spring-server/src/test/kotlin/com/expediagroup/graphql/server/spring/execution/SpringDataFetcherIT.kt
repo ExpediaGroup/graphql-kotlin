@@ -18,10 +18,12 @@ package com.expediagroup.graphql.server.spring.execution
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -33,7 +35,14 @@ import java.util.UUID
     properties = ["graphql.packages=com.expediagroup.graphql.server.spring.execution"]
 )
 @EnableAutoConfiguration
-class SpringDataFetcherIT(@Autowired private val testClient: WebTestClient) {
+class SpringDataFetcherIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify spring data fetcher autowires spring beans`() {

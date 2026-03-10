@@ -27,10 +27,12 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -46,7 +48,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
     ]
 )
 @EnableAutoConfiguration
-class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
+class RouteConfigurationIT {
 
     @Configuration
     class TestConfiguration {
@@ -108,6 +110,13 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
           hello(name: String!): String!
         }
         """.trimIndent().plus("\n")
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify SDL route`() {
@@ -283,8 +292,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         testClient.post()
             .uri("/graphql")
-            .accept(MediaType.APPLICATION_JSON_UTF8)
-            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(request)
             .exchange()
             .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")

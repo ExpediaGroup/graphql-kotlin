@@ -21,8 +21,8 @@ poet = "1.17.0"
 reactor-core = "3.7.16"
 reactor-extensions = "1.2.5"
 slf4j = "2.0.17"
-spring = "6.2.16"
-spring-boot = "3.5.11"
+spring = "7.0.3"
+spring-boot = "4.0.2"
 
 # security vulnerabilities overrides
 commons-codec = { strictly = "[1.13, 2[", prefer = "1.16.0" }
@@ -82,9 +82,14 @@ maven-plugin-api = { group = "org.apache.maven", name = "maven-plugin-api", vers
 maven-project = { group = "org.apache.maven", name = "maven-project", version.ref = "maven-project" }
 poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "poet" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+spring-boot-autoconfigure = { group = "org.springframework.boot", name = "spring-boot-autoconfigure", version.ref = "spring-boot" }
 spring-boot-config = { group = "org.springframework.boot", name = "spring-boot-configuration-processor", version.ref = "spring-boot" }
 spring-boot-netty = { group = "org.springframework.boot", name = "spring-boot-starter-reactor-netty", version.ref = "spring-boot" }
 spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux", version.ref = "spring-boot" }
+spring-boot-webflux-module = { group = "org.springframework.boot", name = "spring-boot-webflux", version.ref = "spring-boot" }
+# TODO: Migrate to Jackson 3.x when graphql-java upgrades
+spring-boot-jackson = { group = "org.springframework.boot", name = "spring-boot-jackson", version.ref = "spring-boot" }
+spring-boot-jackson2 = { group = "org.springframework.boot", name = "spring-boot-jackson2", version.ref = "spring-boot" }
 spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
 fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
@@ -117,6 +122,7 @@ reactor-extensions = { group = "io.projectreactor.kotlin", name = "reactor-kotli
 reactor-test = { group = "io.projectreactor", name = "reactor-test", version.ref = "reactor-core" }
 rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava" }
 spring-boot-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot" }
+spring-boot-webtestclient = { group = "org.springframework.boot", name = "spring-boot-webtestclient", version.ref = "spring-boot" }
 wiremock-lib = { group = "org.wiremock", name = "wiremock", version.ref = "wiremock" }
 wiremock-standalone = { group = "org.wiremock", name = "wiremock-standalone", version.ref = "wiremock" }
 

@@ -25,10 +25,12 @@ import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.server.spring.instrumentation"])
 @EnableAutoConfiguration
-class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
+class InstrumentationIT {
 
     @Configuration
     class TestConfiguration {
@@ -69,6 +71,13 @@ class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
         }
 
         override fun getOrder(): Int = instrumentationOrder
+    }
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
     }
 
     @Test

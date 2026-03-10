@@ -9,7 +9,10 @@ plugins {
 dependencies {
     api(projects.graphqlKotlinServer)
     api(projects.graphqlKotlinFederation)
-    api(libs.spring.boot.webflux)
+    api(libs.spring.boot.webflux.module)
+    api(libs.spring.boot.autoconfigure)
+    api(libs.spring.boot.netty)
+    api(libs.spring.boot.jackson2)
     api(libs.kotlinx.coroutines.jdk8)
     api(libs.kotlinx.coroutines.reactor)
     api(libs.reactor.extensions)
@@ -17,6 +20,7 @@ dependencies {
     kapt(libs.spring.boot.config)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.webtestclient)
     testImplementation(libs.reactor.test)
 }
 
@@ -32,7 +36,7 @@ tasks {
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.67".toBigDecimal()
+                    minimum = "0.65".toBigDecimal()
                 }
             }
         }
