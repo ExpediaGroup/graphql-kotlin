@@ -10,6 +10,7 @@ plugins {
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-server")
     testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.webtestclient)
 
     graphqlSDL("com.expediagroup", "graphql-kotlin-federated-hooks-provider")
 }

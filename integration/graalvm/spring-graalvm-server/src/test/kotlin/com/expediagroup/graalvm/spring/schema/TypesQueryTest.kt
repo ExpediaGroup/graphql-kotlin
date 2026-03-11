@@ -16,18 +16,25 @@
 package com.expediagroup.graalvm.spring.schema
 
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest
-@AutoConfigureWebTestClient
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TypesQueryTest(@Autowired private val testClient: WebTestClient) {
+class TypesQueryTest {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify input only query`() {

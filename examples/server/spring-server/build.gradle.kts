@@ -12,6 +12,7 @@ dependencies {
     implementation("com.expediagroup", "graphql-kotlin-hooks-provider")
     implementation(libs.spring.boot.validation)
     testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.webtestclient)
     testImplementation(libs.reactor.test)
 }
 

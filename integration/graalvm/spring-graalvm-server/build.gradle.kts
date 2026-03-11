@@ -14,6 +14,7 @@ dependencies {
     implementation(projects.commonGraalvmServer)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.webtestclient)
 }
 
 tasks {
