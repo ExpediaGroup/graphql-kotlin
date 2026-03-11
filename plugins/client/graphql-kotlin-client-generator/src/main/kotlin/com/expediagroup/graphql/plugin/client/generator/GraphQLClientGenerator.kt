@@ -229,7 +229,6 @@ class GraphQLClientGenerator(
                             sharedTypes[it.serializerClassName] = listOf(it.serializerTypeSpec)
                             sharedTypes[it.deserializerClassName] = listOf(it.deserializerTypeSpec)
                         }
-
                         is ScalarConverterInfo.KotlinxSerializerInfo -> {
                             sharedTypes[it.serializerClassName] = listOf(it.serializerTypeSpec)
                         }
@@ -247,30 +246,17 @@ class GraphQLClientGenerator(
     }
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
-        val operationName = operationDefinition.operation.name
-        val rootTypesByOperationName = graphQLSchema.schemaDefinition()
-            .map { schemaDef ->
-                // Get custom root type mappings from the schema definition, if available
-                schemaDef.operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
-            }
-            .orElseGet {
-                // If no schema definition is provided, use the default root type names
-                mapOf(
-                    OperationDefinition.Operation.QUERY.name to "Query",
-                    OperationDefinition.Operation.MUTATION.name to "Mutation",
-                    OperationDefinition.Operation.SUBSCRIPTION.name to "Subscription"
-                )
-            }
-
-        val rootTypeName = rootTypesByOperationName[operationName]
-            ?: throw IllegalStateException("No root type mapping found for operation '$operationName'")
-
-        return graphQLSchema.getType(rootTypeName)
-            .orElseThrow { IllegalStateException("Root type '$rootTypeName' for operation '$operationName' not found in schema") }
-            .let {
-                it as? ObjectTypeDefinition
-                    ?: throw IllegalStateException("Root type '$rootTypeName' is not an ObjectTypeDefinition (found ${it::class.simpleName})")
-            }
+        val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
+            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
+        } else {
+            mapOf(
+                OperationDefinition.Operation.QUERY.name to "Query",
+                OperationDefinition.Operation.MUTATION.name to "Mutation",
+                OperationDefinition.Operation.SUBSCRIPTION.name to "Subscription"
+            )
+        }
+        val rootType = operationNames[operationDefinition.operation.name]
+        return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
     }
 
     private fun parseSchema(path: String): TypeDefinitionRegistry {
