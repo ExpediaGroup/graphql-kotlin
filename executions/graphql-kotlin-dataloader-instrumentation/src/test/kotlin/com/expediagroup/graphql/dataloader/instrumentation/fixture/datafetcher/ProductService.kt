@@ -18,7 +18,6 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.ProductRepository
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
@@ -29,18 +28,19 @@ import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
-class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Product?> {
+class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Optional<Product>> {
     override val dataLoaderName: String = "ProductDataLoader"
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<ProductServiceRequest, Product?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<ProductServiceRequest, Optional<Product>> =
         DataLoaderFactory.newDataLoader(
-            { requests ->
+            { requests: List<ProductServiceRequest> ->
                 ProductRepository
                     .getProducts(requests)
                     .collectList()
-                    .map(List<Optional<Product>>::toListOfNullables)
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 
@@ -52,6 +52,8 @@ class ProductService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Product> =
         environment
-            .getDataLoader<ProductServiceRequest, Product>("ProductDataLoader")
-            ?.load(request) ?: throw IllegalStateException("No data loader called ProductDataLoader was found")
+            .getDataLoader<ProductServiceRequest, Optional<Product>>("ProductDataLoader")
+            ?.load(request)
+            ?.thenApply { it.orElse(null) }
+            ?: throw IllegalStateException("No data loader called ProductDataLoader was found")
 }

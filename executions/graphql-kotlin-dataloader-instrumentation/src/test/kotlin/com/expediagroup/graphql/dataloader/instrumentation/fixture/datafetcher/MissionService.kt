@@ -31,18 +31,19 @@ import java.util.concurrent.CompletableFuture
 
 data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 
-class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
+class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Optional<Mission>> {
     override val dataLoaderName: String = "MissionDataLoader"
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, Mission?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, Optional<Mission>> =
         DataLoaderFactory.newDataLoader(
-            { keys ->
+            { keys: List<MissionServiceRequest> ->
                 MissionRepository
                     .getMissions(keys.map(MissionServiceRequest::id))
                     .collectList()
-                    .map(List<Optional<Mission>>::toListOfNullables)
                     .toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 
@@ -50,12 +51,14 @@ class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, Li
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, List<Mission>> =
         DataLoaderFactory.newDataLoader(
-            { keys ->
+            { keys: List<MissionServiceRequest> ->
                 MissionRepository
                     .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
                     .collectList().toFuture()
             },
-            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+            DataLoaderOptions.newOptions()
+                .setStatisticsCollector(::SimpleStatisticsCollector)
+                .build()
         )
 }
 
@@ -65,8 +68,10 @@ class MissionService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Mission> =
         environment
-            .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
-            ?.load(request) ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
+            .getDataLoader<MissionServiceRequest, Optional<Mission>>("MissionDataLoader")
+            ?.load(request)
+            ?.thenApply { it.orElse(null) }
+            ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
 
     fun getMissions(
         requests: List<MissionServiceRequest>,
@@ -74,8 +79,10 @@ class MissionService {
     ): CompletableFuture<List<Mission?>> = when {
         requests.isNotEmpty() -> {
             environment
-                .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
-                ?.loadMany(requests) ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
+                .getDataLoader<MissionServiceRequest, Optional<Mission>>("MissionDataLoader")
+                ?.loadMany(requests)
+                ?.thenApply { optionals -> optionals.map { it.orElse(null) } }
+                ?: throw IllegalArgumentException("No data loader called MissionDataLoader was found")
         }
         else -> {
             MissionRepository
