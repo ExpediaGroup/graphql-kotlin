@@ -12,7 +12,7 @@ jobs:
         working-directory: integration/gradle-plugin-android-test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Set up Java 17
@@ -40,7 +40,7 @@ jobs:
         working-directory: integration/gradle-plugin-integration-tests
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Set up Java 17
@@ -68,7 +68,7 @@ jobs:
         working-directory: integration/maven-plugin-integration-tests
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Set up Java 17
