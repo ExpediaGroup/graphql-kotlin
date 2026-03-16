@@ -1,4 +1,17 @@
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.detekt
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.implementation
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.jacoco
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.jacocoTestCoverageVerification
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.jacocoTestReport
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.ktlint
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.main
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.publishing
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.signing
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.sourceSets
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.testImplementation
+import gradle.kotlin.dsl.accessors._4fd33c76ef7ab69eafcf56fae28f430e.testRuntimeOnly
 import org.gradle.accessors.dm.LibrariesForLibs
+import org.gradle.internal.impldep.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.Instant
@@ -7,7 +20,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
     id("org.jlleitschuh.gradle.ktlint")
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
     jacoco
     `java-library`
     signing
@@ -36,6 +49,7 @@ tasks {
     detekt {
         toolVersion = libs.versions.detekt.get()
         config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
+        failOnSeverity = dev.detekt.gradle.extensions.FailOnSeverity.Error
     }
     ktlint {
         version.set(libs.versions.ktlint.core.get())
