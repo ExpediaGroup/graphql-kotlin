@@ -1,4 +1,5 @@
 import java.time.Duration
+import org.gradle.api.tasks.Exec
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -38,20 +39,16 @@ tasks {
         from("${project.projectDir}/target/maven-graalvm-server")
         into("${project.buildDir}/native/nativeCompile")
     }
-    val buildGraalVmNativeImage by register("buildGraalVmNativeImage") {
+    val buildGraalVmNativeImage by register<Exec>("buildGraalVmNativeImage") {
         dependsOn(gradle.includedBuild("graphql-kotlin").task(":resolveIntegrationTestDependencies"))
         dependsOn(":common-graalvm-server:publishToMavenLocal")
         timeout.set(Duration.ofSeconds(1200))
-        doLast {
-            exec {
-                environment(mavenEnvironmentVariables)
-                commandLine("${project.projectDir}/mvnw", "-Pnative", "clean", "package", "--no-transfer-progress")
-            }
-        }
-        finalizedBy(copyNativeImage.path)
+        environment(mavenEnvironmentVariables)
+        commandLine("${project.projectDir}/mvnw", "-Pnative", "clean", "package", "--no-transfer-progress")
+        finalizedBy(copyNativeImage)
     }
     check {
-        dependsOn(buildGraalVmNativeImage.path)
+        dependsOn(buildGraalVmNativeImage)
     }
     clean {
         delete("target")
