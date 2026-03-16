@@ -1,20 +1,16 @@
 plugins {
     id("com.android.application")
     id("com.expediagroup.graphql")
-    kotlin("android")
-    kotlin("plugin.serialization")
 }
+
+apply(plugin = "org.jetbrains.kotlin.android")
+apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
 android {
     compileSdk = 30
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
     }
     namespace = "com.expediagroup.graphqlkotlin"
 }
@@ -34,3 +30,12 @@ graphql {
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
     }
 }
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+}
+
