@@ -31,10 +31,8 @@ class ReviewsApplicationTest {
     private lateinit var testClient: WebTestClient
 
     @BeforeEach
-    fun setup(@LocalServerPort port: Int) {
-        testClient = WebTestClient.bindToServer()
-            .baseUrl("http://localhost:$port")
-            .build()
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
     }
 
     @Test
