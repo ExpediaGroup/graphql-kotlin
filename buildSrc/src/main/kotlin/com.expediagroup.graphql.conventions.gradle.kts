@@ -70,6 +70,7 @@ tasks {
 
     val dokka = named<DokkaGeneratePublicationTask>("dokkaGeneratePublicationHtml")
     val javadocJar by registering(Jar::class) {
+        dependsOn(dokka)
         archiveClassifier.set("javadoc")
         from(dokka.flatMap { it.outputDirectory })
     }
