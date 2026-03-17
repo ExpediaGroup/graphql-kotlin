@@ -27,6 +27,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
@@ -34,6 +35,7 @@ import javax.inject.Inject
 
 internal const val GRAALVM_METADATA_TASK_NAME: String = "graphqLGraalVmMetadata"
 
+@DisableCachingByDefault(because = "Uses runtime classpath scanning and has not been audited for build cache reproducibility")
 abstract class GraphQLGraalVmMetadataTask : SourceTask() {
 
     @get:Classpath

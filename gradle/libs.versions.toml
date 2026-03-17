@@ -37,13 +37,13 @@ rxjava = "3.1.12"
 wiremock = "3.13.2"
 
 # plugins
-detekt = "1.23.7"
+detekt = "2.0.0-alpha.2"
 #dokka = "2.1.0"
 dokka = "2.0.0"
 jacoco = "0.8.12"
 ktlint-core = "1.5.0"
-ktlint-plugin = "12.1.2"
-maven-plugin-development = "0.4.3"
+ktlint-plugin = "14.2.0"
+maven-plugin-development = "1.0.2"
 nexus-publish-plugin = "2.0.0"
 plugin-publish = "1.2.1"
 
@@ -127,7 +127,7 @@ wiremock-lib = { group = "org.wiremock", name = "wiremock", version.ref = "wirem
 wiremock-standalone = { group = "org.wiremock", name = "wiremock-standalone", version.ref = "wiremock" }
 
 # build src plugin libraries
-detekt-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
+detekt-plugin = { group = "dev.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 dokka-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
 graalvm-plugin = { group = "org.graalvm.buildtools.native", name = "org.graalvm.buildtools.native.gradle.plugin", version.ref = "graalvm" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -144,14 +144,14 @@ ktlint-plugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", vers
 # ====================
 [plugins]
 benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
-maven-plugin-development = { id = "de.benediktritter.maven-plugin-development", version.ref = "maven-plugin-development" }
+maven-plugin-development = { id = "org.gradlex.maven-plugin-development", version.ref = "maven-plugin-development" }
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish-plugin" }
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

@@ -1,4 +1,5 @@
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
+import org.gradle.api.tasks.Exec
 import java.time.Duration
 import java.util.Properties
 
@@ -75,19 +76,20 @@ tasks {
             }
         }
     }
-    val integrationTest by register("integrationTest") {
-        dependsOn(startWireMock.path)
-        finalizedBy(stopWireMock.path)
+    val integrationTest by register<Exec>("integrationTest") {
+        dependsOn(startWireMock)
+        finalizedBy(stopWireMock)
         timeout.set(Duration.ofSeconds(500))
-        doLast {
-            exec {
-                environment(mavenEnvironmentVariables)
-                environment("graphqlEndpoint", "http://localhost:$wireMockServerPort")
-                commandLine("${project.projectDir}/mvnw", "dependency:go-offline", "invoker:install", "invoker:run", "--no-transfer-progress")
+        environment(mavenEnvironmentVariables)
+        commandLine("${project.projectDir}/mvnw", "dependency:go-offline", "invoker:install", "invoker:run", "--no-transfer-progress")
+        doFirst {
+            val port = requireNotNull(wireMockServerPort) {
+                "WireMock server port was not initialized before running integrationTest"
             }
+            environment("graphqlEndpoint", "http://localhost:$port")
         }
     }
     check {
-        dependsOn(integrationTest.path)
+        dependsOn(integrationTest)
     }
 }

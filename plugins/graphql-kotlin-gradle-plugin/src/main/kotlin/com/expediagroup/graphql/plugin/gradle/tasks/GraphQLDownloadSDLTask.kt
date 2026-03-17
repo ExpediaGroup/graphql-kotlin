@@ -28,6 +28,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
@@ -39,6 +40,7 @@ internal const val DOWNLOAD_SDL_TASK_NAME: String = "graphqlDownloadSDL"
  * Task that attempts to download GraphQL schema in SDL format from the specified endpoint and save it locally.
  */
 @Suppress("UnstableApiUsage")
+@DisableCachingByDefault(because = "Downloads schema from a remote endpoint")
 abstract class GraphQLDownloadSDLTask : DefaultTask() {
 
     @get:Classpath
