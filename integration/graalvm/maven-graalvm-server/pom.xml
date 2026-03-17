@@ -171,6 +171,8 @@
                             <verbose>true</verbose>
                             <buildArgs>
                                 <arg>--initialize-at-build-time=io.ktor,kotlin,kotlinx.io,ch.qos.logback,org.slf4j</arg>
+                                <arg>--initialize-at-run-time=io.ktor.server.cio.PipelineKt</arg>
+                                <arg>--initialize-at-run-time=kotlinx.coroutines</arg>
                                 <arg>-H:+ReportExceptionStackTraces</arg>
                             </buildArgs>
                             <jvmArgs>

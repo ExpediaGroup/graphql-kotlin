@@ -1,5 +1,5 @@
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.Instant
 
@@ -68,11 +68,10 @@ tasks {
         from(sourceSets.main.get().allSource)
     }
 
-    val dokka = named("dokkaJavadoc", DokkaTask::class)
+    val dokka = named<DokkaGeneratePublicationTask>("dokkaGeneratePublicationHtml")
     val javadocJar by registering(Jar::class) {
         archiveClassifier.set("javadoc")
-        from("${layout.buildDirectory}/dokka/javadoc")
-        dependsOn(dokka)
+        from(dokka.flatMap { it.outputDirectory })
     }
     publishing {
         publications {
