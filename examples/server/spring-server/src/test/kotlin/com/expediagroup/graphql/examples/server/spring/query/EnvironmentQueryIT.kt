@@ -53,7 +53,7 @@ class EnvironmentQueryIT {
             .exchange()
             .expectStatus().isOk
             .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query.parentValue").isEmpty
+            .jsonPath("$DATA_JSON_PATH.$query.parentValue").isEqualTo(null)
             .jsonPath("$DATA_JSON_PATH.$query.value").isEqualTo("1")
             .jsonPath("$DATA_JSON_PATH.$query.nested").exists()
             .jsonPath("$DATA_JSON_PATH.$query.nested.parentValue").isEqualTo("1")

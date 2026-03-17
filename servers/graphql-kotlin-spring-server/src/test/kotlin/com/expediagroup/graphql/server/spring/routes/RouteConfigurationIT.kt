@@ -284,6 +284,24 @@ class RouteConfigurationIT {
     }
 
     @Test
+    fun `verify POST graphQL request with explicit charset`() {
+        val utf8Json = MediaType.parseMediaType("application/json;charset=UTF-8")
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route with charset encoding"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
+            .uri("/graphql")
+            .accept(utf8Json)
+            .contentType(utf8Json)
+            .bodyValue(request)
+            .exchange()
+            .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")
+    }
+
+    @Test
     fun `verify POST graphQL request with websocket header fails`() {
         val request = GraphQLRequest(
             query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
