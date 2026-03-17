@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
     id("org.jlleitschuh.gradle.ktlint")
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
     jacoco
     `java-library`
     signing
@@ -36,6 +36,7 @@ tasks {
     detekt {
         toolVersion = libs.versions.detekt.get()
         config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
+        failOnSeverity = dev.detekt.gradle.extensions.FailOnSeverity.Error
     }
     ktlint {
         version.set(libs.versions.ktlint.core.get())

@@ -1,4 +1,5 @@
 import java.time.Duration
+import org.gradle.api.tasks.Exec
 
 description = "Example usage of Maven plugin to generate GraphQL Kotlin Client"
 
@@ -21,19 +22,15 @@ tasks {
         "reactorVersion" to libs.versions.reactor.core.get()
     )
     val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int
-    val mavenBuild by register("mavenBuild") {
+    val mavenBuild by register<Exec>("mavenBuild") {
         dependsOn(gradle.includedBuild("graphql-kotlin").task(":resolveIntegrationTestDependencies"))
         timeout.set(Duration.ofSeconds(500))
-        doLast {
-            exec {
-                environment(mavenEnvironmentVariables)
-                environment("graphqlEndpoint", "http://localhost:$wireMockServerPort/sdl")
-                commandLine("${project.projectDir}/mvnw", "clean", "verify", "--no-transfer-progress")
-            }
-        }
+        environment(mavenEnvironmentVariables)
+        environment("graphqlEndpoint", "http://localhost:$wireMockServerPort/sdl")
+        commandLine("${project.projectDir}/mvnw", "clean", "verify", "--no-transfer-progress")
     }
     check {
-        dependsOn(mavenBuild.path)
+        dependsOn(mavenBuild)
     }
 }
 

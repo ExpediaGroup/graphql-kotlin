@@ -28,6 +28,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
@@ -38,6 +39,7 @@ internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchem
 /**
  * Task that executes GraphQL introspection query against specified endpoint and saves the underlying schema file.
  */
+@DisableCachingByDefault(because = "Introspects schema from a remote endpoint")
 abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
 
     @get:Classpath

@@ -1,26 +1,23 @@
-build:
-  weights:
-    comments: 0   # missing comments should not fail the build
-
 comments:
+  severity: warning
   EndOfSentenceFormat:
     active: false
-  CommentOverPrivateFunction:
+  DocumentationOverPrivateFunction:
     active: false
 
 complexity:
   LongParameterList:
-    functionThreshold: 10
     active: true
+    allowedFunctionParameters: 10
   TooManyFunctions:
-    thresholdInInterfaces: 20
-    thresholdInClasses: 15
-    thresholdInFiles: 15
+    allowedFunctionsPerInterface: 20
+    allowedFunctionsPerClass: 15
+    allowedFunctionsPerFile: 15
   ComplexInterface:
-    threshold: 20
+    allowedDefinitions: 20
 
 naming:
-  FunctionMaxLength:
+  FunctionNameMaxLength:
     maximumFunctionNameLength: 35
 
 style:

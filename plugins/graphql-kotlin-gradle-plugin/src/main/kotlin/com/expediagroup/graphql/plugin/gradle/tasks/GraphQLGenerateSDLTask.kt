@@ -32,6 +32,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.ProcessWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
@@ -40,6 +41,7 @@ import javax.inject.Inject
 internal const val GENERATE_SDL_TASK_NAME: String = "graphqlGenerateSDL"
 
 @Suppress("UnstableApiUsage")
+@DisableCachingByDefault(because = "Uses runtime classpath scanning and has not been audited for build cache reproducibility")
 abstract class GraphQLGenerateSDLTask : SourceTask() {
 
     @get:Classpath

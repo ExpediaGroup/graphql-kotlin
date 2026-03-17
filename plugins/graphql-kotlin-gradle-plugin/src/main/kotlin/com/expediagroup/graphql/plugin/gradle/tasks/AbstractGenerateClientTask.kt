@@ -40,12 +40,14 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
 /**
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
  */
+@DisableCachingByDefault(because = "Abstract base task; concrete task types must explicitly opt in to caching")
 abstract class AbstractGenerateClientTask : DefaultTask() {
 
     @get:Classpath
