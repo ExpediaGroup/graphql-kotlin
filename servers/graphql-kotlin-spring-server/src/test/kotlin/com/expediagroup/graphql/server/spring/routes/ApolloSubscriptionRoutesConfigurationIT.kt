@@ -29,11 +29,9 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -63,8 +61,10 @@ class ApolloSubscriptionRoutesConfigurationIT(
     private lateinit var testClient: WebTestClient
 
     @BeforeEach
-    fun setup(@Autowired context: ApplicationContext) {
-        testClient = WebTestClient.bindToApplicationContext(context).build()
+    fun setup() {
+        testClient = WebTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
     }
 
     val objectMapper = jacksonObjectMapper().registerKotlinModule()
