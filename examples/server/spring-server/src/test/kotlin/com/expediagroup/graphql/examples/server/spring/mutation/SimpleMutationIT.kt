@@ -21,19 +21,26 @@ import com.expediagroup.graphql.examples.server.spring.GRAPHQL_ENDPOINT
 import com.expediagroup.graphql.examples.server.spring.GRAPHQL_MEDIA_TYPE
 import com.expediagroup.graphql.examples.server.spring.verifyOnlyDataExists
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest
-@AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class SimpleMutationIT(@Autowired private val testClient: WebTestClient) {
+class SimpleMutationIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify addToList query`() {

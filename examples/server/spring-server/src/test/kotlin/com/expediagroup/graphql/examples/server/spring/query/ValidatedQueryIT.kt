@@ -20,21 +20,28 @@ import com.expediagroup.graphql.examples.server.spring.GRAPHQL_ENDPOINT
 import com.expediagroup.graphql.examples.server.spring.GRAPHQL_MEDIA_TYPE
 import com.expediagroup.graphql.examples.server.spring.verifyData
 import com.expediagroup.graphql.examples.server.spring.verifyError
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest
-@AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class ValidatedQueryIT(@Autowired private val testClient: WebTestClient) {
+class ValidatedQueryIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@Autowired context: ApplicationContext) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
+    }
 
     @Test
     fun `verify argumentWithValidation query`() {

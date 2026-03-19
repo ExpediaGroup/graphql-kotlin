@@ -30,12 +30,14 @@ import com.expediagroup.graphql.server.types.SubscriptionMessageSubscribe
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -58,11 +60,11 @@ import java.util.UUID
 )
 @EnableAutoConfiguration
 class SubscriptionRoutesConfigurationIT(
-    @Autowired private val testClient: WebTestClient,
     @LocalServerPort private var port: Int
 ) {
 
     val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    private lateinit var testClient: WebTestClient
 
     @Configuration
     class TestConfiguration {
@@ -79,6 +81,13 @@ class SubscriptionRoutesConfigurationIT(
 
     class SimpleSubscription : Subscription {
         fun getNumber(): Flux<Int> = Flux.just(42)
+    }
+
+    @BeforeEach
+    fun setUp(
+        @Autowired context: ApplicationContext,
+    ) {
+        testClient = WebTestClient.bindToApplicationContext(context).build()
     }
 
     @Test

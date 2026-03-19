@@ -14,6 +14,7 @@ dependencies {
     implementation(projects.commonGraalvmServer)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.webtestclient)
 }
 
 tasks {
@@ -27,6 +28,9 @@ graalvmNative {
     binaries {
         named("main") {
             verbose.set(true)
+            buildArgs.add("--initialize-at-build-time=com.alibaba.fastjson2")
+            // GraalVM 25 is stricter about coroutine objects in the image heap.
+            buildArgs.add("--initialize-at-run-time=kotlinx.coroutines")
             jvmArgs("-Xmx6g")
         }
         metadataRepository {

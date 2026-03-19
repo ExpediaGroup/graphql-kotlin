@@ -33,6 +33,10 @@ graalvmNative {
         named("main") {
             verbose.set(true)
             buildArgs.add("--initialize-at-build-time=io.ktor,kotlin,kotlinx.io,ch.qos.logback,org.slf4j")
+            // Keep Ktor CIO pipeline initialization at runtime to avoid embedding coroutine context objects.
+            buildArgs.add("--initialize-at-run-time=io.ktor.server.cio.PipelineKt")
+            // GraalVM 25 is stricter about coroutine objects ending up in the image heap.
+            buildArgs.add("--initialize-at-run-time=kotlinx.coroutines")
             buildArgs.add("-H:+ReportExceptionStackTraces")
             jvmArgs("-Xmx6g")
         }

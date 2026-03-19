@@ -26,9 +26,9 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -55,9 +55,17 @@ import java.net.URI
 )
 @EnableAutoConfiguration
 class ApolloSubscriptionRoutesConfigurationIT(
-    @Autowired private val testClient: WebTestClient,
     @LocalServerPort private var port: Int
 ) {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup() {
+        testClient = WebTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
+    }
 
     val objectMapper = jacksonObjectMapper().registerKotlinModule()
 
