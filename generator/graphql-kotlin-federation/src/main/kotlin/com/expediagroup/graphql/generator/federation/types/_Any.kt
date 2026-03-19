@@ -53,7 +53,7 @@ private object AnyCoercing : Coercing<Any, Any> {
     override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any =
         when (input) {
             is FloatValue -> input.value
-            is StringValue -> input.value
+            is StringValue -> input.value ?: throw CoercingParseLiteralException("Cannot parse null StringValue value to Any scalar")
             is IntValue -> input.value
             is BooleanValue -> input.isValue
             is EnumValue -> input.name

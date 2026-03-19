@@ -52,6 +52,12 @@ internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File
     return queries to expectedFiles
 }
 
+internal fun writeFile(directory: File, fileName: String, content: String): File {
+    val file = File(directory, fileName)
+    file.writeText(content.trimIndent())
+    return file
+}
+
 internal const val TEST_SCHEMA_PATH = "testSchema.graphql"
 
 @OptIn(ExperimentalCompilerApi::class)

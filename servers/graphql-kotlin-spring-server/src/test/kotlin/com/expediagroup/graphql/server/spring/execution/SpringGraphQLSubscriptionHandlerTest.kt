@@ -21,8 +21,8 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
@@ -34,6 +34,7 @@ import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.reactor.asFlux
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderOptions
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toFlux
@@ -43,6 +44,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -60,11 +62,12 @@ class SpringGraphQLSubscriptionHandlerTest {
     private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
         override val dataLoaderName: String = "MockDataLoader"
         override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
-            DataLoaderFactory.newDataLoader { ids ->
-                CompletableFuture.supplyAsync {
-                    ids.map { "$it:value" }
-                }
-            }
+            DataLoaderFactory.newDataLoader<String, String>(
+                { ids: MutableList<String> ->
+                    CompletableFuture.completedFuture(ids.map { "$it:value" })
+                },
+                DataLoaderOptions.newOptions().setBatchingEnabled(false).build()
+            )
     }
     private val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(listOf(mockLoader))
     private val subscriptionHandler = GraphQLRequestHandler(testGraphQL, dataLoaderRegistryFactory)
@@ -87,7 +90,7 @@ class SpringGraphQLSubscriptionHandlerTest {
                 true
             }
             .expectComplete()
-            .verify()
+            .verify(Duration.ofSeconds(10))
     }
 
     @Test
@@ -99,7 +102,7 @@ class SpringGraphQLSubscriptionHandlerTest {
         ).asFlux()
 
         StepVerifier.create(responseFlux)
-            .thenConsumeWhile { response ->
+            .assertNext { response ->
                 assertNotNull(response.data as? Map<*, *>) { data ->
                     assertNotNull(data["dataLoaderValue"] as? String) { value ->
                         assertEquals("foo:value", value)
@@ -107,10 +110,84 @@ class SpringGraphQLSubscriptionHandlerTest {
                 }
                 assertNull(response.errors)
                 assertNull(response.extensions)
-                true
+            }
+            .thenCancel()
+            .verify(Duration.ofSeconds(10))
+    }
+
+    @Test
+    fun `verify subscription with data loader and batching enabled`() {
+        // Use a batching-enabled loader here so we still cover the normal DataLoader dispatch path for subscriptions.
+        val batchingLoader = object : KotlinDataLoader<String, String> {
+            override val dataLoaderName: String = "MockDataLoader"
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader<String, String>(
+                    { ids: MutableList<String> ->
+                        CompletableFuture.completedFuture(ids.map { "$it:value" })
+                    },
+                    DataLoaderOptions.newOptions().setBatchingEnabled(true).build()
+                )
+        }
+        val batchingHandler = GraphQLRequestHandler(testGraphQL, KotlinDataLoaderRegistryFactory(listOf(batchingLoader)))
+        val graphQLContext = emptyMap<Any, Any>().toGraphQLContext()
+        val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
+        val responseFlux = batchingHandler.executeSubscription(request, graphQLContext).asFlux()
+
+        StepVerifier.create(responseFlux)
+            .then {
+                // Subscription execution doesn't automatically flush this test loader, so dispatch explicitly to release the value.
+                val registry = graphQLContext.get<org.dataloader.DataLoaderRegistry>(org.dataloader.DataLoaderRegistry::class)
+                assertNotNull(registry)
+                registry.dispatchAll()
+            }
+            .assertNext { response ->
+                assertNotNull(response.data as? Map<*, *>) { data ->
+                    assertNotNull(data["dataLoaderValue"] as? String) { value ->
+                        assertEquals("foo:value", value)
+                    }
+                }
+                assertNull(response.errors)
+                assertNull(response.extensions)
             }
             .expectComplete()
-            .verify()
+            .verify(Duration.ofSeconds(10))
+    }
+
+    @Test
+    fun `verify subscription with data loader async completion`() {
+        val pendingLoad = CompletableFuture<List<String>>()
+        val asyncLoader = object : KotlinDataLoader<String, String> {
+            override val dataLoaderName: String = "MockDataLoader"
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader<String, String>(
+                    { _: MutableList<String> -> pendingLoad },
+                    DataLoaderOptions.newOptions().setBatchingEnabled(false).build()
+                )
+        }
+        val asyncHandler = GraphQLRequestHandler(testGraphQL, KotlinDataLoaderRegistryFactory(listOf(asyncLoader)))
+        val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
+        val responseFlux = asyncHandler.executeSubscription(request, emptyMap<Any, Any>().toGraphQLContext()).asFlux()
+
+        StepVerifier.create(responseFlux)
+            // Keep the future pending first so we can prove the subscription waits for the async DataLoader result.
+            .expectSubscription()
+            .expectNoEvent(Duration.ofMillis(100))
+            .then {
+                assertFalse(pendingLoad.isDone)
+                // Complete the future under test control to make the async handoff deterministic instead of scheduler-driven.
+                pendingLoad.complete(listOf("foo:value"))
+            }
+            .assertNext { response ->
+                assertNotNull(response.data as? Map<*, *>) { data ->
+                    assertNotNull(data["dataLoaderValue"] as? String) { value ->
+                        assertEquals("foo:value", value)
+                    }
+                }
+                assertNull(response.errors)
+                assertNull(response.extensions)
+            }
+            .expectComplete()
+            .verify(Duration.ofSeconds(10))
     }
 
     @Test
@@ -132,7 +209,7 @@ class SpringGraphQLSubscriptionHandlerTest {
                 true
             }
             .expectComplete()
-            .verify()
+            .verify(Duration.ofSeconds(10))
     }
 
     @Test
@@ -154,7 +231,7 @@ class SpringGraphQLSubscriptionHandlerTest {
                 assertNull(response.extensions)
             }
             .expectComplete()
-            .verify()
+            .verify(Duration.ofSeconds(10))
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries

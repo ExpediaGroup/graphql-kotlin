@@ -16,10 +16,13 @@
 
 package com.expediagroup.graphql.plugin.client.generator
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import java.nio.file.Files
+import kotlin.test.assertTrue
 
 class GenerateGraphQLClientIT {
 
@@ -32,6 +35,36 @@ class GenerateGraphQLClientIT {
             defaultConfig
         }
         verifyClientGeneration(config, testDirectory)
+    }
+
+    @Test
+    fun `verify generation falls back to default root mapping when schema definition is missing`() {
+        val testDir = Files.createTempDirectory("graphql-client-generator-root-types").toFile()
+        try {
+            val schemaFile = writeFile(
+                testDir,
+                "schema.graphql",
+                """
+                type Query {
+                    hello: String
+                }
+                """
+            )
+            val queryFile = writeFile(
+                testDir,
+                "defaultRootQuery.graphql",
+                """
+                query DefaultRootQuery {
+                    hello
+                }
+                """
+            )
+
+            val generatedFiles = GraphQLClientGenerator(schemaFile.absolutePath, defaultConfig).generate(listOf(queryFile))
+            assertTrue(generatedFiles.any { it.name == "DefaultRootQuery" })
+        } finally {
+            testDir.deleteRecursively()
+        }
     }
 
     companion object {

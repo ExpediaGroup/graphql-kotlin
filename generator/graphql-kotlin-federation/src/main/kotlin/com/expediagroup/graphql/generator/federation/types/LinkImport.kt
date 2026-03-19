@@ -59,12 +59,8 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
 
     override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): LinkImport = when (input) {
         is LinkImport -> input
-        is StringValue -> LinkImport(name = input.value, `as` = input.value)
-        is ObjectValue -> {
-            val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
-            val namespacedValue = input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue
-            LinkImport(name = nameValue.value, `as` = namespacedValue?.value ?: nameValue.value)
-        }
+        is StringValue -> parseStringValue(input) { msg -> CoercingParseValueException(msg) }
+        is ObjectValue -> parseObjectValue(input) { msg -> CoercingParseValueException(msg) }
         else -> throw CoercingParseValueException(
             "Cannot parse $input to LinkImport. Expected AST type of `StringValue` or `ObjectValue` but was ${input.javaClass.simpleName} "
         )
@@ -72,16 +68,25 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
 
     override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): LinkImport =
         when (input) {
-            is StringValue -> LinkImport(name = input.value, `as` = input.value)
-            is ObjectValue -> {
-                val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue ?: throw CoercingParseLiteralException("Cannot parse $input to LinkImport")
-                val namespacedValue = input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue
-                LinkImport(name = nameValue.value, `as` = namespacedValue?.value ?: nameValue.value)
-            }
+            is StringValue -> parseStringValue(input) { msg -> CoercingParseLiteralException(msg) }
+            is ObjectValue -> parseObjectValue(input) { msg -> CoercingParseLiteralException(msg) }
             else -> throw CoercingParseLiteralException(
                 "Cannot parse $input to LinkImport. Expected AST type of `StringValue` or `ObjectValue` but was ${input.javaClass.simpleName} "
             )
         }
+
+    private fun parseStringValue(input: StringValue, exception: (String) -> RuntimeException): LinkImport {
+        val value = input.value ?: throw exception("Cannot parse StringValue to LinkImport: string value was null")
+        return LinkImport(name = value, `as` = value)
+    }
+
+    private fun parseObjectValue(input: ObjectValue, exception: (String) -> RuntimeException): LinkImport {
+        val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue
+            ?: throw exception("Cannot parse $input to LinkImport: missing or non-string 'name' field")
+        val name = nameValue.value ?: throw exception("Cannot parse $input to LinkImport: 'name' field StringValue was null")
+        val alias = (input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue)?.value ?: name
+        return LinkImport(name = name, `as` = alias)
+    }
 
     override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
         return when (input) {

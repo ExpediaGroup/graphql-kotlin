@@ -23,24 +23,46 @@ import com.expediagroup.graphql.generator.extensions.getOrElse
 import com.expediagroup.graphql.generator.extensions.getOrThrow
 import com.expediagroup.graphql.server.exception.MissingDataLoaderException
 import graphql.schema.DataFetchingEnvironment
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 /**
  * Helper method to get a value from a registered DataLoader.
  * The provided key should be the cache key object used to save the value for that particular data loader.
  */
-fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
-    val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.load(key, this.graphQlContext)
+inline fun <K : Any, reified V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
+    val loader = getDataLoader<K, Any>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
+    return loader.load(key, this.graphQlContext).thenApply { maybeUnwrapOptional(it) }
 }
 
 /**
-* Helper method to get values from a registered DataLoader.
-*/
-fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
-    val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.loadMany(keys, listOf(this.graphQlContext))
+ * Helper method to get values from a registered DataLoader.
+ */
+inline fun <K : Any, reified V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
+    val loader = getDataLoader<K, Any>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
+    return loader.loadMany(keys, listOf(this.graphQlContext)).thenApply { values -> values.map { maybeUnwrapOptional(it) } }
 }
+
+/**
+ * Returns the value in the shape requested by [V] while supporting DataLoaders that use [Optional] wrappers.
+ *
+ * - If the caller requested `Optional<T>`, the Optional is returned as-is.
+ * - If the caller requested a non-Optional type and the runtime value is `Optional<T>`, it is unwrapped to `T?`.
+ * - Otherwise, the runtime value is cast directly to [V].
+ */
+@PublishedApi
+@Suppress("UNCHECKED_CAST")
+internal inline fun <reified V> maybeUnwrapOptional(value: Any?): V =
+    if (V::class == Optional::class) {
+        // reified V preserves the caller's requested return classifier, so we can detect Optional requests here.
+        value as V
+    } else if (value is Optional<*>) {
+        // This check uses the runtime payload shape; unwrap only when caller did not request Optional<...>.
+        value.orElse(null) as V
+    } else {
+        // No Optional wrapper at runtime, so just cast to the caller's requested type.
+        value as V
+    }
 
 /**
  * Returns a value from the graphQLContext by KClass key

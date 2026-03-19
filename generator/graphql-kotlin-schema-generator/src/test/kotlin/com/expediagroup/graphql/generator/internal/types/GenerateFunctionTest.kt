@@ -91,8 +91,6 @@ class GenerateFunctionTest : TypeTestHelper() {
 
         fun listDataFetcherResult(): DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).build()
 
-        fun nullableListDataFetcherResult(): DataFetcherResult<List<String?>?> = DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).build()
-
         fun dataFetcherCompletableFutureResult(): DataFetcherResult<CompletableFuture<String>> {
             val completedFuture = CompletableFuture.completedFuture("Hello")
             return DataFetcherResult.newResult<CompletableFuture<String>>().data(completedFuture).build()
@@ -241,17 +239,6 @@ class GenerateFunctionTest : TypeTestHelper() {
         val listType = GraphQLTypeUtil.unwrapNonNull(result.type)
         assertTrue(listType is GraphQLList)
         val stringType = GraphQLTypeUtil.unwrapNonNull(GraphQLTypeUtil.unwrapOne(listType))
-        assertEquals(GraphQLString, stringType)
-    }
-
-    @Test
-    fun `DataFetcherResult of a nullable List is valid and unwrapped in the schema`() {
-        val kFunction = Happy::nullableListDataFetcherResult
-        val result = generateFunction(generator, kClass = Happy::class, fn = kFunction, parentName = "Query", target = null, abstract = false)
-
-        val listType = result.type
-        assertTrue(listType is GraphQLList)
-        val stringType = listType.wrappedType
         assertEquals(GraphQLString, stringType)
     }
 

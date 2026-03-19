@@ -117,4 +117,16 @@ class AnyTest {
             actual = coercing.parseValue(1, GraphQLContext.getDefault(), Locale.ENGLISH)
         )
     }
+
+    @Test
+    fun `_Any scalar parseLiteral should throw exception when StringValue has null value`() {
+        assertThrows<CoercingParseLiteralException> {
+            ANY_SCALAR_TYPE.coercing.parseLiteral(
+                StringValue.newStringValue().build(),
+                CoercedVariables.emptyVariables(),
+                GraphQLContext.getDefault(),
+                Locale.ENGLISH
+            )
+        }
+    }
 }

@@ -21,9 +21,11 @@ import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class DataFetchingEnvironmentExtensionsKtTest {
     @Test
@@ -65,5 +67,50 @@ class DataFetchingEnvironmentExtensionsKtTest {
         assertFailsWith<MissingDataLoaderException> {
             dataFetchingEnvironment.getValueFromDataLoader<String, String>("foo", "bar")
         }
+    }
+
+    @Test
+    fun `getting nullable value from dataloader unwraps optional`() {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
+            every { getDataLoader<String, Optional<String>>("foo") } returns mockk {
+                every { load("bar", any()) } returns CompletableFuture.completedFuture(Optional.of("123"))
+            }
+        }
+
+        val result: CompletableFuture<String?> = dataFetchingEnvironment.getValueFromDataLoader("foo", "bar")
+
+        assertEquals("123", result.get())
+    }
+
+    @Test
+    fun `getting optional value from dataloader does not unwrap optional`() {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
+            every { getDataLoader<String, Optional<String>>("foo") } returns mockk {
+                every { load("bar", any()) } returns CompletableFuture.completedFuture(Optional.of("123"))
+            }
+        }
+
+        val result: CompletableFuture<Optional<String>> = dataFetchingEnvironment.getValueFromDataLoader("foo", "bar")
+
+        assertEquals("123", result.get().orElse(null))
+    }
+
+    @Test
+    fun `getting nullable values from dataloader unwraps optionals`() {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
+            every { getDataLoader<String, Optional<String>>("foo") } returns mockk {
+                every { loadMany(listOf("bar", "baz"), any()) } returns
+                    CompletableFuture.completedFuture(listOf(Optional.of("123"), Optional.empty()))
+            }
+        }
+
+        val result: CompletableFuture<List<String?>> = dataFetchingEnvironment.getValuesFromDataLoader("foo", listOf("bar", "baz"))
+
+        assertEquals(2, result.get().size)
+        assertEquals("123", result.get().first())
+        assertNull(result.get().last())
     }
 }

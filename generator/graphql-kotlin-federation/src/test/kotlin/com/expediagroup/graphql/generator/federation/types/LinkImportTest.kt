@@ -130,6 +130,36 @@ class LinkImportTest {
     }
 
     @Test
+    fun `parseValue should throw exception when StringValue has null value`() {
+        assertFailsWith<CoercingParseValueException> {
+            coercing.parseValue(StringValue.newStringValue().build(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
+    fun `parseLiteral should throw exception when StringValue has null value`() {
+        assertFailsWith<CoercingParseLiteralException> {
+            coercing.parseLiteral(StringValue.newStringValue().build(), CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
+    fun `parseValue should throw exception when ObjectValue name field has null StringValue`() {
+        val objectValue = ObjectValue(listOf(ObjectField("name", StringValue.newStringValue().build())))
+        assertFailsWith<CoercingParseValueException> {
+            coercing.parseValue(objectValue, GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
+    fun `parseLiteral should throw exception when ObjectValue name field has null StringValue`() {
+        val objectValue = ObjectValue(listOf(ObjectField("name", StringValue.newStringValue().build())))
+        assertFailsWith<CoercingParseLiteralException> {
+            coercing.parseLiteral(objectValue, CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
     fun `valueToLiteral should map simple string import to StringValue`() {
         val result = coercing.valueToLiteral("@foo", GraphQLContext.getDefault(), Locale.ENGLISH)
         assertTrue(result is StringValue)
