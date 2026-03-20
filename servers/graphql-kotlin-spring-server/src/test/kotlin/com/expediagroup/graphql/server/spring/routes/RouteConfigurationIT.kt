@@ -27,10 +27,11 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -46,7 +47,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
     ]
 )
 @EnableAutoConfiguration
-class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
+class RouteConfigurationIT {
 
     @Configuration
     class TestConfiguration {
@@ -108,6 +109,15 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
           hello(name: String!): String!
         }
         """.trimIndent().plus("\n")
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@LocalServerPort port: Int) {
+        testClient = WebTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
+    }
 
     @Test
     fun `verify SDL route`() {
@@ -275,6 +285,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify POST graphQL request with explicit charset`() {
+        val utf8Json = MediaType.parseMediaType("application/json;charset=UTF-8")
         val request = GraphQLRequest(
             query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
             variables = mapOf("name" to "JUNIT route with charset encoding"),
@@ -283,8 +294,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         testClient.post()
             .uri("/graphql")
-            .accept(MediaType.APPLICATION_JSON_UTF8)
-            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(utf8Json)
+            .contentType(utf8Json)
             .bodyValue(request)
             .exchange()
             .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")

@@ -23,10 +23,11 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -38,7 +39,16 @@ import org.springframework.web.reactive.function.server.ServerRequest
     properties = ["graphql.packages=com.expediagroup.graphql.server.spring.context"]
 )
 @EnableAutoConfiguration
-class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) {
+class GraphQLContextFactoryIT {
+
+    private lateinit var testClient: WebTestClient
+
+    @BeforeEach
+    fun setup(@LocalServerPort port: Int) {
+        testClient = WebTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
+    }
 
     @Test
     fun `verify context is generated and available to the GraphQL execution`() {
