@@ -20,6 +20,7 @@ import graphql.ExecutionInput
 import graphql.execution.preparsed.PreparsedDocumentEntry
 import graphql.execution.preparsed.persisted.PersistedQueryCache
 import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
+import graphql.execution.preparsed.persisted.PersistedQuerySupport
 import java.util.concurrent.CompletableFuture
 
 interface AutomaticPersistedQueriesCache : PersistedQueryCache {
@@ -27,10 +28,18 @@ interface AutomaticPersistedQueriesCache : PersistedQueryCache {
         persistedQueryId: Any,
         executionInput: ExecutionInput,
         onCacheMiss: PersistedQueryCacheMiss
-    ): CompletableFuture<PreparsedDocumentEntry> =
-        getOrElse(persistedQueryId.toString(), executionInput) {
-            onCacheMiss.apply(executionInput.query)
+    ): CompletableFuture<PreparsedDocumentEntry> {
+        // In graphql-java 25+, ExecutionInput substitutes PERSISTED_QUERY_MARKER for a null/empty
+        // query string when an APQ extension is present, to satisfy the invariant that getQuery()
+        // is never null. We must treat it the same as a blank query — both signal that no query
+        // text was sent with this request and a cache miss (PersistedQueryNotFound) should follow.
+        val queryText = executionInput.query.takeUnless {
+            it.isBlank() || it == PersistedQuerySupport.PERSISTED_QUERY_MARKER
         }
+        return getOrElse(persistedQueryId.toString(), executionInput) {
+            onCacheMiss.apply(queryText ?: "")
+        }
+    }
 
     /**
      * Get the [PreparsedDocumentEntry] associated with the [key] from the cache.

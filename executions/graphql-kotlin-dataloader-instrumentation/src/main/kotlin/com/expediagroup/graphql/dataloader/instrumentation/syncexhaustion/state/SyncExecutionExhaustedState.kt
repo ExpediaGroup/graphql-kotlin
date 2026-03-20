@@ -56,7 +56,7 @@ class SyncExecutionExhaustedState(
     fun beginExecution(
         parameters: InstrumentationExecutionParameters
     ): InstrumentationContext<ExecutionResult> {
-        executions.computeIfAbsent(parameters.executionInput.executionId) {
+        executions.computeIfAbsent(parameters.executionInput.executionIdNonNull) {
             ExecutionInputState(parameters.executionInput)
         }
         return object : SimpleInstrumentationContext<ExecutionResult>() {
@@ -93,7 +93,7 @@ class SyncExecutionExhaustedState(
     fun beginRecursiveExecution(
         parameters: InstrumentationExecutionStrategyParameters
     ) {
-        val executionId = parameters.executionContext.executionInput.executionId
+        val executionId = parameters.executionContext.executionInput.executionIdNonNull
         executions.computeIfPresent(executionId) { _, executionState ->
             val executionStrategyParameters = parameters.executionStrategyParameters
 
@@ -117,7 +117,7 @@ class SyncExecutionExhaustedState(
     fun beginFieldFetching(
         parameters: InstrumentationFieldFetchParameters
     ): FieldFetchingInstrumentationContext {
-        val executionId = parameters.executionContext.executionInput.executionId
+        val executionId = parameters.executionContext.executionInput.executionIdNonNull
         val field = parameters.executionStepInfo.field.singleField
         val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType

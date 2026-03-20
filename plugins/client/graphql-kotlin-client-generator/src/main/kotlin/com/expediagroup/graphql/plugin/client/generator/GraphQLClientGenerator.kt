@@ -246,17 +246,28 @@ class GraphQLClientGenerator(
     }
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
-        val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
-            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
-        } else {
-            mapOf(
-                OperationDefinition.Operation.QUERY.name to "Query",
-                OperationDefinition.Operation.MUTATION.name to "Mutation",
-                OperationDefinition.Operation.SUBSCRIPTION.name to "Subscription"
-            )
-        }
-        val rootType = operationNames[operationDefinition.operation.name]
-        return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
+        val operationName = operationDefinition.operation.name
+        val rootTypesByOperationName = graphQLSchema.schemaDefinition()
+            .map { schemaDef ->
+                // Get custom root type mappings from the schema definition, if available
+                schemaDef.operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
+            }
+            .orElseGet {
+                // If no schema definition is provided, use the default root type names
+                mapOf(
+                    OperationDefinition.Operation.QUERY.name to "Query",
+                    OperationDefinition.Operation.MUTATION.name to "Mutation",
+                    OperationDefinition.Operation.SUBSCRIPTION.name to "Subscription"
+                )
+            }
+
+        val rootTypeName = rootTypesByOperationName[operationName]
+            ?: throw IllegalStateException("No root type mapping found for operation '$operationName'")
+
+        val rootType = graphQLSchema.getTypeOrNull(rootTypeName)
+            ?: throw IllegalStateException("Root type '$rootTypeName' for operation '$operationName' not found in schema")
+        return rootType as? ObjectTypeDefinition
+            ?: throw IllegalStateException("Root type '$rootTypeName' is not an ObjectTypeDefinition (found ${rootType::class.simpleName})")
     }
 
     private fun parseSchema(path: String): TypeDefinitionRegistry {

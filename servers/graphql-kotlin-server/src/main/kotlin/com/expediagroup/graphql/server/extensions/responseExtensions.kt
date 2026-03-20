@@ -29,7 +29,7 @@ import graphql.language.SourceLocation
  */
 fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
     val data: Any? = getData<Any?>()
-    val filteredErrors: List<GraphQLServerError>? = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
+    val filteredErrors: List<GraphQLServerError>? = errors?.takeIf { it.isNotEmpty() }?.map { it.toGraphQLKotlinType() }
     val filteredExtensions: Map<Any, Any>? = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(data, filteredErrors, filteredExtensions)
 }

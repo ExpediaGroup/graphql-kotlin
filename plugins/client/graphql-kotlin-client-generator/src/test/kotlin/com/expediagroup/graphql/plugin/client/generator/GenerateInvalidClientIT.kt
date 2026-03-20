@@ -22,6 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import java.nio.file.Files
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
@@ -54,6 +55,115 @@ class GenerateInvalidClientIT {
             GraphQLClientGenerator("missingSchema.graphql", defaultConfig)
         }
         assertEquals(SchemaUnavailableException::class, exception::class)
+    }
+
+    @Test
+    fun `verify missing operation mapping in schema definition throws meaningful exception`() {
+        val testDir = Files.createTempDirectory("graphql-client-generator-root-types").toFile()
+        try {
+            val schemaFile = writeFile(
+                testDir,
+                "schema.graphql",
+                """
+                schema {
+                    query: Query
+                }
+
+                type Query {
+                    hello: String
+                }
+                """
+            )
+            val queryFile = writeFile(
+                testDir,
+                "mutationQuery.graphql",
+                """
+                mutation MutationQuery {
+                    setHello
+                }
+                """
+            )
+
+            val exception = assertFails {
+                GraphQLClientGenerator(schemaFile.absolutePath, defaultConfig).generate(listOf(queryFile))
+            }
+            assertEquals("No root type mapping found for operation 'MUTATION'", exception.message)
+        } finally {
+            testDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun `verify missing root type throws meaningful exception`() {
+        val testDir = Files.createTempDirectory("graphql-client-generator-root-types").toFile()
+        try {
+            val schemaFile = writeFile(
+                testDir,
+                "schema.graphql",
+                """
+                schema {
+                    query: MissingRootType
+                }
+
+                type Query {
+                    hello: String
+                }
+                """
+            )
+            val queryFile = writeFile(
+                testDir,
+                "missingRootTypeQuery.graphql",
+                """
+                query MissingRootTypeQuery {
+                    hello
+                }
+                """
+            )
+
+            val exception = assertFails {
+                GraphQLClientGenerator(schemaFile.absolutePath, defaultConfig).generate(listOf(queryFile))
+            }
+            assertEquals("Root type 'MissingRootType' for operation 'QUERY' not found in schema", exception.message)
+        } finally {
+            testDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun `verify non-object root type throws meaningful exception`() {
+        val testDir = Files.createTempDirectory("graphql-client-generator-root-types").toFile()
+        try {
+            val schemaFile = writeFile(
+                testDir,
+                "schema.graphql",
+                """
+                schema {
+                    query: RootScalar
+                }
+
+                scalar RootScalar
+                """
+            )
+            val queryFile = writeFile(
+                testDir,
+                "nonObjectRootQuery.graphql",
+                """
+                query NonObjectRootQuery {
+                    __typename
+                }
+                """
+            )
+
+            val exception = assertFails {
+                GraphQLClientGenerator(schemaFile.absolutePath, defaultConfig).generate(listOf(queryFile))
+            }
+            assertEquals(
+                "Root type 'RootScalar' is not an ObjectTypeDefinition (found ScalarTypeDefinition)",
+                exception.message
+            )
+        } finally {
+            testDir.deleteRecursively()
+        }
     }
 
     companion object {

@@ -27,14 +27,14 @@ import java.util.concurrent.CompletableFuture
 class DataAndErrorsQuery : Query {
 
     fun returnDataAndErrors(): DataFetcherResult<String?> {
-        return DataFetcherResult.newResult<String>()
+        return DataFetcherResult.Builder<String?>()
             .data("Hello from data fetcher")
             .error(getError())
             .build()
     }
 
     fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String?>> {
-        val dataFetcherResult = DataFetcherResult.newResult<String>()
+        val dataFetcherResult = DataFetcherResult.Builder<String?>()
             .data("Hello from data fetcher")
             .error(getError())
             .build()

@@ -184,6 +184,36 @@ class FlowSubscriptionExecutionStrategyTest {
         }
     }
 
+    @Test
+    fun `verify subscription when fetchField returns raw Flow without CompletableFuture wrapping`() = runBlocking {
+        val request = ExecutionInput.newExecutionInput().query("subscription { syncTicker }").build()
+        val response = testGraphQL.execute(request)
+        val flow = response.getData<Flow<ExecutionResult>>()
+        val list = mutableListOf<Int>()
+        flow.collect {
+            list.add(it.getData<Map<String, Int>>().getValue("syncTicker"))
+        }
+        assertEquals(3, list.size)
+        for (i in list.indices) {
+            assertEquals(i + 1, list[i])
+        }
+    }
+
+    @Test
+    fun `verify subscription when fetchField returns FetchedValue wrapping a Flow`() = runBlocking {
+        val request = ExecutionInput.newExecutionInput().query("subscription { syncDataFetcher }").build()
+        val response = testGraphQL.execute(request)
+        val flow = response.getData<Flow<ExecutionResult>>()
+        val list = mutableListOf<Int>()
+        flow.collect {
+            list.add(it.getData<Map<String, Int>>().getValue("syncDataFetcher"))
+        }
+        assertEquals(3, list.size)
+        for (i in list.indices) {
+            assertEquals(i + 1, list[i])
+        }
+    }
+
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
     // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
     class BasicQuery {
@@ -257,6 +287,16 @@ class FlowSubscriptionExecutionStrategyTest {
                     emit("${environment.graphQlContext.get<String>("foo")}:$i")
                 }
             }
+        }
+
+        // Exercises the non-CompletableFuture branch in createSourceEventStream (raw Flow return)
+        fun syncTicker(): Flow<Int> = flow {
+            for (i in 1..3) emit(i)
+        }
+
+        // Exercises FetchedValue.getFetchedValue() unwrapping when fetchField returns a FetchedValue directly
+        fun syncDataFetcher(): Flow<DataFetcherResult<Int>> = flow {
+            for (i in 1..3) emit(DataFetcherResult.newResult<Int>().data(i).build())
         }
     }
 }

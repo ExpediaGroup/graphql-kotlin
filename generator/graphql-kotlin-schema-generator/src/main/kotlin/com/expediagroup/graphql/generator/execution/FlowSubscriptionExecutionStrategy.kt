@@ -20,208 +20,69 @@ import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionContext
-import graphql.execution.ExecutionStepInfo
-import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
 import graphql.execution.FetchedValue
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
-import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
-import graphql.execution.instrumentation.SimpleInstrumentationContext
-import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
-import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
-import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
-import graphql.schema.GraphQLObjectType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.asPublisher
 import org.reactivestreams.Publisher
-import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 /**
- * [SubscriptionExecutionStrategy] replacement that and allows schema subscription functions
- * to return either a [Flow] or a [Publisher].
+ * [SubscriptionExecutionStrategy] subclass that additionally allows schema subscription functions
+ * to return a kotlinx [Flow].
  *
- * Note this implementation is mostly a java->kotlin copy of [SubscriptionExecutionStrategy],
- * with updated [createSourceEventStream] that supports [Flow] and [Publisher]. Any returned
- * [Flow]s will be automatically converted to corresponding [Publisher].
+ * This delegates all execution logic — instrumentation, data loader dispatch, error handling,
+ * event processing — to the parent. It diverges in two places only:
+ *
+ * 1. [execute] — converts the [Publisher]<[ExecutionResult]> produced by the parent back into
+ *    a kotlinx [Flow]<[ExecutionResult]> as the execution result data, to preserve the
+ *    coroutine-friendly API for callers.
+ * 2. [fetchField] — converts any kotlinx [Flow] returned by a data fetcher into a
+ *    reactive-streams [Publisher] before the parent's [createSourceEventStream] sees it,
+ *    since the parent natively handles [Publisher] but not [Flow].
  */
-class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : ExecutionStrategy(dfe) {
+class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : SubscriptionExecutionStrategy(dfe) {
     constructor() : this(SimpleDataFetcherExceptionHandler())
 
     override fun execute(
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
-    ): CompletableFuture<ExecutionResult> {
-
-        val instrumentation = executionContext.instrumentation
-        val instrumentationParameters = InstrumentationExecutionStrategyParameters(executionContext, parameters)
-        val executionStrategyCtx = ExecutionStrategyInstrumentationContext.nonNullCtx(
-            instrumentation.beginExecutionStrategy(
-                instrumentationParameters,
-                executionContext.instrumentationState
-            )
-        )
-
-        val sourceEventStream = createSourceEventStream(executionContext, parameters)
-
-        //
-        // when the upstream source event stream completes, subscribe to it and wire in our adapter
-        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { flow ->
-            if (flow == null) {
-                ExecutionResultImpl(null, executionContext.errors)
+    ): CompletableFuture<ExecutionResult> =
+        super.execute(executionContext, parameters).thenApply { executionResult ->
+            val publisher = executionResult.getData<Publisher<ExecutionResult>?>()
+            if (publisher != null) {
+                ExecutionResultImpl(publisher.asFlow(), executionResult.errors)
             } else {
-                val returnFlow = flow.map { eventPayload: Any? ->
-                    executeSubscriptionEvent(
-                        executionContext,
-                        parameters,
-                        eventPayload
-                    ).await()
-                }
-                ExecutionResultImpl(returnFlow, executionContext.errors)
+                executionResult
             }
         }
 
-        // dispatched the subscription query
-        executionStrategyCtx.onDispatched()
-        overallResult.whenComplete(executionStrategyCtx::onCompleted)
-
-        return overallResult
+    override fun fetchField(
+        executionContext: ExecutionContext,
+        parameters: ExecutionStrategyParameters
+    ): Any {
+        val result = super.fetchField(executionContext, parameters)
+        @Suppress("UNCHECKED_CAST")
+        return when {
+            result is CompletableFuture<*> -> (result as CompletableFuture<Any?>).thenApply { value -> convertFlowToPublisher(value) }
+            else -> convertFlowToPublisher(result)
+        } as Any
     }
 
-    /*
-        https://github.com/facebook/graphql/blob/master/spec/Section%206%20--%20Execution.md
-
-        CreateSourceEventStream(subscription, schema, variableValues, initialValue):
-
-            Let {subscriptionType} be the root Subscription type in {schema}.
-            Assert: {subscriptionType} is an Object type.
-            Let {selectionSet} be the top level Selection Set in {subscription}.
-            Let {rootField} be the first top level field in {selectionSet}.
-            Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType, rootField, variableValues)}.
-            Let {fieldStream} be the result of running {ResolveFieldEventStream(subscriptionType, initialValue, rootField, argumentValues)}.
-            Return {fieldStream}.
+    /**
+     * Converts any kotlinx [Flow] in the fetch result to a reactive-streams [Publisher] so that
+     * the parent [SubscriptionExecutionStrategy] can handle it natively. Handles both a bare [Flow]
+     * and a [Flow] wrapped inside a [FetchedValue]; all other values are passed through unchanged.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun createSourceEventStream(
-        executionContext: ExecutionContext,
-        parameters: ExecutionStrategyParameters
-    ): CompletableFuture<Flow<*>?> {
-        val newParameters = firstFieldOfSubscriptionSelection(parameters)
+    private fun convertFlowToPublisher(value: Any?): Any? = when (value) {
+        is Flow<*> -> (value as Flow<Any>).asPublisher()
+        is FetchedValue if value.fetchedValue is Flow<*> ->
+            FetchedValue((value.fetchedValue as Flow<Any>).asPublisher(), value.errors, value.localContext)
 
-        val fieldFetched: CompletableFuture<FetchedValue> = fetchField(executionContext, newParameters).let { fetchedValue ->
-            if (fetchedValue is CompletableFuture<*>) {
-                fetchedValue as CompletableFuture<FetchedValue>
-            } else {
-                CompletableFuture.completedFuture(fetchedValue as FetchedValue)
-            }
-        }
-        return fieldFetched.thenApply { fetchedValue ->
-            val flow = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
-                is Publisher<*> -> publisherOrFlow.asFlow()
-                // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
-                is Flow<*> -> publisherOrFlow
-                else -> null
-            }
-            flow
-        }
-    }
-
-    /*
-        ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
-
-        Let {subscriptionType} be the root Subscription type in {schema}.
-        Assert: {subscriptionType} is an Object type.
-        Let {selectionSet} be the top level Selection Set in {subscription}.
-        Let {data} be the result of running {ExecuteSelectionSet(selectionSet, subscriptionType, initialValue, variableValues)} normally (allowing parallelization).
-        Let {errors} be any field errors produced while executing the selection set.
-        Return an unordered map containing {data} and {errors}.
-
-        Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to {ExecuteQuery()} since this is how each event result is produced.
-     */
-    private fun executeSubscriptionEvent(
-        executionContext: ExecutionContext,
-        parameters: ExecutionStrategyParameters,
-        eventPayload: Any?
-    ): CompletableFuture<ExecutionResult> {
-        val instrumentation = executionContext.instrumentation
-
-        val newExecutionContext = executionContext.transform { builder ->
-            builder
-                .root(eventPayload)
-                .resetErrors()
-        }
-        val newParameters = firstFieldOfSubscriptionSelection(parameters)
-        val subscribedFieldStepInfo = createSubscribedFieldStepInfo(executionContext, newParameters)
-
-        val i13nFieldParameters = InstrumentationFieldParameters(executionContext) { subscribedFieldStepInfo }
-        val subscribedFieldCtx = SimpleInstrumentationContext.nonNullCtx(
-            instrumentation.beginSubscribedFieldEvent(
-                i13nFieldParameters, executionContext.instrumentationState
-            )
-        )
-
-        val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
-
-        val fieldValueInfo = completeField(newExecutionContext, newParameters, fetchedValue)
-        val overallResult = fieldValueInfo
-            .fieldValueFuture
-            .thenApply { fv ->
-                wrapWithRootFieldName(
-                    newParameters,
-                    ExecutionResultImpl.newExecutionResult().data(fv).build()
-                )
-            }
-
-        // dispatch instrumentation so they can know about each subscription event
-        subscribedFieldCtx.onDispatched()
-        overallResult.whenComplete(subscribedFieldCtx::onCompleted)
-
-        // allow them to instrument each ER should they want to
-        val i13nExecutionParameters = InstrumentationExecutionParameters(
-            executionContext.executionInput, executionContext.graphQLSchema
-        )
-
-        return overallResult.thenCompose { executionResult ->
-            instrumentation.instrumentExecutionResult(executionResult, i13nExecutionParameters, executionContext.instrumentationState)
-        }
-    }
-
-    private fun wrapWithRootFieldName(
-        parameters: ExecutionStrategyParameters,
-        executionResult: ExecutionResult
-    ): ExecutionResult {
-        val rootFieldName = getRootFieldName(parameters)
-        return ExecutionResultImpl(
-            Collections.singletonMap<String, Any>(rootFieldName, executionResult.getData<Any>()),
-            executionResult.errors
-        )
-    }
-
-    private fun getRootFieldName(parameters: ExecutionStrategyParameters): String {
-        val rootField = parameters.field.singleField
-        return if (rootField.alias != null) rootField.alias else rootField.name
-    }
-
-    private fun firstFieldOfSubscriptionSelection(
-        parameters: ExecutionStrategyParameters
-    ): ExecutionStrategyParameters {
-        val fields = parameters.fields
-        val firstField = fields.getSubField(fields.keys[0])
-
-        val fieldPath = parameters.path.segment(mkNameForPath(firstField.singleField))
-        return parameters.transform { builder -> builder.field(firstField).path(fieldPath) }
-    }
-
-    private fun createSubscribedFieldStepInfo(
-        executionContext: ExecutionContext,
-        parameters: ExecutionStrategyParameters
-    ): ExecutionStepInfo {
-        val field = parameters.field.singleField
-        val parentType = parameters.executionStepInfo.unwrappedNonNullType as GraphQLObjectType
-        val fieldDef = getFieldDef(executionContext.graphQLSchema, parentType, field)
-        return createExecutionStepInfo(executionContext, parameters, fieldDef, parentType)
+        else -> value
     }
 }

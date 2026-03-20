@@ -16,16 +16,38 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
+import com.expediagroup.graphql.dataloader.instrumentation.exceptions.MissingInstrumentationStateException
+import com.expediagroup.graphql.dataloader.instrumentation.extensions.dispatchIfNeeded
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
+import graphql.ExecutionResult
+import graphql.GraphQLContext
+import graphql.execution.ExecutionContext
+import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import graphql.execution.instrumentation.FieldFetchingInstrumentationContext
+import graphql.execution.instrumentation.InstrumentationContext
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
+import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
+import graphql.language.OperationDefinition
+import graphql.schema.DataFetchingEnvironment
 import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
@@ -45,6 +67,171 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
     @BeforeEach
     fun clear() {
         clearAllMocks()
+    }
+
+    @Test
+    fun `beginExecution returns null when sync state is not present in context`() {
+        val parameters = mockk<InstrumentationExecutionParameters>()
+        every { parameters.graphQLContext } returns GraphQLContext.newContext().build()
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecution(parameters, null)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `beginExecution delegates to sync state when present`() {
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        val delegatedContext = mockk<InstrumentationContext<ExecutionResult>>()
+        val parameters = mockk<InstrumentationExecutionParameters>()
+
+        every { parameters.graphQLContext } returns GraphQLContext.newContext()
+            .of(SyncExecutionExhaustedState::class, syncState)
+            .build()
+        every { syncState.beginExecution(parameters) } returns delegatedContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecution(parameters, null)
+
+        assertSame(delegatedContext, result)
+    }
+
+    @Test
+    fun `beginExecutionStrategy returns null and skips delegation when sync state is missing`() {
+        val executionContext = mockExecutionContext(GraphQLContext.newContext().build())
+        val parameters = mockk<InstrumentationExecutionStrategyParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecutionStrategy(parameters, null)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `beginExecutionStrategy delegates recursive execution when sync state is present`() {
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        every { syncState.beginRecursiveExecution(any()) } just runs
+
+        val executionContext = mockExecutionContext(
+            GraphQLContext.newContext().of(SyncExecutionExhaustedState::class, syncState).build()
+        )
+        val parameters = mockk<InstrumentationExecutionStrategyParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result: ExecutionStrategyInstrumentationContext? =
+            graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecutionStrategy(parameters, null)
+
+        assertNull(result)
+        verify(exactly = 1) { syncState.beginRecursiveExecution(parameters) }
+    }
+
+    @Test
+    fun `beginExecuteObject returns null and skips delegation when sync state is missing`() {
+        val executionContext = mockExecutionContext(GraphQLContext.newContext().build())
+        val parameters = mockk<InstrumentationExecutionStrategyParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecuteObject(parameters, null)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `beginExecuteObject delegates recursive execution when sync state is present`() {
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        every { syncState.beginRecursiveExecution(any()) } just runs
+
+        val executionContext = mockExecutionContext(
+            GraphQLContext.newContext().of(SyncExecutionExhaustedState::class, syncState).build()
+        )
+        val parameters = mockk<InstrumentationExecutionStrategyParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginExecuteObject(parameters, null)
+
+        assertNull(result)
+        verify(exactly = 1) { syncState.beginRecursiveExecution(parameters) }
+    }
+
+    @Test
+    fun `beginFieldFetching returns null when sync state is missing`() {
+        val executionContext = mockExecutionContext(GraphQLContext.newContext().build())
+        val parameters = mockk<InstrumentationFieldFetchParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginFieldFetching(parameters, null)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `beginFieldFetching delegates when sync state is present`() {
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        val delegatedContext = mockk<FieldFetchingInstrumentationContext>()
+        every { syncState.beginFieldFetching(any()) } returns delegatedContext
+
+        val executionContext = mockExecutionContext(
+            GraphQLContext.newContext().of(SyncExecutionExhaustedState::class, syncState).build()
+        )
+        val parameters = mockk<InstrumentationFieldFetchParameters>()
+        every { parameters.executionContext } returns executionContext
+
+        val result = graphQLSyncExecutionExhaustedDataLoaderDispatcher.beginFieldFetching(parameters, null)
+
+        assertSame(delegatedContext, result)
+        verify(exactly = 1) { syncState.beginFieldFetching(parameters) }
+    }
+
+    @Test
+    fun `dispatchIfNeeded throws when sync execution state is missing`() {
+        val dataLoaderRegistry = mockk<DataLoaderRegistry>(relaxed = true)
+        val environment = mockk<DataFetchingEnvironment>()
+        every { environment.dataLoaderRegistry } returns dataLoaderRegistry
+        every { environment.graphQlContext } returns GraphQLContext.newContext().build()
+
+        assertFailsWith<MissingInstrumentationStateException> {
+            CompletableFuture.completedFuture("value").dispatchIfNeeded(environment)
+        }
+
+        verify(exactly = 0) { dataLoaderRegistry.dispatchAll() }
+    }
+
+    @Test
+    fun `dispatchIfNeeded dispatches all when chained loads happened and executions are exhausted`() {
+        val dataLoaderRegistry = mockk<DataLoaderRegistry>(relaxed = true)
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        every { syncState.dataLoadersLoadInvokedAfterDispatchAll() } returns true
+        every { syncState.allSyncExecutionsExhausted() } returns true
+
+        val environment = mockk<DataFetchingEnvironment>()
+        every { environment.dataLoaderRegistry } returns dataLoaderRegistry
+        every { environment.graphQlContext } returns GraphQLContext.newContext()
+            .of(SyncExecutionExhaustedState::class, syncState)
+            .build()
+
+        val future = CompletableFuture.completedFuture("value")
+
+        val result = future.dispatchIfNeeded(environment)
+
+        assertSame(future, result)
+        verify(exactly = 1) { dataLoaderRegistry.dispatchAll() }
+    }
+
+    @Test
+    fun `dispatchIfNeeded does not dispatch when executions are not exhausted`() {
+        val dataLoaderRegistry = mockk<DataLoaderRegistry>(relaxed = true)
+        val syncState = mockk<SyncExecutionExhaustedState>()
+        every { syncState.dataLoadersLoadInvokedAfterDispatchAll() } returns true
+        every { syncState.allSyncExecutionsExhausted() } returns false
+
+        val environment = mockk<DataFetchingEnvironment>()
+        every { environment.dataLoaderRegistry } returns dataLoaderRegistry
+        every { environment.graphQlContext } returns GraphQLContext.newContext()
+            .of(SyncExecutionExhaustedState::class, syncState)
+            .build()
+
+        CompletableFuture.completedFuture("value").dispatchIfNeeded(environment)
+
+        verify(exactly = 0) { dataLoaderRegistry.dispatchAll() }
     }
 
     @Test
@@ -561,7 +748,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, _, graphQLContext) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -633,5 +820,15 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         verify(exactly = 2) {
             graphQLContext.get(DataLoaderRegistry::class)
         }
+    }
+
+    private fun mockExecutionContext(context: GraphQLContext): ExecutionContext {
+        val operationDefinition = mockk<OperationDefinition>()
+        every { operationDefinition.operation } returns OperationDefinition.Operation.QUERY
+
+        val executionContext = mockk<ExecutionContext>()
+        every { executionContext.operationDefinition } returns operationDefinition
+        every { executionContext.graphQLContext } returns context
+        return executionContext
     }
 }

@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.GraphQLContext
 import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
+import graphql.schema.DataFetchingEnvironmentImpl
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.coroutineScope
@@ -166,12 +167,13 @@ class FunctionDataFetcherTest {
     @Test
     fun `default values are overridden when argument is passed as null`() {
         val dataFetcher = FunctionDataFetcher(target = null, fn = MyClass::printDefault)
-        val mockEnvironment: DataFetchingEnvironment = mockk {
-            every { getSource<Any>() } returns MyClass()
-            every { arguments } returns mapOf("string" to null)
-            every { containsArgument("string") } returns true
-        }
-        assertNull(dataFetcher.get(mockEnvironment))
+        // DataFetchingEnvironment uses an internal ImmutableMapWithNullValues class to store arguments, which allows for null values
+        // Mockk does not support mocking this class, so we need to create a real instance of the environment with the arguments we want to test
+        val environment = DataFetchingEnvironmentImpl.newDataFetchingEnvironment()
+            .source(MyClass())
+            .arguments(mapOf("string" to null))
+            .build()
+        assertNull(dataFetcher.get(environment))
     }
 
     @Test
@@ -273,11 +275,10 @@ class FunctionDataFetcherTest {
     @Test
     fun `optional inputs return the value when null arguments are passed`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapper)
-        val mockEnvironment: DataFetchingEnvironment = mockk {
-            every { arguments } returns mapOf("input" to null)
-            every { containsArgument("input") } returns true
-        }
-        assertEquals(expected = "input was null", actual = dataFetcher.get(mockEnvironment))
+        val environment = DataFetchingEnvironmentImpl.newDataFetchingEnvironment()
+            .arguments(mapOf("input" to null))
+            .build()
+        assertEquals(expected = "input was null", actual = dataFetcher.get(environment))
     }
 
     @Test
