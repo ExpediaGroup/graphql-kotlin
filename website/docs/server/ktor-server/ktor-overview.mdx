@@ -63,7 +63,7 @@ fun Application.graphQLModule() {
             )
         }
     }
-    install(Routing) {
+    routing {
         graphQLPostRoute()
     }
     install(StatusPages) {
