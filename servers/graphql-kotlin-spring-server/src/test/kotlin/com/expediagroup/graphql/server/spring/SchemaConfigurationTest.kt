@@ -132,7 +132,7 @@ class SchemaConfigurationTest {
     @Configuration
     class BasicConfiguration {
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -149,7 +149,7 @@ class SchemaConfigurationTest {
     @Configuration
     class CustomConfiguration {
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

@@ -40,16 +40,16 @@ class ScalarQuery(
     data class Variables(
         @get:JsonProperty("alias")
         val alias: ID? = null,
-        @param:JsonSerialize(converter = UUIDToAnyConverter::class)
-        @param:JsonDeserialize(converter = AnyToUUIDConverter::class)
+        @get:JsonSerialize(converter = UUIDToAnyConverter::class)
+        @get:JsonDeserialize(converter = AnyToUUIDConverter::class)
         @get:JsonProperty("custom")
         val custom: UUID? = null
     )
 
     data class Result(
         val scalarAlias: ID,
-        @param:JsonSerialize(converter = UUIDToAnyConverter::class)
-        @param:JsonDeserialize(converter = AnyToUUIDConverter::class)
+        @get:JsonSerialize(converter = UUIDToAnyConverter::class)
+        @get:JsonDeserialize(converter = AnyToUUIDConverter::class)
         val customScalar: UUID
     )
 }

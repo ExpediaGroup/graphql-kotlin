@@ -34,8 +34,8 @@ class EntitiesQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
-        @param:JsonSerialize(contentConverter = AnyToAnyConverter::class)
-        @param:JsonDeserialize(contentConverter = AnyToAnyConverter::class)
+        @get:JsonSerialize(contentConverter = AnyToAnyConverter::class)
+        @get:JsonDeserialize(contentConverter = AnyToAnyConverter::class)
         @get:JsonProperty("representations")
         public val representations: List<Any>,
     )

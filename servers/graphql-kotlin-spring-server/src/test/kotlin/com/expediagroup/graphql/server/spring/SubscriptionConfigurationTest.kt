@@ -111,7 +111,7 @@ class SubscriptionConfigurationTest {
     @Configuration
     class SubscriptionConfiguration {
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -135,7 +135,7 @@ class SubscriptionConfigurationTest {
             // custom subscription hooks
         }
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

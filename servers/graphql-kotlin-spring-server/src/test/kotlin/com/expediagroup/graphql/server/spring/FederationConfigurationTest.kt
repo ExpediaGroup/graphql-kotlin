@@ -138,7 +138,7 @@ class FederationConfigurationTest {
     @Configuration
     class FederatedConfiguration {
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -149,7 +149,7 @@ class FederationConfigurationTest {
     @Configuration
     class CustomFederatedConfiguration {
 
-        // in regular apps object mapper will be created by spring-boot-jackson
+        // in regular apps object mapper will be created by Spring Boot Jackson auto-configuration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
