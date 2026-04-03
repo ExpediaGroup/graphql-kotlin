@@ -50,6 +50,6 @@ class GraphQLExecutionConfiguration {
     fun dataLoaderRegistryFactory(
         dataLoaders: Optional<List<KotlinDataLoader<*, *>>>,
     ): KotlinDataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
-        dataLoaders.orElse(emptyList()) ?: emptyList(),
+        dataLoaders.orElseGet { emptyList() },
     )
 }

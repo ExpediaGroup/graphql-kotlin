@@ -30,12 +30,14 @@ import graphql.schema.GraphQLType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
+import tools.jackson.databind.cfg.DateTimeFeature
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.reflect.KType
@@ -85,10 +87,10 @@ class DataFetcherIT {
             }
         }
 
-//        @Bean
-//        fun objectMapperCustomizer() = JsonMapper.builder()
-//            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-//            .build()
+        @Bean
+        fun jsonMapperBuilderCustomizer() = JsonMapperBuilderCustomizer { builder ->
+            builder.configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        }
 
         private val localDateType = GraphQLScalarType.newScalar()
             .name("LocalDate")
