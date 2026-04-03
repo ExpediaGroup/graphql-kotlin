@@ -20,7 +20,6 @@ import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
 import com.expediagroup.graphql.server.execution.subscription.GraphQLWebSocketServer
 import com.expediagroup.graphql.server.types.GraphQLSubscriptionStatus
-import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.flux
 import org.springframework.web.reactive.socket.CloseStatus
@@ -28,6 +27,7 @@ import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
+import tools.jackson.databind.ObjectMapper
 
 /**
  * GraphQL Web Socket server implementation for handling subscriptions using *graphql-transport-ws* protocol

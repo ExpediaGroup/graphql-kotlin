@@ -20,9 +20,9 @@ import com.expediagroup.graphql.plugin.graalvm.ClassMetadata
 import com.expediagroup.graphql.plugin.graalvm.MethodMetadata
 import com.expediagroup.graphql.plugin.graalvm.generateGraalVmReflectMetadata
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 
 class GenerateGraalVmListMetadataTest {
 
@@ -84,8 +84,9 @@ class GenerateGraalVmListMetadataTest {
 
         val actual = generateGraalVmReflectMetadata(supportedPackages = listOf("com.expediagroup.graphql.plugin.graalvm.list"))
 
-        val mapper = jacksonObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        val mapper = jacksonMapperBuilder()
+            .changeDefaultPropertyInclusion { incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL) }
+            .build()
         val writer = mapper.writerWithDefaultPrettyPrinter()
         Assertions.assertEquals(writer.writeValueAsString(expected), writer.writeValueAsString(actual))
     }

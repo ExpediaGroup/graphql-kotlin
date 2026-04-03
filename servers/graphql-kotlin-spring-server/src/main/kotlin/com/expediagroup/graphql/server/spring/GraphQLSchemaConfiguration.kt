@@ -19,16 +19,15 @@ package com.expediagroup.graphql.server.spring
 import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueriesCache
 import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueriesCache
 import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
-import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
-import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.GraphQLSyncExecutionExhaustedDataLoaderDispatcher
+import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -44,6 +43,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
+import tools.jackson.databind.ObjectMapper
 import java.util.Optional
 
 /**

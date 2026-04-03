@@ -23,12 +23,12 @@ import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionWe
 import com.expediagroup.graphql.server.spring.subscriptions.DefaultSpringSubscriptionGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.subscriptions.SimpleSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import tools.jackson.databind.ObjectMapper
 
 @Deprecated("Apollo subscriptions-transport-ws protocol auto configuration is deprecated and will be removed in next major release")
 @ConditionalOnProperty(prefix = "graphql.subscriptions", name = ["protocol"], havingValue = "APOLLO_SUBSCRIPTIONS_WS")

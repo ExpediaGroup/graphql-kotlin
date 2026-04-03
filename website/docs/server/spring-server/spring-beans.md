@@ -59,6 +59,12 @@ _Created only if federation is **enabled**_
 | SpringGraphQLServer                   | Spring specific object that takes in a `ServerRequest` and returns a `GraphQLResponse` using all the above implementations. See [GraphQLServer](../graphql-server.md)                                                                       |
 | IDValueUnboxer                        | Value unboxer that provides support for handling ID value class                                                                                                                                                                             |
 
+:::note
+
+`graphql-kotlin-spring-server` does not create its own Jackson mapper bean. JSON mapper configuration should come from Spring Boot Jackson auto-configuration (`spring.jackson.*` or `JsonMapperBuilderCustomizer`).
+
+:::
+
 ## Subscriptions
 
 :::note

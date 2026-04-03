@@ -26,7 +26,7 @@ dependencies {
     api(libs.spring.boot.webflux.module)
     api(libs.spring.boot.autoconfigure)
     api(libs.spring.boot.netty)
-    api(libs.spring.boot.jackson2)
+    api(libs.spring.boot.jackson)
     api(libs.kotlinx.coroutines.jdk8)
     api(libs.kotlinx.coroutines.reactor)
     api(libs.reactor.extensions)

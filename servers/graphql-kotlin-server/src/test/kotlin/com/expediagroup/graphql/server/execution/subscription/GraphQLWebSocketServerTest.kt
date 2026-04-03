@@ -33,8 +33,6 @@ import com.expediagroup.graphql.server.types.SubscriptionMessageNext
 import com.expediagroup.graphql.server.types.SubscriptionMessagePing
 import com.expediagroup.graphql.server.types.SubscriptionMessagePong
 import com.expediagroup.graphql.server.types.SubscriptionMessageSubscribe
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQL
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -49,6 +47,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

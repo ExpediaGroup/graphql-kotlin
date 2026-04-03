@@ -11,10 +11,10 @@ import com.expediagroup.graphql.server.execution.GraphQLServer
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.ktor.kotlinx.queries.HelloWorld
 import com.expediagroup.ktor.kotlinx.queries.ObjectQuery
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.receiveText
+import tools.jackson.databind.ObjectMapper
 import java.io.IOException
 
 class KtorGraphQLServer(

@@ -19,9 +19,6 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
@@ -35,6 +32,9 @@ import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.joinToCode
+import tools.jackson.core.JsonGenerator
+import tools.jackson.databind.SerializationContext
+import tools.jackson.databind.ValueSerializer
 
 internal const val OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME = "OptionalScalarInputSerializer"
 
@@ -47,7 +47,7 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
     val jacksonUndefinedInput = MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined")
 
     return TypeSpec.classBuilder(OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
-        .superclass(JsonSerializer::class.asClassName().parameterizedBy(jacksonOptionalInput))
+        .superclass(ValueSerializer::class.asClassName().parameterizedBy(jacksonOptionalInput))
         .addAnnotation(Generated::class)
         .also { builder ->
             val convertersInitBlock = CodeBlock.builder()
@@ -73,7 +73,7 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
         .addFunction(
             FunSpec.builder("isEmpty")
                 .addModifiers(KModifier.OVERRIDE)
-                .addParameter("provider", SerializerProvider::class.java)
+                .addParameter("ctxt", SerializationContext::class.java)
                 .addParameter("value", jacksonOptionalInput)
                 .returns(BOOLEAN)
                 .addStatement("return value == %M", jacksonUndefinedInput)
@@ -84,7 +84,7 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter("value", jacksonOptionalInput)
                 .addParameter("gen", JsonGenerator::class.java)
-                .addParameter("serializers", SerializerProvider::class.java)
+                .addParameter("ctxt", SerializationContext::class.java)
                 .addCode(
                     CodeBlock.of(
                         """when (value) {
@@ -92,15 +92,15 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
                         |  is %M -> {
                         |    val rawValue = value.value
                         |    when (rawValue) {
-                        |      null -> serializers.defaultNullValueSerializer.serialize(rawValue, gen, serializers)
+                        |      null -> ctxt.defaultNullValueSerializer.serialize(rawValue, gen, ctxt)
                         |      is List<*> -> {
                         |        gen.writeStartArray()
                         |        rawValue.filterNotNull().forEach { entry ->
-                        |          serializeValue(entry, gen, serializers)
+                        |          serializeValue(entry, gen, ctxt)
                         |        }
                         |        gen.writeEndArray()
                         |      }
-                        |      else -> serializeValue(rawValue, gen, serializers)
+                        |      else -> serializeValue(rawValue, gen, ctxt)
                         |    }
                         |  }
                         |}
@@ -115,15 +115,15 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
                 .addModifiers(KModifier.PRIVATE)
                 .addParameter("value", ANY)
                 .addParameter("gen", JsonGenerator::class.java)
-                .addParameter("serializers", SerializerProvider::class.java)
+                .addParameter("ctxt", SerializationContext::class.java)
                 .addCode(
                     CodeBlock.of(
                         """val clazz = value::class.java
                         |val converter = converters[clazz] as? ScalarConverter<Any>
                         |if (converter != null) {
-                        |  serializers.defaultSerializeValue(converter.toJson(value), gen)
+                        |  ctxt.writeValue(gen, value)
                         |} else {
-                        |  serializers.findValueSerializer(clazz).serialize(value, gen, serializers)
+                        |  ctxt.findValueSerializer(clazz).serialize(value, gen, ctxt)
                         |}
                         """.trimMargin()
                     )

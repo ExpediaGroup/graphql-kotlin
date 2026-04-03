@@ -32,7 +32,6 @@ import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOp
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerError
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -44,6 +43,7 @@ import kotlinx.coroutines.flow.map
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.test.StepVerifier
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

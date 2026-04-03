@@ -23,8 +23,6 @@ import com.expediagroup.graphql.plugin.client.generator.exceptions.DeprecatedFie
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingArgumentException
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
@@ -40,6 +38,8 @@ import graphql.language.NonNullType
 import graphql.language.SelectionSet
 import graphql.language.StringValue
 import kotlinx.serialization.Serializable
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * Generate [PropertySpec]s from the field definitions and selection set.

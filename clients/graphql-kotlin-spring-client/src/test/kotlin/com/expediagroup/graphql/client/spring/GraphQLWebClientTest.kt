@@ -28,7 +28,6 @@ import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceL
 import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -39,7 +38,6 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -52,6 +50,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Duration
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -254,7 +253,22 @@ class GraphQLWebClientTest {
         val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
         WireMock.stubFor(
             WireMock
-                .get("""/graphql?extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D""")
+                .get(WireMock.urlPathEqualTo("/graphql"))
+                .withQueryParam(
+                    "extension",
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "persistedQuery": {
+                                "version": 1,
+                                "sha256Hash": "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae"
+                              }
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
+                )
                 .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
                 .willReturn(
                     WireMock.aResponse()
@@ -326,7 +340,22 @@ class GraphQLWebClientTest {
         )
         WireMock.stubFor(
             WireMock
-                .get("""/graphql?extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D""")
+                .get(WireMock.urlPathEqualTo("/graphql"))
+                .withQueryParam(
+                    "extension",
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "persistedQuery": {
+                                "version": 1,
+                                "sha256Hash": "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae"
+                              }
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
+                )
                 .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
                 .willReturn(
                     WireMock.aResponse()
@@ -339,11 +368,34 @@ class GraphQLWebClientTest {
         val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
         WireMock.stubFor(
             WireMock
-                .get(
-                    """
-                        |/graphql?query=%7B%22query%22%3A%22query+HelloWorldQuery+%7B+helloWorld+%7D%22%2C%22operationName%22%3A%22HelloWorld%22%7D&
-                        |extension=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae%22%7D%7D
-                    """.trimMargin().replace("\n", "")
+                .get(WireMock.urlPathEqualTo("/graphql"))
+                .withQueryParam(
+                    "query",
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "query": "query HelloWorldQuery { helloWorld }",
+                              "operationName": "HelloWorld"
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
+                )
+                .withQueryParam(
+                    "extension",
+                    EqualToJsonPattern(
+                        """
+                            {
+                              "persistedQuery": {
+                                "version": 1,
+                                "sha256Hash": "dd79d72356e3cfd09a542b572c3c73e4e8d90c1c7d5c27d74bcff4e7423178ae"
+                              }
+                            }
+                        """.trimIndent(),
+                        true,
+                        true
+                    )
                 )
                 .withHeader("Content-Type", EqualToPattern("application/x-www-form-urlencoded"))
                 .willReturn(

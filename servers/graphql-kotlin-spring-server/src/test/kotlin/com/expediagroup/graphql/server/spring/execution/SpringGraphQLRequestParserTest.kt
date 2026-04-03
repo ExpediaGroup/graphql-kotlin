@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,6 +29,7 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

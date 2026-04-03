@@ -17,7 +17,8 @@
 package com.expediagroup.graphql.client.jackson.data.scalars
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
-import com.fasterxml.jackson.databind.util.StdConverter
+import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.util.StdConverter
 import kotlin.Any
 
 class AnyToAnyConverter : StdConverter<Any, Any>() {
@@ -34,5 +35,6 @@ class AnyScalarConverter : ScalarConverter<Any> {
 
 // representation would not be part of the generated sources
 data class ProductEntityRepresentation(val id: String) {
+    @get:JsonProperty("__typename")
     val __typename: String = "Product"
 }

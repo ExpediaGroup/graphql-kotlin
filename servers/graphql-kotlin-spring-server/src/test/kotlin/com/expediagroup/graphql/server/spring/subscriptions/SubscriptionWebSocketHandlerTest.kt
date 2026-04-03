@@ -18,15 +18,15 @@ package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
 import com.expediagroup.graphql.server.types.GraphQLSubscriptionStatus
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import kotlin.test.assertEquals
 
 class SubscriptionWebSocketHandlerTest {
 

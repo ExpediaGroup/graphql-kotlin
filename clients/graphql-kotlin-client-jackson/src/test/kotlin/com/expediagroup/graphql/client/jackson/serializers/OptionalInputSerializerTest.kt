@@ -18,16 +18,15 @@ package com.expediagroup.graphql.client.jackson.serializers
 
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import kotlin.test.assertEquals
 
 class OptionalInputSerializerTest {
 
-    private val mapper = jacksonObjectMapper()
-    init {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-    }
+    private val mapper = jacksonMapperBuilder()
+        .changeDefaultPropertyInclusion { incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY) }
+        .build()
 
     @Test
     fun `verify undefined value is serialized to empty JSON`() {

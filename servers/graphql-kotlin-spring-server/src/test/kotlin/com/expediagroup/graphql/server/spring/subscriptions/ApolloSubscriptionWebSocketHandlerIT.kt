@@ -22,8 +22,6 @@ import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
@@ -40,6 +38,8 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 import java.time.Duration
 import kotlin.random.Random

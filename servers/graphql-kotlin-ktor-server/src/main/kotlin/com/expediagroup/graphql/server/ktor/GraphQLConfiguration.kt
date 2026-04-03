@@ -35,8 +35,6 @@ import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptio
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionIdProvider
 import graphql.execution.SimpleDataFetcherExceptionHandler
@@ -45,6 +43,8 @@ import graphql.execution.preparsed.PreparsedDocumentProvider
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.tryGetString
 import io.ktor.server.config.tryGetStringList
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import kotlin.reflect.KClass
 
 /**
@@ -264,9 +264,9 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         /** Custom GraphQL context factory */
         var contextFactory: KtorGraphQLContextFactory = DefaultKtorGraphQLContextFactory()
         /** Custom Jackson ObjectMapper configuration */
-        var jacksonConfiguration: ObjectMapper.() -> Unit = {}
+        var jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}
         /** Custom request parser */
-        var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
+        var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonMapperBuilder().apply(jacksonConfiguration).build())
         /** GraphQL WS subscription configuration */
         val subscriptions: KtorSubscriptionConfiguration = KtorSubscriptionConfiguration(config)
         fun subscriptions(subscriptionConfig: KtorSubscriptionConfiguration.() -> Unit) {

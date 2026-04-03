@@ -15,9 +15,12 @@
  */
 package com.expediagroup.graphql.examples.client.maven
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * Representation of a Product type entity.
  */
 data class ProductEntityRepresentation(val id: String) {
+    @get:JsonProperty("__typename")
     val __typename: String = "Product"
 }

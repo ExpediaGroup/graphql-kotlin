@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.plugin.graalvm
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.core.type.TypeReference
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.InputStream
 
 private const val DEFAULT_REFLECT_CONFIG = "default-reflect-config.json"

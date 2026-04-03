@@ -25,8 +25,6 @@ import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionWebSocketHandler
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
 import io.mockk.every
@@ -39,6 +37,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import reactor.core.publisher.Flux
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Duration
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -111,7 +111,7 @@ class SubscriptionConfigurationTest {
     @Configuration
     class SubscriptionConfiguration {
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -135,7 +135,7 @@ class SubscriptionConfigurationTest {
             // custom subscription hooks
         }
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

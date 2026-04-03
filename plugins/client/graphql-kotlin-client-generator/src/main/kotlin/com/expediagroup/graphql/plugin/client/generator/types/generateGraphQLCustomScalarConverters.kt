@@ -20,7 +20,6 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
-import com.fasterxml.jackson.databind.util.StdConverter
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
@@ -36,6 +35,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonPrimitive
+import tools.jackson.databind.util.StdConverter
 
 /**
  * Generate [ScalarConverterInfo] data class that holds information about generated scalar Jackson converters/or kotlinx-serialization serializer.

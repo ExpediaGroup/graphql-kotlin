@@ -18,9 +18,8 @@ package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.application.plugin
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respondText
@@ -31,15 +30,16 @@ import io.ktor.server.routing.post
 import io.ktor.server.websocket.application
 import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.collect
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * Configures GraphQL GET route
  *
  * @param endpoint GraphQL server GET endpoint, defaults to 'graphql'
  * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses.
- * @param jacksonConfiguration Jackson Object Mapper customizations
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor
  */
-fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route {
+fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
     val route = get(endpoint) {
         graphQLPlugin.server.executeRequest(call)
@@ -57,9 +57,9 @@ fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boole
  *
  * @param endpoint GraphQL server POST endpoint, defaults to 'graphql'
  * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses.
- * @param jacksonConfiguration Jackson Object Mapper customizations
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor
  */
-fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route {
+fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
     val route = post(endpoint) {
         graphQLPlugin.server.executeRequest(call)

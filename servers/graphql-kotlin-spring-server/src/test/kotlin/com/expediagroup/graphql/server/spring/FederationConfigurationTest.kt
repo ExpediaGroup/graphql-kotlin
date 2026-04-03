@@ -31,8 +31,6 @@ import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
@@ -43,6 +41,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -138,7 +138,7 @@ class FederationConfigurationTest {
     @Configuration
     class FederatedConfiguration {
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -149,7 +149,7 @@ class FederationConfigurationTest {
     @Configuration
     class CustomFederatedConfiguration {
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

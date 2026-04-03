@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
@@ -23,13 +25,9 @@ import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProv
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.Instrumentation
@@ -46,6 +44,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -132,7 +132,7 @@ class SchemaConfigurationTest {
     @Configuration
     class BasicConfiguration {
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -149,7 +149,7 @@ class SchemaConfigurationTest {
     @Configuration
     class CustomConfiguration {
 
-        // in regular apps object mapper will be created by JacksonAutoConfiguration
+        // in regular apps object mapper will be created by spring-boot-jackson
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

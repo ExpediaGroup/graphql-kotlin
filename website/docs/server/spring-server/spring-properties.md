@@ -32,3 +32,9 @@ details on the supported configuration properties.
 | graphql.subscriptions.protocol              | WebSocket based subscription protocol. Supported protocols: APOLLO_SUBSCRIPTIONS_WS / GRAPHQL_WS                                         | GRAPHQL_WS                    |
 | graphql.batching.enabled                    | Boolean flag indicating whether to enable custom dataloader instrumentations for 1 or more GraphQL Operations                            | false                         |
 | graphql.batching.strategy                   | Configure which custom dataloader instrumentation will be used                                                                           | SYNC_EXHAUSTION               |
+
+## Jackson properties
+
+JSON mapper behavior for this module is configured through Spring Boot Jackson properties (for example `spring.jackson.*`).
+For programmatic customization, use Spring Boot's Jackson customization hooks (for example `JsonMapperBuilderCustomizer`).
+

@@ -29,11 +29,9 @@ import com.expediagroup.graphql.server.types.SubscriptionMessageNext
 import com.expediagroup.graphql.server.types.SubscriptionMessagePing
 import com.expediagroup.graphql.server.types.SubscriptionMessagePong
 import com.expediagroup.graphql.server.types.SubscriptionMessageSubscribe
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQLContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -48,6 +46,9 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
@@ -71,7 +72,7 @@ abstract class GraphQLWebSocketServer<Session, Message>(
     private val logger: Logger = LoggerFactory.getLogger(GraphQLWebSocketServer::class.java)
     private val subscriptionScope = CoroutineScope(SupervisorJob())
 
-    @OptIn(FlowPreview::class)
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     suspend fun handleSubscription(session: Session): Flow<Message> = coroutineScope {
         val subscriptions = ConcurrentHashMap<String, Job>()
         val graphqlContext = AtomicReference<GraphQLContext?>()

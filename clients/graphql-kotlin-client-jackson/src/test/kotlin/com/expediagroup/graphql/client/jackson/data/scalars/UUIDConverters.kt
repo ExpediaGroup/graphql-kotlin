@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.client.jackson.data.scalars
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
-import com.fasterxml.jackson.databind.util.StdConverter
+import tools.jackson.databind.util.StdConverter
 import java.util.UUID
 import kotlin.Any
 

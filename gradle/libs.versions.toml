@@ -5,14 +5,14 @@ dataloader = "4.0.0"
 federation = "5.5.0"
 graphql-java = "24.3"
 graalvm = "0.11.5"
-jackson = "2.17.1"
+jackson = "3.1.1"
 # kotlin version has to match the compile-testing compiler version
 kotlin = "2.3.0"
 kotlinx-benchmark = "0.4.13"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.10.0"
 ktor = "3.4.1"
-fastjson2 = "2.0.56"
+fastjson2 = "2.0.61"
 maven-plugin-annotation = "3.13.1"
 maven-plugin-api = "3.9.8"
 maven-project = "2.2.1"
@@ -55,7 +55,7 @@ classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref 
 dataloader = { group = "com.graphql-java", name = "java-dataloader", version.ref = "dataloader" }
 federation = { group = "com.apollographql.federation", name = "federation-graphql-java-support", version.ref = "federation" }
 graphql-java = { group = "com.graphql-java", name = "graphql-java", version.ref = "graphql-java" }
-jackson = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+jackson = { group = "tools.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 kotlin-gradle-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref= "kotlin" }
@@ -70,7 +70,7 @@ ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "
 ktor-client-content = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
 ktor-client-websockets = { group = "io.ktor", name = "ktor-client-websockets", version.ref = "ktor" }
-ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
+ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson3", version.ref = "ktor" }
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
 ktor-server-cors = { group = "io.ktor", name = "ktor-server-cors", version.ref = "ktor" }
 ktor-server-content = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
@@ -86,9 +86,7 @@ spring-boot-config = { group = "org.springframework.boot", name = "spring-boot-c
 spring-boot-netty = { group = "org.springframework.boot", name = "spring-boot-starter-reactor-netty", version.ref = "spring-boot" }
 spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux", version.ref = "spring-boot" }
 spring-boot-webflux-module = { group = "org.springframework.boot", name = "spring-boot-webflux", version.ref = "spring-boot" }
-# TODO: Migrate to Jackson 3.x when graphql-java upgrades
-# spring-boot-jackson = { group = "org.springframework.boot", name = "spring-boot-jackson", version.ref = "spring-boot" }
-spring-boot-jackson2 = { group = "org.springframework.boot", name = "spring-boot-jackson2", version.ref = "spring-boot" }
+spring-boot-jackson = { group = "org.springframework.boot", name = "spring-boot-jackson", version.ref = "spring-boot" }
 spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
 spring-context = { group = "org.springframework", name = "spring-context", version.ref = "spring" }
 fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }

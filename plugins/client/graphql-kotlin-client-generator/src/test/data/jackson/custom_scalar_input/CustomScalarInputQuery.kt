@@ -9,12 +9,12 @@ import com.expediagroup.graphql.generated.scalars.AnyToULocaleConverter
 import com.expediagroup.graphql.generated.scalars.OptionalScalarInputSerializer
 import com.expediagroup.graphql.generated.scalars.ULocaleToAnyConverter
 import com.fasterxml.jackson.`annotation`.JsonProperty
-import com.fasterxml.jackson.databind.`annotation`.JsonDeserialize
-import com.fasterxml.jackson.databind.`annotation`.JsonSerialize
 import com.ibm.icu.util.ULocale
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
+import tools.jackson.databind.`annotation`.JsonDeserialize
+import tools.jackson.databind.`annotation`.JsonSerialize
 
 public const val CUSTOM_SCALAR_INPUT_QUERY: String =
     "query CustomScalarInputQuery(${'$'}requiredLocale: Locale!, ${'$'}optionalLocale: Locale, ${'$'}scalarWrapper: ScalarWrapperInput) {\n  inputCustomScalarQuery(requiredLocale: ${'$'}requiredLocale, optionalLocale: ${'$'}optionalLocale, scalarWrapper: ${'$'}scalarWrapper)\n}"

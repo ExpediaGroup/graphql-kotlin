@@ -73,6 +73,13 @@ type Widget {
 }
 ```
 
+## Jackson configuration (Spring Boot 4 / Jackson 3)
+
+`graphql-kotlin-spring-server` follows Spring Boot Jackson auto-configuration and expects JSON mapper configuration to come from your application.
+
+- Prefer `spring.jackson.*` properties and/or `JsonMapperBuilderCustomizer` beans to customize JSON behavior.
+- Avoid creating a second standalone `ObjectMapper` bean unless you intentionally want separate mapper instances.
+
 ## Documentation
 
 Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/server/spring-server/spring-overview)

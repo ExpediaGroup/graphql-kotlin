@@ -136,7 +136,7 @@ All configuration options, with their default values are provided below.
 server {
     contextFactory = DefaultKtorGraphQLContextFactory()
     jacksonConfiguration = { }
-    requestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
+    requestParser = KtorGraphQLRequestParser(jacksonMapperBuilder().apply(jacksonConfiguration).build())
 }
 ```
 
@@ -153,7 +153,7 @@ This is the main route for processing your GraphQL requests. By default, it will
 using chunked encoding.
 
 ```kotlin
-fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route
+fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route
 ```
 
 ### GraphQL GET route
@@ -165,7 +165,7 @@ Only `Query` operations are supported by the GET route.
 GraphQL route for processing GET requests. By default, it will use `/graphql` endpoint and respond using chunked encoding.
 
 ```kotlin
-fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route
+fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route
 ```
 
 ### GraphQL Subscriptions route

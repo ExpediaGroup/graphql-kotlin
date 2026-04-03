@@ -66,6 +66,14 @@ graphql:
     - "com.your.package"
 ```
 
+## Jackson 3 configuration
+
+With Spring Boot 4, Jackson 3 is auto-configured by Spring and `graphql-kotlin-spring-server` uses that configuration.
+
+- Prefer configuring JSON through `spring.jackson.*` properties.
+- For programmatic customization, provide a `JsonMapperBuilderCustomizer` bean.
+- Avoid defining an additional standalone `ObjectMapper` bean unless you intentionally want separate mapper instances.
+
 ## Default Routes
 
 Your newly created GraphQL server starts up with following preconfigured default routes:

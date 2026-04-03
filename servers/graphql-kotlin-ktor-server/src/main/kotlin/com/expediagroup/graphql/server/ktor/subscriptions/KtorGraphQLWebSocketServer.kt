@@ -19,11 +19,11 @@ package com.expediagroup.graphql.server.ktor.subscriptions
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.subscription.GraphQLWebSocketServer
 import com.expediagroup.graphql.server.types.GraphQLSubscriptionStatus
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.server.websocket.WebSocketServerSession
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Ktor GraphQL Web Socket server implementation for handling subscriptions using *graphql-transport-ws* protocol

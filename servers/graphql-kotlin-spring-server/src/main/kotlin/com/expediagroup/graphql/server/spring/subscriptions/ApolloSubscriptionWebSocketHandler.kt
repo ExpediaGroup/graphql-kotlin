@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
+import tools.jackson.databind.ObjectMapper
 
 internal const val APOLLO_GRAPHQL_WS_PROTOCOL = "graphql-ws"
 

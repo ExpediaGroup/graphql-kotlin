@@ -22,24 +22,20 @@ import com.expediagroup.graphql.client.jackson.types.UndefinedFilter
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.JavaType
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
  * Jackson based GraphQL request/response serializer.
  */
-class GraphQLClientJacksonSerializer(private val mapper: ObjectMapper = jacksonObjectMapper()) : GraphQLClientSerializer {
+class GraphQLClientJacksonSerializer(mapper: JsonMapper = jacksonMapperBuilder().build()) : GraphQLClientSerializer {
+    private val mapper: ObjectMapper = configureMapper(mapper)
     private val typeCache = ConcurrentHashMap<KClass<*>, JavaType>()
-
-    init {
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        mapper.configOverride(OptionalInput::class.java).include = JsonInclude.Value.empty().withValueInclusion(JsonInclude.Include.CUSTOM).withValueFilter(UndefinedFilter::class.java)
-    }
 
     override fun serialize(request: GraphQLClientRequest<*>): String = mapper.writeValueAsString(request)
 
@@ -66,4 +62,18 @@ class GraphQLClientJacksonSerializer(private val mapper: ObjectMapper = jacksonO
         typeCache.computeIfAbsent(resultType) {
             mapper.typeFactory.constructParametricType(JacksonGraphQLResponse::class.java, resultType.java)
         }
+
+    companion object {
+        private fun configureMapper(mapper: JsonMapper): JsonMapper = mapper.rebuild()
+            .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
+            .withConfigOverride(OptionalInput::class.java) { cfg ->
+                cfg.setInclude(
+                    JsonInclude.Value.empty()
+                        .withValueInclusion(JsonInclude.Include.CUSTOM)
+                        .withValueFilter(UndefinedFilter::class.java)
+                )
+            }
+            .build()
+    }
 }

@@ -24,7 +24,6 @@ import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_VARIABLES
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.BeforeEach
@@ -38,6 +37,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.reactive.function.server.ServerRequest
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

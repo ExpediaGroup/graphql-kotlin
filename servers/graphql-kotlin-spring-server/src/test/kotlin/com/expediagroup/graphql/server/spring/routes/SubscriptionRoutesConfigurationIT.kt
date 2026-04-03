@@ -27,9 +27,6 @@ import com.expediagroup.graphql.server.types.SubscriptionMessageConnectionAck
 import com.expediagroup.graphql.server.types.SubscriptionMessageConnectionInit
 import com.expediagroup.graphql.server.types.SubscriptionMessageNext
 import com.expediagroup.graphql.server.types.SubscriptionMessageSubscribe
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
@@ -46,6 +43,8 @@ import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClien
 import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 import java.time.Duration
 import java.util.UUID
@@ -63,7 +62,7 @@ class SubscriptionRoutesConfigurationIT(
     @LocalServerPort private var port: Int
 ) {
 
-    val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    val objectMapper = jacksonObjectMapper()
     private lateinit var testClient: WebTestClient
 
     @Configuration

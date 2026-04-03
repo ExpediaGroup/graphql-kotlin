@@ -21,11 +21,11 @@ import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.JSONWriter
 import com.alibaba.fastjson2.to
 import com.expediagroup.graphql.generator.scalars.ID
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import tools.jackson.databind.exc.MismatchedInputException
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue

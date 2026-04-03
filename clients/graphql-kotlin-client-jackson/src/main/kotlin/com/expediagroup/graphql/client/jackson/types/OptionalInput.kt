@@ -19,7 +19,7 @@ package com.expediagroup.graphql.client.jackson.types
 import com.expediagroup.graphql.client.jackson.serializers.OptionalInputSerializer
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 @JsonSerialize(using = OptionalInputSerializer::class)
 sealed class OptionalInput<out T> {

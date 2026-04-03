@@ -32,17 +32,21 @@ import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.util.UUID
 import kotlin.test.assertEquals
 
 class GraphQLClientJacksonSerializerTest {
 
-    private val testMapper = jacksonObjectMapper()
-        .enable(SerializationFeature.INDENT_OUTPUT)
+    private val testMapper = jacksonMapperBuilder().enable(SerializationFeature.INDENT_OUTPUT).build()
     private val serializer = GraphQLClientJacksonSerializer(testMapper)
+
+    private fun assertSerializedJsonEquals(expected: String, actual: String) {
+        // Check the contents rather than the string order
+        assertEquals(testMapper.readTree(expected), testMapper.readTree(actual))
+    }
 
     @Test
     fun `verify we can serialize GraphQLClientRequest`() {
@@ -58,7 +62,7 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(testQuery)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -78,7 +82,7 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(queries)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -193,7 +197,7 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(scalarQuery)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -239,7 +243,7 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(query)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -276,7 +280,7 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(query)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -309,7 +313,7 @@ class GraphQLClientJacksonSerializerTest {
             |}
         """.trimMargin()
         val serialized = serializer.serialize(query)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -325,7 +329,7 @@ class GraphQLClientJacksonSerializerTest {
             |}
         """.trimMargin()
         val serialized = serializer.serialize(query)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 
     @Test
@@ -345,6 +349,6 @@ class GraphQLClientJacksonSerializerTest {
             """.trimMargin()
 
         val serialized = serializer.serialize(entitiesQuery)
-        assertEquals(expected, serialized)
+        assertSerializedJsonEquals(expected, serialized)
     }
 }

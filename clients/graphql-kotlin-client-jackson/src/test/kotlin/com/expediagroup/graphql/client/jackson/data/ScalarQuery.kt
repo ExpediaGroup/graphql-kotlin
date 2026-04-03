@@ -20,8 +20,8 @@ import com.expediagroup.graphql.client.jackson.data.scalars.AnyToUUIDConverter
 import com.expediagroup.graphql.client.jackson.data.scalars.UUIDToAnyConverter
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -40,16 +40,16 @@ class ScalarQuery(
     data class Variables(
         @get:JsonProperty("alias")
         val alias: ID? = null,
-        @JsonSerialize(converter = UUIDToAnyConverter::class)
-        @JsonDeserialize(converter = AnyToUUIDConverter::class)
+        @param:JsonSerialize(converter = UUIDToAnyConverter::class)
+        @param:JsonDeserialize(converter = AnyToUUIDConverter::class)
         @get:JsonProperty("custom")
         val custom: UUID? = null
     )
 
     data class Result(
         val scalarAlias: ID,
-        @JsonSerialize(converter = UUIDToAnyConverter::class)
-        @JsonDeserialize(converter = AnyToUUIDConverter::class)
+        @param:JsonSerialize(converter = UUIDToAnyConverter::class)
+        @param:JsonDeserialize(converter = AnyToUUIDConverter::class)
         val customScalar: UUID
     )
 }

@@ -19,13 +19,13 @@ package com.expediagroup.graphql.server.ktor
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.type.MapType
-import com.fasterxml.jackson.databind.type.TypeFactory
 import io.ktor.http.HttpMethod
 import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.receive
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.type.MapType
+import tools.jackson.databind.type.TypeFactory
 import java.io.IOException
 
 internal const val REQUEST_PARAM_QUERY = "query"
@@ -41,7 +41,7 @@ open class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
 ) : GraphQLRequestParser<ApplicationRequest> {
 
-    private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
+    private val mapTypeReference: MapType = TypeFactory.createDefaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest? = when (request.local.method) {
         HttpMethod.Get -> parseGetRequest(request)

@@ -26,11 +26,11 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonValue
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import java.lang.reflect.Type
 
 /**
@@ -45,7 +45,7 @@ sealed class GraphQLServerRequest
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 @JSONType(serializeFilters = [FastJsonIncludeNonNullProperty::class])
 data class GraphQLRequest(
     val query: String = "",
@@ -59,19 +59,26 @@ data class GraphQLRequest(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class GraphQLBatchRequest @JsonCreator constructor(@get:JsonValue val requests: List<GraphQLRequest>) : GraphQLServerRequest() {
     constructor(vararg requests: GraphQLRequest) : this(requests.toList())
 }
 
-class GraphQLServerRequestDeserializer : JsonDeserializer<GraphQLServerRequest>() {
+class GraphQLServerRequestDeserializer : ValueDeserializer<GraphQLServerRequest>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): GraphQLServerRequest {
-        val codec = parser.codec
-        val jsonNode = codec.readTree<JsonNode>(parser)
+        val objectReadContext = parser.objectReadContext()
+        val jsonNode = objectReadContext.readTree<JsonNode>(parser)
+
         return if (jsonNode.isArray) {
-            codec.treeToValue(jsonNode, GraphQLBatchRequest::class.java)
+            objectReadContext.treeAsTokens(jsonNode).use { treeParser ->
+                treeParser.nextToken() // ensure positioned at first token
+                objectReadContext.readValue(treeParser, GraphQLBatchRequest::class.java)
+            }
         } else {
-            codec.treeToValue(jsonNode, GraphQLRequest::class.java)
+            objectReadContext.treeAsTokens(jsonNode).use { treeParser ->
+                treeParser.nextToken()
+                objectReadContext.readValue(treeParser, GraphQLRequest::class.java)
+            }
         }
     }
 }

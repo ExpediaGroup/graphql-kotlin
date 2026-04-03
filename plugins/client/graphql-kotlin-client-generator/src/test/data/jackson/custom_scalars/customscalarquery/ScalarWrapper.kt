@@ -6,11 +6,11 @@ import com.expediagroup.graphql.generated.scalars.AnyToUUIDConverter
 import com.expediagroup.graphql.generated.scalars.ULocaleToAnyConverter
 import com.expediagroup.graphql.generated.scalars.UUIDToAnyConverter
 import com.fasterxml.jackson.`annotation`.JsonProperty
-import com.fasterxml.jackson.databind.`annotation`.JsonDeserialize
-import com.fasterxml.jackson.databind.`annotation`.JsonSerialize
 import com.ibm.icu.util.ULocale
 import java.util.UUID
 import kotlin.collections.List
+import tools.jackson.databind.`annotation`.JsonDeserialize
+import tools.jackson.databind.`annotation`.JsonSerialize
 
 /**
  * Wrapper that holds all supported scalar types

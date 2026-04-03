@@ -23,9 +23,6 @@ import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOp
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
@@ -41,6 +38,8 @@ import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 
 @Deprecated("this class tests deprecated subscriptions-transport-ws protocol")
@@ -67,7 +66,7 @@ class ApolloSubscriptionRoutesConfigurationIT(
             .build()
     }
 
-    val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    val objectMapper = jacksonObjectMapper()
 
     @Configuration
     class TestConfiguration {
