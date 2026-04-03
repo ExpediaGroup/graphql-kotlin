@@ -19,8 +19,6 @@ package com.expediagroup.graphql.examples.server.spring.subscriptions
 import com.expediagroup.graphql.examples.server.spring.SUBSCRIPTION_ENDPOINT
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -35,6 +33,8 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 import kotlin.random.Random
 
