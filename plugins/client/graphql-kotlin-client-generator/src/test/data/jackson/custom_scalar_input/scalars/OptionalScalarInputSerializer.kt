@@ -58,7 +58,7 @@ public class OptionalScalarInputSerializer : ValueSerializer<OptionalInput<*>>()
     val clazz = value::class.java
     val converter = converters[clazz] as? ScalarConverter<Any>
     if (converter != null) {
-      ctxt.writeValue(gen, value)
+      ctxt.writeValue(gen, converter.toJson(value))
     } else {
       ctxt.findValueSerializer(clazz).serialize(value, gen, ctxt)
     }
