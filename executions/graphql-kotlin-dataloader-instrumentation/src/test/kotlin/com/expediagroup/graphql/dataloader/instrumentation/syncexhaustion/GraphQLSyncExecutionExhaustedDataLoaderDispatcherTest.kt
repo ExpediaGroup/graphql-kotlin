@@ -571,9 +571,13 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         val planetsByMissionStatistics = dataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
         assertEquals(0, astronautStatistics?.batchInvokeCount)
+        assertEquals(0, astronautStatistics?.batchLoadCount)
         assertEquals(0, missionStatistics?.batchInvokeCount)
+        assertEquals(0, missionStatistics?.batchLoadCount)
         assertEquals(0, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(0, missionsByAstronautStatistics?.batchLoadCount)
         assertEquals(0, planetsByMissionStatistics?.batchInvokeCount)
+        assertEquals(0, planetsByMissionStatistics?.batchLoadCount)
 
         assertTrue(results.single().getOrThrow().errors.isEmpty())
     }
