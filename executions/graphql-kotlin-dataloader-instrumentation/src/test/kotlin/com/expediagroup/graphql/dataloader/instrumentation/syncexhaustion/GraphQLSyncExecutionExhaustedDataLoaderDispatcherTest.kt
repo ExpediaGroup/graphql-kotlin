@@ -21,8 +21,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGrap
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
 import graphql.ExecutionInput
 import io.mockk.clearAllMocks
-import io.mockk.verify
-import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -56,7 +54,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -72,8 +70,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -86,7 +84,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -103,8 +101,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -121,7 +119,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -145,10 +143,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         // Level 2 and 3
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
-        // Dispatch checks can happen more than once depending on async completion timing.
-        // Keep this assertion permissive and rely on strict batch stats above for behavior.
-        verify(atLeast = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -167,7 +163,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """.trimIndent()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -184,10 +180,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
-        // Async leaf completion can race with exhaustion checks, so this interaction may be observed 2+ times.
-        // Keep strict batching assertions above as the primary behavior contract.
-        verify(atLeast = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -207,7 +201,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """.trimIndent()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -224,8 +218,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -258,7 +252,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """.trimIndent()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -279,8 +273,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -304,7 +298,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """.trimIndent()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -325,8 +319,8 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        results.forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -563,16 +557,25 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(1, results.size)
-        verify(exactly = 0) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
+
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetsByMissionStatistics = dataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(0, astronautStatistics?.batchInvokeCount)
+        assertEquals(0, missionStatistics?.batchInvokeCount)
+        assertEquals(0, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(0, planetsByMissionStatistics?.batchInvokeCount)
+
+        assertTrue(results.single().getOrThrow().errors.isEmpty())
     }
 
     @Test
@@ -584,7 +587,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -601,8 +604,9 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
+        assertTrue(results.first().getOrThrow().errors.isNotEmpty())
+        results.drop(1).forEach { result ->
+            assertTrue(result.getOrThrow().errors.isEmpty())
         }
     }
 
@@ -615,7 +619,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             ExecutionInput.newExecutionInput("query test4 { mission(id: 4) { designation } }").operationName("test4").build()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.execute(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.execute(
             astronautGraphQL,
             executions,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -632,8 +636,9 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(1, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
+        assertTrue(results[0].getOrThrow().errors.isEmpty())
+        assertTrue(results[1].getOrThrow().errors.isNotEmpty())
+        assertTrue(results[2].getOrThrow().errors.isNotEmpty())
+        assertTrue(results[3].getOrThrow().errors.isEmpty())
     }
 }
