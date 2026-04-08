@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,10 +71,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
-
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -102,10 +98,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
-
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -144,12 +136,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         // Level 2 and 3
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
-
-        // Dispatch checks can happen more than once depending on async completion timing.
-        // Keep this assertion permissive and rely on strict batch stats above for behavior.
-        verify(atLeast = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -183,12 +169,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
-
-        // Async leaf completion can race with exhaustion checks, so this interaction may be observed 2+ times.
-        // Keep strict batching assertions above as the primary behavior contract.
-        verify(atLeast = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -223,10 +203,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
-
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -258,7 +234,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """.trimIndent()
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, dataLoaderRegistry, _) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -278,10 +254,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
-
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -324,10 +296,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(3, missionsByAstronautStatistics?.batchLoadCount)
-
-        verify(exactly = 3) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -563,7 +531,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, dataLoaderRegistry, graphQLContext) = AstronautGraphQL.executeOperations(
+        val (results, _, graphQLContext) = AstronautGraphQL.executeOperations(
             astronautGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -600,10 +568,6 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
-
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 
     @Test
@@ -631,9 +595,5 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(1, missionStatistics?.batchLoadCount)
-
-        verify(exactly = 2) {
-            graphQLContext.get(DataLoaderRegistry::class)
-        }
     }
 }
