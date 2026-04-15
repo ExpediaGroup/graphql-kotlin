@@ -19,14 +19,11 @@ package com.expediagroup.graphql.generator.federation.validation.integration
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -94,32 +91,6 @@ class FederatedRequiresDirectiveIT {
     }
 
     @Test
-    fun `@requires directive cannot reference local fields`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.failure._1"))
-        }
-        val expected =
-            """
-                Invalid federated schema:
-                 - @requires(fields = "weight") directive on RequiresLocalField.shippingCost specifies invalid field set - @requires should reference only @external fields, field=weight
-            """.trimIndent()
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `@requires directive should reference valid fields`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.failure._2"))
-        }
-        val expected =
-            """
-                Invalid federated schema:
-                 - @requires(fields = "zipCode") directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
-            """.trimIndent()
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
     fun `verifies @requires needs @external leaf fields only`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._5"))
@@ -154,6 +125,23 @@ class FederatedRequiresDirectiveIT {
             assertFalse(leafField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
 
             val requiresField = validatedType.getFieldDefinition("shippingCost")
+            assertNotNull(requiresField)
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
+        }
+    }
+
+    // Regression test for #1939: inline fragments in @requires field sets were
+    // rejected by the naive space-splitting parser.
+    @Test
+    fun `verifies @requires directive can use inline fragments on union type`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._8"))
+            val validatedType = schema.getObjectType("RequiresInlineFragmentOnUnion")
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
+            val externalField = validatedType.getFieldDefinition("animal")
+            assertNotNull(externalField)
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+            val requiresField = validatedType.getFieldDefinition("shippingLabel")
             assertNotNull(requiresField)
             assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
         }

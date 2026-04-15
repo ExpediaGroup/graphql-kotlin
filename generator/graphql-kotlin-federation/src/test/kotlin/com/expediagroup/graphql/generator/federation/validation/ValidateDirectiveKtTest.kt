@@ -270,4 +270,29 @@ internal class ValidateDirectiveKtTest {
             actual = exception.message
         )
     }
+
+    /**
+     * @foo(fields: "bar")
+     * Validates that when fieldMap is null, field set contents are not validated.
+     */
+    @Test
+    fun `if fieldMap is null, non-empty field set is accepted without validation`() {
+        val directive: GraphQLAppliedDirective = mockk {
+            every { name } returns "foo"
+            every { getArgument(eq("fields")) } returns mockk {
+                every { argumentValue.value } returns mockk<FieldSet> {
+                    every { value } returns "bar"
+                }
+            }
+        }
+
+        val validationErrors = validateDirective(
+            validatedType = "",
+            targetDirective = "foo",
+            directiveMap = mapOf("foo" to listOf(directive)),
+            fieldMap = null
+        )
+
+        assertTrue(validationErrors.isEmpty())
+    }
 }
