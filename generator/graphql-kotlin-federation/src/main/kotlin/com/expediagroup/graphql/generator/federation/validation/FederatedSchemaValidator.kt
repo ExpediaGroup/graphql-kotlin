@@ -37,11 +37,10 @@ internal class FederatedSchemaValidator {
      * Validates target GraphQLType whether it is a valid federated object.
      *
      * Verifies:
-     * - @key, @provides and @requires field sets reference existing fields
-     * - @requires references @external fields
+     * - @key, @provides and @requires field sets are non-empty
+     * - @key and @provides field sets reference existing fields
      * - @provides references an object
-     * - field sets cannot reference unions
-     * - list and interfaces can only be referenced from `@requires` and `@provides`
+     * - @key field sets cannot reference unions, lists, or interfaces
      */
     internal fun validateGraphQLType(type: GraphQLType): List<String> {
         val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
@@ -61,7 +60,9 @@ internal class FederatedSchemaValidator {
         errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directiveMap, fieldMap))
         for (field in fields) {
             if (field.getAppliedDirective(REQUIRES_DIRECTIVE_NAME) != null) {
-                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, fieldMap))
+                // Don't validate @requires field set contents — the naive parser does not
+                // support inline fragments or __typename, which are valid in @requires.
+                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, null))
             }
 
             if (field.getAppliedDirective(PROVIDES_DIRECTIVE_NAME) != null) {
