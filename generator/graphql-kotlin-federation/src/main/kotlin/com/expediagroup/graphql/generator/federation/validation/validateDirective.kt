@@ -26,7 +26,7 @@ internal fun validateDirective(
     validatedType: String,
     targetDirective: String,
     directiveMap: Map<String, List<GraphQLAppliedDirective>>,
-    fieldMap: Map<String, GraphQLFieldDefinition>
+    fieldMap: Map<String, GraphQLFieldDefinition>?
 ): List<String> {
     val validationErrors = mutableListOf<String>()
     val directives = directiveMap[targetDirective]
@@ -39,7 +39,7 @@ internal fun validateDirective(
             val fieldSet = fieldSetValue.split(" ").filter { it.isNotEmpty() }
             if (fieldSet.isEmpty()) {
                 validationErrors.add("@$targetDirective directive on $validatedType is missing field information")
-            } else {
+            } else if (fieldMap != null) {
                 val directiveInfo = DirectiveInfo(
                     directiveName = targetDirective,
                     fieldSet = fieldSetValue,
