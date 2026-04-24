@@ -31,9 +31,25 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
 /**
+ * Convert a raw GraphQL argument map into a typed Kotlin object using Kotlin reflection.
+ *
+ * Uses [KClass.primaryConstructor] (Kotlin-side reflection) to construct the target object.
+ * Field names are resolved using [@GraphQLName][com.expediagroup.graphql.generator.annotations.GraphQLName]
+ * or the Kotlin parameter name — the same logic used to build the schema. Already-coerced values
+ * (e.g. custom scalars that graphql-java has already parsed) are passed through as-is.
+ *
+ * This is the same coercion path used internally by [FunctionDataFetcher] for resolver parameters.
+ * For use in instrumentation or custom data fetcher code, prefer the
+ * `getArgumentsAs` extension on `DataFetchingEnvironment` in
+ * `com.expediagroup.graphql.generator.extensions`.
+ */
+internal fun <T : Any> convertInputMap(input: Map<String, *>, targetClass: KClass<T>): T =
+    mapToKotlinObject(input, targetClass)
+
+/**
  * Convert the argument from the argument map to a class we can pass to the Kotlin function.
  */
-internal fun convertArgumentValue(
+fun convertArgumentValue(
     argumentName: String,
     param: KParameter,
     argumentMap: Map<String, Any?>

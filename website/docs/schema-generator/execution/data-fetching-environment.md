@@ -71,3 +71,24 @@ class ProductQueryService : Query {
 You can also use `selectionSet` to access the selected fields of the current field. It can be useful to know which selections have been requested so the data fetcher can optimize the data access queries. For example, in an SQL-backed system, the data fetcher can access the database and use the field selection criteria to specifically retrieve only the columns that have been requested by the client.
 what selection has been asked for so the data fetcher can optimise the data access queries.
 For example an SQL backed system may be able to use the field selection to only retrieve the columns that have been asked for.
+
+## Coercing Arguments to Typed Objects
+
+`environment.arguments` returns a `Map<String, Any?>`. By the time your code sees this map, graphql-java has already run all custom scalar coercers, so scalar fields are already their target JVM types — not raw strings.
+
+If you need to coerce this map into a typed Kotlin object (for example, in instrumentation or a custom `DataFetcher`), use the `getArgumentsAs` extension function from `graphql-kotlin-schema-generator`:
+
+```kotlin
+import com.expediagroup.graphql.generator.extensions.getArgumentsAs
+
+val context = environment.getArgumentsAs<MyInputClass>()
+```
+
+`getArgumentsAs` uses `KClass.primaryConstructor` (Kotlin-side reflection), which means it:
+- correctly passes through field values that graphql-java has already coerced (custom scalars, etc.)
+- resolves field names using `@GraphQLName` or the Kotlin parameter name — the same logic used to build the schema
+- respects Kotlin default parameter values for fields absent from the map
+
+This is the same coercion path that `FunctionDataFetcher` uses internally for resolver parameters.
+
+`ObjectMapper.convertValue` is not a suitable alternative here: it resolves field names via Jackson annotations or naming strategies rather than `@GraphQLName`, and it will attempt to re-deserialize values that graphql-java has already coerced.

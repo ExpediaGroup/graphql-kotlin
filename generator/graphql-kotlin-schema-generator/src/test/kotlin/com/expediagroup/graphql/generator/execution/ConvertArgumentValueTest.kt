@@ -28,6 +28,46 @@ import kotlin.test.assertNotNull
 
 class ConvertArgumentValueTest {
     @Test
+    fun `convertInputMap converts flat map to data class`() {
+        val result = convertInputMap(mapOf("foo" to "hello", "bar" to "world"), TestInput::class)
+        assertEquals("hello", result.foo)
+        assertEquals("world", result.bar)
+    }
+
+    @Test
+    fun `convertInputMap uses default values for missing fields`() {
+        val result = convertInputMap(mapOf("foo" to "hello"), TestInput::class)
+        assertEquals("hello", result.foo)
+        assertEquals(null, result.bar)
+        assertEquals(null, result.baz)
+    }
+
+    @Test
+    fun `convertInputMap handles nested objects`() {
+        val result = convertInputMap(
+            mapOf("nested" to mapOf("value" to "custom")),
+            TestInputNested::class
+        )
+        assertEquals("foo", result.foo)
+        assertEquals("custom", result.nested?.value)
+    }
+
+    @Test
+    fun `convertInputMap passes through already-coerced field values`() {
+        // Simulates what environment.arguments looks like in instrumentation code after
+        // graphql-java has run custom scalar coercers: the scalar field is already the
+        // target type object, not a raw string.  convertInputMap passes it through as-is
+        // via the "value is already parsed" branch.
+        val preCoercedId = ID("already-coerced")
+        val result = convertInputMap(
+            mapOf("foo" to "hello", "id" to preCoercedId),
+            TestInputNullableScalar::class
+        )
+        assertEquals("hello", result.foo)
+        assertEquals(preCoercedId, result.id)
+    }
+
+    @Test
     fun `string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::stringInput.findParameterByName("input"))
         val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
