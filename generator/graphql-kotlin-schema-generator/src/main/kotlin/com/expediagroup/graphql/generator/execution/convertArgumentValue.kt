@@ -39,11 +39,14 @@ import kotlin.reflect.full.primaryConstructor
  * (e.g. custom scalars that graphql-java has already parsed) are passed through as-is.
  *
  * This is the same coercion path used internally by [FunctionDataFetcher] for resolver parameters.
- * For use in instrumentation or custom data fetcher code, prefer the
- * `getArgumentsAs` extension on `DataFetchingEnvironment` in
+ *
+ * Use this when you have already extracted a specific argument value from
+ * [graphql.schema.DataFetchingEnvironment.getArguments] and need to coerce it to a typed object.
+ * When coercing the full arguments map (e.g. in a custom [graphql.schema.DataFetcher]),
+ * prefer the `getArgumentsAs` extension on `DataFetchingEnvironment` in
  * `com.expediagroup.graphql.generator.extensions`.
  */
-internal fun <T : Any> convertInputMap(input: Map<String, *>, targetClass: KClass<T>): T =
+fun <T : Any> convertInputMap(input: Map<String, *>, targetClass: KClass<T>): T =
     mapToKotlinObject(input, targetClass)
 
 /**
