@@ -80,8 +80,37 @@ If you need to coerce this map into a typed Kotlin object (for example, in instr
 
 ```kotlin
 import com.expediagroup.graphql.generator.extensions.getArgumentsAs
+```
 
-val context = environment.getArgumentsAs<MyInputClass>()
+`getArgumentsAs` coerces the **full** `environment.arguments` map. The target class constructor parameters must correspond directly to the GraphQL argument names on the field.
+
+For a field with multiple scalar arguments:
+
+```graphql
+type Query {
+  search(query: String!, limit: Int!): [Result!]!
+}
+```
+
+```kotlin
+data class SearchArgs(val query: String, val limit: Int)
+
+val args = environment.getArgumentsAs<SearchArgs>()
+```
+
+For a field with a single complex input argument, wrap it:
+
+```graphql
+type Query {
+  processContext(context: RequestContext!): String!
+}
+```
+
+```kotlin
+data class ProcessContextArgs(val context: RequestContext)
+
+val args = environment.getArgumentsAs<ProcessContextArgs>()
+val context = args.context
 ```
 
 `getArgumentsAs` uses `KClass.primaryConstructor` (Kotlin-side reflection), which means it:

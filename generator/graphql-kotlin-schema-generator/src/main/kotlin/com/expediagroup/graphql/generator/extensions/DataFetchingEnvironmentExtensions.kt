@@ -23,6 +23,9 @@ import kotlin.reflect.KClass
 /**
  * Coerces [DataFetchingEnvironment.getArguments] into a typed Kotlin object using Kotlin reflection.
  *
+ * The target class must match the top-level shape of the arguments map: its constructor parameters
+ * must correspond to GraphQL argument names.
+ *
  * Field names are resolved using [@GraphQLName][com.expediagroup.graphql.generator.annotations.GraphQLName]
  * or the Kotlin parameter name — the same logic used to build the schema. Already-coerced values
  * (e.g. custom scalars that graphql-java has already parsed) are passed through as-is.
