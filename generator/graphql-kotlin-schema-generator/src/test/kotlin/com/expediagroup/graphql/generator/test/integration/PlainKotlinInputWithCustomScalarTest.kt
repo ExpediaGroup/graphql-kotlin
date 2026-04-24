@@ -33,15 +33,18 @@ import kotlin.test.assertNull
 
 /**
  * Verifies that plain Kotlin data classes whose fields include custom scalars are correctly
- * coerced by both:
+ * coerced in both of the scenarios covered by this test class:
  *
- *   1. [FunctionDataFetcher] (the resolver parameter path, via KClass.primaryConstructor), and
+ *   1. the resolver parameter path exercised end-to-end via [graphql.GraphQL.execute], where
+ *      [com.expediagroup.graphql.generator.execution.FunctionDataFetcher] maps GraphQL input
+ *      objects to Kotlin constructor parameters, and
  *
- *   2. [getArgumentsAs] called on a [DataFetchingEnvironment] (the instrumentation path,
- *      which uses the same Kotlin reflection coercion as the resolver path).
+ *   2. the direct input-map conversion path exercised through
+ *      [com.expediagroup.graphql.generator.execution.convertInputMap], which uses the same
+ *      Kotlin reflection-based coercion logic for nested input objects and custom scalars.
  *
- * UUID is used as a stand-in for any custom scalar that graphql-java coerces before
- * instrumentation code accesses environment.arguments.
+ * UUID is used as a stand-in for any custom scalar that graphql-java coerces before these
+ * coercion paths consume the input values.
  */
 class PlainKotlinInputWithCustomScalarTest {
 

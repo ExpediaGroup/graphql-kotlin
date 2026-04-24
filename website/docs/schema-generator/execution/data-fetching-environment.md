@@ -74,7 +74,7 @@ For example an SQL backed system may be able to use the field selection to only 
 
 ## Coercing Arguments to Typed Objects
 
-`environment.arguments` returns a `Map<String, Any?>`. By the time your code sees this map, graphql-java has already run all custom scalar coercers, so scalar fields are already their target JVM types — not raw strings.
+`environment.arguments` returns a `Map<String, Any?>`. By the time your code sees this map, graphql-java has already run all custom scalar coercers, so scalar fields are already in their target JVM types — not raw strings.
 
 If you need to coerce this map into a typed Kotlin object (for example, in instrumentation or a custom `DataFetcher`), use the `getArgumentsAs` extension function from `graphql-kotlin-schema-generator`:
 
