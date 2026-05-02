@@ -27,6 +27,7 @@ import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.execution.preparsed.persisted.PersistedQueryError
 import graphql.execution.preparsed.persisted.PersistedQueryIdInvalid
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
+import graphql.execution.preparsed.persisted.PersistedQuerySupport
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
@@ -41,7 +42,7 @@ class AutomaticPersistedQueriesProvider(
             executionInput.getAutomaticPersistedQueriesExtension()?.let { apqExtension ->
                 cache.getPersistedQueryDocumentAsync(apqExtension.sha256Hash, executionInput) { query ->
                     when {
-                        query.isBlank() -> {
+                        query.isBlank() || query == PersistedQuerySupport.PERSISTED_QUERY_MARKER -> {
                             throw PersistedQueryNotFound(apqExtension.sha256Hash)
                         }
                         executionInput.isAutomaticPersistedQueriesExtensionInvalid(apqExtension) -> {

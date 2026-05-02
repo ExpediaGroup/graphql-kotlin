@@ -31,6 +31,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import kotlin.test.assertEquals
 
 class EntitiesDataFetcherTest {
@@ -46,7 +47,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
-        verifyData(result.data, User(123, "testName"))
+        val data = result.data
+        assertNotNull(data)
+
+        verifyData(data, User(123, "testName"))
         verifyErrors(result.errors)
     }
 
@@ -60,7 +64,10 @@ class EntitiesDataFetcherTest {
             every { getArgumentOrDefault<Any>(any(), any()) } returns representations
         }
         val result = resolver.get(env).get()
-        verifyData(result.data, Author(1, "Author 1"))
+
+        val data = result.data
+        assertNotNull(data)
+        verifyData(data, Author(1, "Author 1"))
         verifyErrors(result.errors)
     }
 
@@ -76,7 +83,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
-        verifyData(result.data, null)
+        val data = result.data
+        assertNotNull(data)
+
+        verifyData(data, null)
         verifyErrors(result.errors, "Unable to resolve federated type, representation={__typename=User, userId=123, name=testName}")
     }
 
@@ -91,7 +101,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
-        verifyData(result.data, null)
+        val data = result.data
+        assertNotNull(data)
+
+        verifyData(data, null)
         verifyErrors(result.errors, "Unable to resolve federated type, representation={}")
     }
 
@@ -105,7 +118,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
-        verifyData(result.data, null)
+        val data = result.data
+        assertNotNull(data)
+
+        verifyData(data, null)
         verifyErrors(result.errors, "Unable to resolve federated type, representation={__typename=User, userId=123, name=testName}")
     }
 
@@ -123,7 +139,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
-        verifyData(result.data, null)
+        val data = result.data
+        assertNotNull(data)
+
+        verifyData(data, null)
         verifyErrors(result.errors, "Exception was thrown while trying to resolve federated type, representation={__typename=User, userId=123, name=testName}")
     }
 
@@ -145,7 +164,9 @@ class EntitiesDataFetcherTest {
         val resolver = EntitiesDataFetcher(listOf(spyUserResolver, spyBookResolver))
         val result = resolver.get(env).get()
 
-        verifyData(result.data, user1, book, user2)
+        val data = result.data
+        assertNotNull(data)
+        verifyData(data, user1, book, user2)
         verifyErrors(result.errors)
 
         coVerify(exactly = 1) {
@@ -175,7 +196,9 @@ class EntitiesDataFetcherTest {
         val resolver = EntitiesDataFetcher(listOf(spyUserResolver, mockBookResolver))
         val result = resolver.get(env).get()
 
-        verifyData(result.data, user, null)
+        val data = result.data
+        assertNotNull(data)
+        verifyData(data, user, null)
         verifyErrors(result.errors, "Exception was thrown while trying to resolve federated type, representation={__typename=Book, id=988, weight=1.0}")
 
         coVerify {
@@ -200,8 +223,10 @@ class EntitiesDataFetcherTest {
         }
 
         val result = resolver.get(env).get()
+        val data = result.data
+        assertNotNull(data)
         verifyData(
-            result.data,
+            data,
             User(123, "testName"),
             User(456, "testName 2"),
             Author(1, "Author 1"),

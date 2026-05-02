@@ -168,7 +168,7 @@ class FunctionDataFetcherTest {
         val dataFetcher = FunctionDataFetcher(target = null, fn = MyClass::printDefault)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { getSource<Any>() } returns MyClass()
-            every { arguments } returns mapOf("string" to null)
+            every { arguments } returns mapOf("string" to null) as Map<String, Any>
             every { containsArgument("string") } returns true
         }
         assertNull(dataFetcher.get(mockEnvironment))
@@ -274,7 +274,7 @@ class FunctionDataFetcherTest {
     fun `optional inputs return the value when null arguments are passed`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapper)
         val mockEnvironment: DataFetchingEnvironment = mockk {
-            every { arguments } returns mapOf("input" to null)
+            every { arguments } returns mapOf("input" to null) as Map<String, Any>
             every { containsArgument("input") } returns true
         }
         assertEquals(expected = "input was null", actual = dataFetcher.get(mockEnvironment))

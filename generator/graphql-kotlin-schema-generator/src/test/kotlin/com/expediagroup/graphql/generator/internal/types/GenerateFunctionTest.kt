@@ -89,9 +89,13 @@ class GenerateFunctionTest : TypeTestHelper() {
             return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
         }
 
-        fun listDataFetcherResult(): DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).build()
+        fun listDataFetcherResult(): DataFetcherResult<List<String>> =
+            DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).build()
 
-        fun nullableListDataFetcherResult(): DataFetcherResult<List<String?>?> = DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).build()
+        fun nullableListDataFetcherResult(): DataFetcherResult<List<String?>?> =
+            DataFetcherResult.Builder<List<String?>?>()
+                .data(listOf("Hello"))
+                .build()
 
         fun dataFetcherCompletableFutureResult(): DataFetcherResult<CompletableFuture<String>> {
             val completedFuture = CompletableFuture.completedFuture("Hello")
