@@ -67,7 +67,7 @@ class ExampleSubscriptionService : Subscription {
 
     @GraphQLDescription("Returns stream of errors")
     fun flowOfErrors(): Publisher<DataFetcherResult<String?>> {
-        val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String?>()
+        val dfr: DataFetcherResult<String?> = DataFetcherResult.Builder<String?>()
             .data(null)
             .error(GraphqlErrorException.newErrorException().cause(Exception("error thrown")).build())
             .build()

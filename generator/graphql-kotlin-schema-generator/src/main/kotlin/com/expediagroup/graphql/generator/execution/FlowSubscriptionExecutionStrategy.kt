@@ -18,14 +18,17 @@ package com.expediagroup.graphql.generator.execution
 
 import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
+import graphql.execution.Async
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionStepInfo
 import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
 import graphql.execution.FetchedValue
+import graphql.execution.NonNullableFieldValidator
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
+import graphql.execution.incremental.AlternativeCallContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
@@ -109,17 +112,12 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
     ): CompletableFuture<Flow<*>?> {
-        val newParameters = firstFieldOfSubscriptionSelection(parameters)
+        val newParameters = firstFieldOfSubscriptionSelection(executionContext, parameters, newCallContext = false)
 
-        val fieldFetched: CompletableFuture<FetchedValue> = fetchField(executionContext, newParameters).let { fetchedValue ->
-            if (fetchedValue is CompletableFuture<*>) {
-                fetchedValue as CompletableFuture<FetchedValue>
-            } else {
-                CompletableFuture.completedFuture(fetchedValue as FetchedValue)
-            }
-        }
+        executionContext.dataLoaderDispatcherStrategy.executionStrategy(executionContext, parameters, 1)
+        val fieldFetched: CompletableFuture<Any?> = Async.toCompletableFuture(fetchField(executionContext, newParameters))
         return fieldFetched.thenApply { fetchedValue ->
-            val flow = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
+            val flow = when (val publisherOrFlow: Any? = FetchedValue.getFetchedValue(fetchedValue)) {
                 is Publisher<*> -> publisherOrFlow.asFlow()
                 // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
                 is Flow<*> -> publisherOrFlow
@@ -153,7 +151,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
                 .root(eventPayload)
                 .resetErrors()
         }
-        val newParameters = firstFieldOfSubscriptionSelection(parameters)
+        val newParameters = firstFieldOfSubscriptionSelection(newExecutionContext, parameters, newCallContext = true)
         val subscribedFieldStepInfo = createSubscribedFieldStepInfo(executionContext, newParameters)
 
         val i13nFieldParameters = InstrumentationFieldParameters(executionContext) { subscribedFieldStepInfo }
@@ -163,15 +161,21 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
             )
         )
 
-        val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
+        val deferredCallContext = newParameters.deferredCallContext
+            ?: error("Subscription event execution requires a deferred call context")
+        executionContext.dataLoaderDispatcherStrategy.newSubscriptionExecution(deferredCallContext)
+
+        val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, newParameters, eventPayload)
 
         val fieldValueInfo = completeField(newExecutionContext, newParameters, fetchedValue)
+        executionContext.dataLoaderDispatcherStrategy.subscriptionEventCompletionDone(deferredCallContext)
+
         val overallResult = fieldValueInfo
             .fieldValueFuture
             .thenApply { fv ->
                 wrapWithRootFieldName(
                     newParameters,
-                    ExecutionResultImpl.newExecutionResult().data(fv).build()
+                    ExecutionResultImpl(fv, deferredCallContext.errors)
                 )
             }
 
@@ -202,17 +206,30 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
     private fun getRootFieldName(parameters: ExecutionStrategyParameters): String {
         val rootField = parameters.field.singleField
-        return if (rootField.alias != null) rootField.alias else rootField.name
+        return rootField.alias ?: rootField.name
     }
 
     private fun firstFieldOfSubscriptionSelection(
-        parameters: ExecutionStrategyParameters
+        executionContext: ExecutionContext,
+        parameters: ExecutionStrategyParameters,
+        newCallContext: Boolean
     ): ExecutionStrategyParameters {
         val fields = parameters.fields
         val firstField = fields.getSubField(fields.keys[0])
 
         val fieldPath = parameters.path.segment(mkNameForPath(firstField.singleField))
-        return parameters.transform { builder -> builder.field(firstField).path(fieldPath) }
+        val nonNullableFieldValidator = NonNullableFieldValidator(executionContext)
+
+        return parameters.transform { builder ->
+            builder
+                .field(firstField)
+                .path(fieldPath)
+                .nonNullFieldValidator(nonNullableFieldValidator)
+
+            if (newCallContext) {
+                builder.deferredCallContext(AlternativeCallContext(1, 1))
+            }
+        }
     }
 
     private fun createSubscribedFieldStepInfo(

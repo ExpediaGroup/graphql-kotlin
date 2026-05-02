@@ -50,8 +50,8 @@ private object AnyCoercing : Coercing<Any, Any> {
         input
 
     @Suppress("ComplexMethod")
-    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any =
-        when (input) {
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any {
+        val result = when (input) {
             is FloatValue -> input.value
             is StringValue -> input.value
             is IntValue -> input.value
@@ -63,6 +63,8 @@ private object AnyCoercing : Coercing<Any, Any> {
             is ObjectValue -> input.objectFields.associateBy({ it.name }) {
                 parseLiteral(it.value, variables, graphQLContext, locale)
             }
-            else -> throw CoercingParseLiteralException("Cannot parse $input to Any scalar")
+            else -> null
         }
+        return result ?: throw CoercingParseLiteralException("Cannot parse $input to Any scalar")
+    }
 }
