@@ -42,7 +42,7 @@ fun Application.graphQLModule() {
             typeHierarchy = mapOf()
         }
     }
-    install(Routing) {
+    routing {
         graphQLPostRoute()
         graphiQLRoute()
     }
@@ -65,14 +65,14 @@ values={[
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "2.3.0"
     application
 }
 
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-server", $latestGraphQLKotlinVersion)
     implementation("ch.qos.logback", "logback-classic", "1.4.7")
-    implementation("io.ktor", "ktor-client-cio", "2.2.4")
+    implementation("io.ktor", "ktor-client-cio", "3.4.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -92,7 +92,7 @@ import com.expediagroup.graphql.plugin.gradle.graphql
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "2.3.0"
     application
     id("org.graalvm.buildtools.native") version "0.9.21" // (1)
     id("com.expediagroup.graphql") version $latestGraphQLKotlinVersion // (2)
@@ -101,7 +101,7 @@ plugins {
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-server", $latestGraphQLKotlinVersion)
     implementation("ch.qos.logback", "logback-classic", "1.4.7")
-    implementation("io.ktor", "ktor-client-cio", "2.2.4")
+    implementation("io.ktor", "ktor-client-cio", "3.4.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -194,9 +194,9 @@ values={[
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
-    id("org.springframework.boot") version "3.0.5"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
+    id("org.springframework.boot") version "4.0.2"
 }
 
 dependencies {
@@ -216,9 +216,9 @@ import com.expediagroup.graphql.plugin.gradle.graphql
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
-    id("org.springframework.boot") version "3.0.6"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
+    id("org.springframework.boot") version "4.0.2"
     id("org.graalvm.buildtools.native") version "0.9.21" // (1)
     id("com.expediagroup.graphql") version $latestGraphQLKotlinVersion // (2)
 }

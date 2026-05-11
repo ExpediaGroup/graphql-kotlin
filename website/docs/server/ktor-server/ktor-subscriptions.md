@@ -31,7 +31,7 @@ from [The Guild](https://the-guild.dev/). This requires that your client send an
 See protocol documentation for expected messages.
 
 ```kotlin
-install(Routing) {
+routing {
     graphQLSubscriptionsRoute()
 }
 ```
