@@ -42,7 +42,7 @@ fun Application.graphQLModule() {
             typeHierarchy = mapOf()
         }
     }
-    install(Routing) {
+    routing {
         graphQLPostRoute()
         graphiQLRoute()
     }
@@ -74,10 +74,10 @@ values={[
 
     <properties>
         <kotlin.jvmTarget>17</kotlin.jvmTarget>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <graphql-kotlin.version>${latestGraphqlKotlinVersion}</graphql-kotlin.version>
         <!-- lib versions -->
-        <ktor.version>2.2.4</ktor.version>
+        <ktor.version>3.4.1</ktor.version>
         <logback.version>1.4.7</logback.version>
     </properties>
 
@@ -153,10 +153,10 @@ values={[
 
     <properties>
         <kotlin.jvmTarget>17</kotlin.jvmTarget>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <graphql-kotlin.version>${latestGraphqlKotlinVersion}</graphql-kotlin.version>
         <!-- lib versions -->
-        <ktor.version>2.2.4</ktor.version>
+        <ktor.version>3.4.1</ktor.version>
         <logback.version>1.4.7</logback.version>
         <native-maven-plugin.version>0.9.21</native-maven-plugin.version>
     </properties>
@@ -347,10 +347,10 @@ values={[
 
     <properties>
         <kotlin.jvmTarget>17</kotlin.jvmTarget>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <graphql-kotlin.version>${latestGraphqlKotlinVersion}</graphql-kotlin.version>
         <!-- plugin versions -->
-        <spring-boot.version>3.0.6</spring-boot.version>
+        <spring-boot.version>4.0.2</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -412,10 +412,10 @@ values={[
 
     <properties>
         <kotlin.jvmTarget>17</kotlin.jvmTarget>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <graphql-kotlin.version>${latestGraphqlKotlinVersion}</graphql-kotlin.version>
         <!-- plugin versions -->
-        <spring-boot.version>3.0.6</spring-boot.version>
+        <spring-boot.version>4.0.2</spring-boot.version>
         <native-maven-plugin.version>0.9.21</native-maven-plugin.version>
     </properties>
 

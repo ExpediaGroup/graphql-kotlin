@@ -34,7 +34,7 @@ fun Application.myModule() {
         }
     }
     // install authenticated GraphQL routes
-    install(Routing) {
+    routing {
         authenticate("auth-basic") {
             graphQLPostRoute()
         }
@@ -55,7 +55,7 @@ fun Application.myModule() {
             queries = listOf(TestQuery())
         }
     }
-    install(Routing) {
+    routing {
         graphQLPostRoute()
     }
 

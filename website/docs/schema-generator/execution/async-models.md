@@ -111,7 +111,7 @@ class CustomFunctionDataFetcher(target: Any?, fn: KFunction<*>, objectMapper: Ob
 }
 
 class CustomDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper = jacksonMapperBuilder().build()
 ) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
 
   override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
