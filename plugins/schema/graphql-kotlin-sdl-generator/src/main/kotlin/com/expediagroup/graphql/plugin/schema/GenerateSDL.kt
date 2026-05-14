@@ -44,19 +44,11 @@ private val logger: Logger = LoggerFactory.getLogger("generateSDL")
  */
 fun generateSDL(supportedPackages: List<String>): String {
     val hooksProviders = ServiceLoader.load(SchemaGeneratorHooksProvider::class.java).toList()
-    val hooks = when {
-        hooksProviders.isEmpty() -> {
-            logger.warn("No SchemaGeneratorHooksProvider were found, defaulting to NoopSchemaGeneratorHooks")
-            NoopSchemaGeneratorHooks
-        }
-        hooksProviders.size > 1 -> {
-            throw RuntimeException("Cannot generate SDL as multiple SchemaGeneratorHooksProviders were found on the classpath")
-        }
-        else -> {
-            val provider = hooksProviders.first()
-            logger.debug("SchemaGeneratorHooksProvider found, ${provider.javaClass.simpleName} will be used to generate the hooks")
-            provider.hooks()
-        }
+    val hooks = if (hooksProviders.isEmpty()) {
+        logger.warn("No SchemaGeneratorHooksProvider were found, defaulting to NoopSchemaGeneratorHooks")
+        NoopSchemaGeneratorHooks
+    } else {
+        selectHooksProvider(hooksProviders, logger).hooks()
     }
     val scanResult = ClassGraph()
         .enableAllInfo()
