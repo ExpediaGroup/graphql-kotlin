@@ -26,6 +26,7 @@ import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorH
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.Schema
+import com.expediagroup.graphql.server.execution.subscription.DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionContextFactory
 import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionHooks
 import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionRequestParser
@@ -284,6 +285,14 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var hooks: KtorGraphQLSubscriptionHooks = DefaultKtorGraphQLSubscriptionHooks()
         /** Server timeout between establishing web socket connection and receiving connection-init message */
         var connectionInitTimeout: Long = config.tryGetString("graphql.server.subscription.connectionInitTimeout")?.toLongOrNull() ?: 60_000
+        /**
+         * Maximum number of inbound client messages processed concurrently per web socket session. Defaults to
+         * [DEFAULT_WS_SUBSCRIPTION_CONCURRENCY] (16). Raise this when a single session may hold more than the default
+         * number of simultaneous subscriptions, otherwise additional messages (including ping/complete/subscribe)
+         * are back-pressured until one of the in-flight messages completes.
+         */
+        var subscriptionConcurrency: Int =
+            config.tryGetString("graphql.server.subscription.concurrency")?.toIntOrNull() ?: DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
     }
 }
 

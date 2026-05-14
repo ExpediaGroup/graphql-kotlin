@@ -30,9 +30,15 @@ class InMemoryGraphQLSubscriptionServer(
     requestParser: InMemorySubscriptionRequestParser = InMemorySubscriptionRequestParser(),
     contextFactory: InMemorySubscriptionContextFactory = InMemorySubscriptionContextFactory(),
     hooks: InMemorySubscriptionHooks = InMemorySubscriptionHooks(),
-    timeoutInMillis: Long = 1000
+    timeoutInMillis: Long = 1000,
+    subscriptionConcurrency: Int = DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 ) : GraphQLWebSocketServer<Channel<String>, String>(
-    requestParser, contextFactory, hooks, requestHandler, timeoutInMillis
+    requestParser = requestParser,
+    contextFactory = contextFactory,
+    subscriptionHooks = hooks,
+    requestHandler = requestHandler,
+    initTimeoutMillis = timeoutInMillis,
+    subscriptionConcurrency = subscriptionConcurrency
 ) {
     val outboundChannel = Channel<String>(Channel.BUFFERED)
 

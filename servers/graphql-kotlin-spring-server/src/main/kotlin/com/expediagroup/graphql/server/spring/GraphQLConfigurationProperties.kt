@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.server.execution.subscription.DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 
@@ -91,7 +92,14 @@ data class GraphQLConfigurationProperties(
         /** Server timeout between establishing web socket connection and receiving connection-init message. */
         val connectionInitTimeout: Long = 60_000,
         /** WebSocket based subscription protocol */
-        val protocol: SubscriptionProtocol = SubscriptionProtocol.GRAPHQL_WS
+        val protocol: SubscriptionProtocol = SubscriptionProtocol.GRAPHQL_WS,
+        /**
+         * Maximum number of inbound client messages processed concurrently per web socket session. Defaults to
+         * [DEFAULT_WS_SUBSCRIPTION_CONCURRENCY] (16). Raise this when a single session may hold more than the
+         * default number of simultaneous subscriptions, otherwise additional messages (including ping/complete/
+         * subscribe) are back-pressured until one of the in-flight messages completes.
+         */
+        val subscriptionConcurrency: Int = DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
     )
 
     /**
