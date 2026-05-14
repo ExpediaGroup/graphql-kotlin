@@ -44,8 +44,11 @@ import tools.jackson.databind.json.JsonMapper
  * custom Jackson settings should configure them on their application-level install.
  *
  * @param endpoint GraphQL server GET endpoint, defaults to 'graphql'
- * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already installed at the application level.
- * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if `ContentNegotiation` is already installed at the application level.
+ * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default)
+ *   it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already
+ *   installed at the application level.
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if
+ *   `ContentNegotiation` is already installed at the application level.
  */
 fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
@@ -74,8 +77,11 @@ fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boole
  * should configure them on their application-level install.
  *
  * @param endpoint GraphQL server POST endpoint, defaults to 'graphql'
- * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already installed at the application level.
- * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if `ContentNegotiation` is already installed at the application level.
+ * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default)
+ *   it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already
+ *   installed at the application level.
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if
+ *   `ContentNegotiation` is already installed at the application level.
  */
 fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
