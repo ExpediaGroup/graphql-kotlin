@@ -57,7 +57,21 @@ import kotlin.coroutines.EmptyCoroutineContext
 const val GRAPHQL_WS_PROTOCOL = "graphql-transport-ws"
 
 /**
- * GraphQL Web Socket server implementation for handling subscriptions using *graphql-transport-ws* protocol
+ * Default maximum number of in-flight inbound messages processed concurrently by a single web socket session.
+ *
+ * Matches the historical default of `kotlinx.coroutines.flow.flatMapMerge` (16) that was used before this value
+ * was made configurable. Raising the limit lets a single session process more simultaneous subscriptions at the
+ * cost of higher peak memory; `Int.MAX_VALUE` effectively removes the limit; `1` serializes message processing.
+ */
+const val DEFAULT_WS_SUBSCRIPTION_CONCURRENCY: Int = 16
+
+/**
+ * GraphQL Web Socket server implementation for handling subscriptions using *graphql-transport-ws* protocol.
+ *
+ * @param subscriptionConcurrency maximum number of inbound client messages processed concurrently by the
+ *   `flatMapMerge` operator that drives [handleSubscription]. At the default ([DEFAULT_WS_SUBSCRIPTION_CONCURRENCY])
+ *   in-flight subscriptions can back-pressure sibling protocol messages (ping, complete, new subscribe) once the
+ *   ceiling is hit; see issue #2018. Pass a larger value, or `Int.MAX_VALUE`, to avoid this.
  *
  * @see <a href="https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md">graphql-transport-ws protocol</a>
  */
@@ -67,7 +81,8 @@ abstract class GraphQLWebSocketServer<Session, Message>(
     private val subscriptionHooks: GraphQLSubscriptionHooks<Session>,
     private val requestHandler: GraphQLRequestHandler,
     private val initTimeoutMillis: Long,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+    private val subscriptionConcurrency: Int = DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 ) {
     private val logger: Logger = LoggerFactory.getLogger(GraphQLWebSocketServer::class.java)
     private val subscriptionScope = CoroutineScope(SupervisorJob())
@@ -86,7 +101,7 @@ abstract class GraphQLWebSocketServer<Session, Message>(
 
         requestParser.parseRequestFlow(session)
             .map { objectMapper.readValue<GraphQLSubscriptionMessage>(it) }
-            .flatMapMerge { message ->
+            .flatMapMerge(concurrency = subscriptionConcurrency) { message ->
                 channelFlow {
                     when (message) {
                         is SubscriptionMessageConnectionInit -> {

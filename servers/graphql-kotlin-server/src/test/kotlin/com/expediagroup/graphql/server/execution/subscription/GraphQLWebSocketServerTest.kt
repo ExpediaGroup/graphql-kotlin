@@ -300,6 +300,60 @@ class GraphQLWebSocketServerTest {
         subscriptionJob.cancelAndJoin()
     }
 
+    @Test
+    fun `verify subscription flow honors configured concurrency`() = runTest {
+        // concurrency=1 serializes inbound message processing: each subscribe's channelFlow must fully complete
+        // (counter 1,2,3 + complete) before the next subscribe starts flowing. With the historical default (16)
+        // the two subscriptions would interleave. See issue #2018.
+        val handler = GraphQLRequestHandler(graphQL = testGraphQLEngine())
+        val testServer = InMemoryGraphQLSubscriptionServer(
+            requestHandler = handler,
+            subscriptionConcurrency = 1
+        )
+
+        val session = Channel<String>(Channel.BUFFERED)
+        val responseChannel = testServer.outboundChannel
+
+        val subscriptionJob = launch {
+            testServer.handleSubscription(session)
+                .collect()
+        }
+
+        session.send(mapper.writeValueAsString(SubscriptionMessageConnectionInit()))
+        val ack: GraphQLSubscriptionMessage = mapper.readValue(responseChannel.receive())
+        assertEquals(GRAPHQL_WS_CONNECTION_ACK, ack.type)
+
+        val firstId = UUID.randomUUID().toString()
+        val secondId = UUID.randomUUID().toString()
+        val request = GraphQLRequest(query = "subscription { counter }")
+        session.send(mapper.writeValueAsString(SubscriptionMessageSubscribe(id = firstId, payload = request)))
+        session.send(mapper.writeValueAsString(SubscriptionMessageSubscribe(id = secondId, payload = request)))
+
+        // With concurrency=1 the second subscribe is held behind the first, so every response for firstId
+        // (3 next + 1 complete) must arrive before any response for secondId.
+        val firstResponseIds = (1..4).map {
+            val msg: GraphQLSubscriptionMessage = mapper.readValue(responseChannel.receive())
+            when (msg) {
+                is SubscriptionMessageNext -> msg.id
+                is SubscriptionMessageComplete -> msg.id
+                else -> error("unexpected message type: $msg")
+            }
+        }
+        assertTrue(firstResponseIds.all { it == firstId }, "expected all first-batch ids == $firstId but got $firstResponseIds")
+
+        val secondResponseIds = (1..4).map {
+            val msg: GraphQLSubscriptionMessage = mapper.readValue(responseChannel.receive())
+            when (msg) {
+                is SubscriptionMessageNext -> msg.id
+                is SubscriptionMessageComplete -> msg.id
+                else -> error("unexpected message type: $msg")
+            }
+        }
+        assertTrue(secondResponseIds.all { it == secondId }, "expected all second-batch ids == $secondId but got $secondResponseIds")
+
+        subscriptionJob.cancelAndJoin()
+    }
+
     private fun testGraphQLEngine(): GraphQL = GraphQL.newGraphQL(
         toSchema(
             config = SchemaGeneratorConfig(

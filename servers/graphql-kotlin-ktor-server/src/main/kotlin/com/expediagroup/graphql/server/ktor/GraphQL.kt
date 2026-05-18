@@ -169,7 +169,8 @@ class GraphQL(config: GraphQLConfiguration) {
             subscriptionHooks = config.server.subscriptions.hooks,
             requestHandler = requestHandler,
             initTimeoutMillis = config.server.subscriptions.connectionInitTimeout,
-            objectMapper = jacksonMapperBuilder().apply(config.server.jacksonConfiguration).build()
+            objectMapper = jacksonMapperBuilder().apply(config.server.jacksonConfiguration).build(),
+            subscriptionConcurrency = config.server.subscriptions.subscriptionConcurrency
         )
     }
 

@@ -63,6 +63,7 @@ class SubscriptionGraphQLWsAutoConfiguration {
         subscriptionHooks,
         handler,
         config.subscriptions.connectionInitTimeout,
-        objectMapper
+        objectMapper,
+        config.subscriptions.subscriptionConcurrency
     )
 }

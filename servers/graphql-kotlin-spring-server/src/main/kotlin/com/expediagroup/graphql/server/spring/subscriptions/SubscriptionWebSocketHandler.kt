@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.execution.subscription.DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCOL
 import com.expediagroup.graphql.server.execution.subscription.GraphQLWebSocketServer
 import com.expediagroup.graphql.server.types.GraphQLSubscriptionStatus
@@ -40,9 +41,10 @@ class SubscriptionWebSocketHandler(
     subscriptionHooks: SpringGraphQLSubscriptionHooks,
     graphqlHandler: GraphQLRequestHandler,
     initTimeoutMillis: Long,
-    objectMapper: ObjectMapper
+    objectMapper: ObjectMapper,
+    subscriptionConcurrency: Int = DEFAULT_WS_SUBSCRIPTION_CONCURRENCY
 ) : WebSocketHandler, GraphQLWebSocketServer<WebSocketSession, WebSocketMessage>(
-    requestParser, contextFactory, subscriptionHooks, graphqlHandler, initTimeoutMillis, objectMapper
+    requestParser, contextFactory, subscriptionHooks, graphqlHandler, initTimeoutMillis, objectMapper, subscriptionConcurrency
 ) {
     override fun handle(session: WebSocketSession): Mono<Void> = session.send(
         flux {
