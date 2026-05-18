@@ -256,6 +256,66 @@ class GraphQLPluginTest {
             assertContains(html, """var subscriptionUrl = new URL("/subscriptions", location.href);""")
         }
     }
+
+    @Test
+    fun `graphQLPostRoute should not duplicate ContentNegotiation when already installed at application level`() {
+        // Reproduces https://github.com/ExpediaGroup/graphql-kotlin/issues/2025: installing
+        // ContentNegotiation at both application and route scope would throw
+        // DuplicatePluginException. The route helpers now detect an existing application-level
+        // install and skip the route-scoped install.
+        testApplication {
+            application {
+                install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+                    jackson()
+                }
+                install(GraphQL) {
+                    schema {
+                        packages = listOf("com.expediagroup.graphql.server.ktor")
+                        queries = listOf(TestQuery())
+                    }
+                }
+                routing {
+                    graphQLPostRoute()
+                }
+            }
+            val client = createClient {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+            }
+            val response = client.post("/graphql") {
+                contentType(ContentType.Application.Json)
+                setBody(GraphQLRequest(query = "query HelloWorldQuery { hello }"))
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("""{"data":{"hello":"Hello World"}}""", response.bodyAsText().trim())
+        }
+    }
+
+    @Test
+    fun `graphQLGetRoute should not duplicate ContentNegotiation when already installed at application level`() {
+        testApplication {
+            application {
+                install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+                    jackson()
+                }
+                install(GraphQL) {
+                    schema {
+                        packages = listOf("com.expediagroup.graphql.server.ktor")
+                        queries = listOf(TestQuery())
+                    }
+                }
+                routing {
+                    graphQLGetRoute()
+                }
+            }
+            val response = client.get("/graphql") {
+                parameter("query", "query HelloWorldQuery { hello }")
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("""{"data":{"hello":"Hello World"}}""", response.bodyAsText().trim())
+        }
+    }
 }
 
 fun Application.testGraphQLModule() {

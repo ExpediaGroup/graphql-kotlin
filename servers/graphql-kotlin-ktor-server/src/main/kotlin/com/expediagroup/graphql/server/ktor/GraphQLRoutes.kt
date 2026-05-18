@@ -21,6 +21,7 @@ import com.expediagroup.graphql.server.execution.subscription.GRAPHQL_WS_PROTOCO
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.application.plugin
+import io.ktor.server.application.pluginOrNull
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -33,40 +34,65 @@ import kotlinx.coroutines.flow.collect
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * Configures GraphQL GET route
+ * Configures GraphQL GET route.
+ *
+ * Installs the Jackson `ContentNegotiation` plugin on the route scope. If the application has
+ * already installed `ContentNegotiation` at the application level, the route-scoped install is
+ * skipped and the existing configuration is reused — this avoids Ktor's `DuplicatePluginException`
+ * when the host application serves other JSON endpoints. In that case the provided
+ * [streamingResponse] and [jacksonConfiguration] arguments are not applied; callers that need
+ * custom Jackson settings should configure them on their application-level install.
  *
  * @param endpoint GraphQL server GET endpoint, defaults to 'graphql'
- * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses.
- * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor
+ * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default)
+ *   it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already
+ *   installed at the application level.
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if
+ *   `ContentNegotiation` is already installed at the application level.
  */
 fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
     val route = get(endpoint) {
         graphQLPlugin.server.executeRequest(call)
     }
-    route.install(ContentNegotiation) {
-        jackson(streamRequestBody = streamingResponse) {
-            apply(jacksonConfiguration)
+    if (this.application.pluginOrNull(ContentNegotiation) == null) {
+        route.install(ContentNegotiation) {
+            jackson(streamRequestBody = streamingResponse) {
+                apply(jacksonConfiguration)
+            }
         }
     }
     return route
 }
 
 /**
- * Configures GraphQL POST route
+ * Configures GraphQL POST route.
+ *
+ * Installs the Jackson `ContentNegotiation` plugin on the route scope. If the application has
+ * already installed `ContentNegotiation` at the application level, the route-scoped install is
+ * skipped and the existing configuration is reused — this avoids Ktor's `DuplicatePluginException`
+ * when the host application serves other JSON endpoints (e.g. a global `StatusPages` handler
+ * returning JSON error responses). In that case the provided [streamingResponse] and
+ * [jacksonConfiguration] arguments are not applied; callers that need custom Jackson settings
+ * should configure them on their application-level install.
  *
  * @param endpoint GraphQL server POST endpoint, defaults to 'graphql'
- * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses.
- * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor
+ * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default)
+ *   it will set `Transfer-Encoding: chunked` header on the responses. Ignored if `ContentNegotiation` is already
+ *   installed at the application level.
+ * @param jacksonConfiguration a configuration block for [JsonMapper.Builder], passed to ktor. Ignored if
+ *   `ContentNegotiation` is already installed at the application level.
  */
 fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: JsonMapper.Builder.() -> Unit = {}): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
     val route = post(endpoint) {
         graphQLPlugin.server.executeRequest(call)
     }
-    route.install(ContentNegotiation) {
-        jackson(streamRequestBody = streamingResponse) {
-            apply(jacksonConfiguration)
+    if (this.application.pluginOrNull(ContentNegotiation) == null) {
+        route.install(ContentNegotiation) {
+            jackson(streamRequestBody = streamingResponse) {
+                apply(jacksonConfiguration)
+            }
         }
     }
     return route
