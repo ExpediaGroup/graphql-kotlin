@@ -1,0 +1,126 @@
+---
+id: client-customization
+title: Client Customization
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Ktor HTTP Client Customization
+
+`GraphQLKtorClient` is a thin wrapper on top of [Ktor HTTP Client](https://ktor.io/docs/client.html) and supports fully
+asynchronous non-blocking communication. It is highly customizable and can be configured with any supported Ktor HTTP
+[engine](https://ktor.io/clients/http-client/engines.html) and [features](https://ktor.io/clients/http-client/features.html).
+
+See [Ktor HTTP Client documentation](https://ktor.io/clients/index.html) for additional details.
+
+### Global Client Customization
+
+A single instance of `GraphQLKtorClient` can be used to handle many GraphQL operations. You can specify a custom instance
+of Ktor `HttpClient` and a target `GraphQLClientSerializer`.
+
+The below example configures a new `GraphQLKtorClient` to use the `OkHttp` engine with custom timeouts, adds a default `X-MY-API-KEY`
+header to all requests, and enables basic logging of the requests.
+
+```kotlin
+val okHttpClient = HttpClient(engineFactory = OkHttp) {
+    engine {
+        config {
+            connectTimeout(10, TimeUnit.SECONDS)
+            readTimeout(60, TimeUnit.SECONDS)
+            writeTimeout(60, TimeUnit.SECONDS)
+        }
+    }
+    defaultRequest {
+        header("X-MY-API-KEY", "someSecretApiKey")
+    }
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.INFO
+    }
+}
+val client = GraphQLKtorClient(
+    url = URL("http://localhost:8080/graphql"),
+    httpClient = okHttpClient
+)
+```
+
+### Per Request Customization
+
+Individual GraphQL requests can be customized through [HttpRequestBuilder](https://ktor.io/docs/request.html#customizing-requests).
+You can use this mechanism to specify custom headers, update target url to include custom query parameters, configure
+attributes that can be accessed from the pipeline features as well specify timeouts per request.
+
+```kotlin
+val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "John Doe"))
+val result = client.execute(helloWorldQuery) {
+    header("X-B3-TraceId", "0123456789abcdef")
+}
+```
+
+## Spring WebClient Customization
+
+`GraphQLWebClient` is a thin wrapper on top of [Spring WebClient](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/reactive/function/client/WebClient.html)
+that relies on Reactor Netty for fully asynchronous non-blocking communications. If you want to use Jetty instead you will
+need to exclude provided `io.projectreactor.netty:reactor-netty` dependency and instead add `org.eclipse.jetty:jetty-reactive-httpclient`
+dependency.
+
+### Global Client Customization
+
+A single instance of `GraphQLWebClient` can be used to handle many GraphQL operations and you can customize it by providing
+a custom instance of `WebClient.Builder`. See [Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient-customization)
+for additional details.
+
+Example below configures `GraphQLWebClient` with custom timeouts and adds a default `X-MY-API-KEY` header to all requests.
+
+```kotlin
+val httpClient: HttpClient = HttpClient.create()
+    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+    .responseTimeout(Duration.ofMillis(10_000))
+val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(true))
+val webClientBuilder = WebClient.builder()
+    .clientConnector(connector)
+    .defaultHeader("X-MY-API-KEY", "someSecretApiKey")
+
+val client = GraphQLWebClient(
+    url = "http://localhost:8080/graphql",
+    builder = webClientBuilder
+)
+```
+
+### Per Request Customization
+
+Individual GraphQL requests can be customized by providing `WebClient.RequestBodyUriSpec` lambda. You can use this mechanism
+to specify custom headers or include custom attributes or query parameters.
+
+```kotlin
+val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "John Doe"))
+val result = client.execute(helloWorldQuery) {
+    header("X-B3-TraceId", "0123456789abcdef")
+}
+```
+
+## Custom GraphQL Client
+
+GraphQL Kotlin libraries provide generic a `GraphQLClient` interface as well as Ktor HTTP Client and Spring WebClient based
+reference implementations. Both `GraphQLKtorClient` and `GraphQLWebClient` are open classes which means you can also
+extend them to provide some custom `execute` logic.
+
+```kotlin
+class CustomGraphQLClient(url: URL) : GraphQLKtorClient(url = url) {
+
+    override suspend fun <T: Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
+        // custom init logic
+        val result = super.execute(request, requestCustomizer)
+        // custom finalize logic
+        return result
+    }
+}
+```
+
+## Deprecated Field Usage
+
+Build plugins will automatically fail generation of a client if any of the specified query files are referencing
+deprecated fields. This ensures that your clients have to explicitly opt-in into deprecated usage by specifying
+`allowDeprecatedFields` configuration option.
