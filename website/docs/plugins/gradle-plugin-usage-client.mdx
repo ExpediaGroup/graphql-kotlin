@@ -608,12 +608,12 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     dependsOn("graphqlDownloadSDL")
 }
 
-val graphqlDownloadOtherSDL by tasks.creating(GraphQLDownloadSDLTask::class) {
+val graphqlDownloadOtherSDL by tasks.registering(GraphQLDownloadSDLTask::class) {
     endpoint.set("http://localhost:8081/sdl")
 }
-val graphqlGenerateOtherClient by tasks.creating(GraphQLGenerateClientTask::class) {
+val graphqlGenerateOtherClient by tasks.registering(GraphQLGenerateClientTask::class) {
     packageName.set("com.example.generated.second")
-    schemaFile.set(graphqlDownloadOtherSDL.outputFile)
+    schemaFile.set(graphqlDownloadOtherSDL.flatMap { it.outputFile })
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MySecondQuery.graphql")
     dependsOn("graphqlDownloadOtherSDL")
 }
