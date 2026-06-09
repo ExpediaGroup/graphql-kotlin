@@ -97,6 +97,16 @@ class CustomUnionAnnotationTest {
         assertSame(metaUnion, (types.find { it.deepName != "Prime" } as GraphQLObjectType).getField("union").type.unwrapType())
     }
 
+    @Test
+    fun `custom union annotations can be used on deprecated properties`() {
+        val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(DeprecatedPropertyQuery())))
+
+        val deprecatedListPrimes = schema.getObjectType("DeprecatedUnionHolder").getFieldDefinition("deprecatedListPrimes")
+
+        assertEquals("[Prime!]!", deprecatedListPrimes.type.deepName)
+        assertEquals("deprecated union field", deprecatedListPrimes.deprecationReason)
+    }
+
     class One(val value: String)
     class Two(val value: String)
     class Three(val value: String)
@@ -133,6 +143,16 @@ class CustomUnionAnnotationTest {
         @PrimeUnion
         fun nullableListPrimes(): List<Any?>? = null
     }
+
+    class DeprecatedPropertyQuery {
+        fun unionHolder(): DeprecatedUnionHolder = DeprecatedUnionHolder()
+    }
+
+    class DeprecatedUnionHolder(
+        @Deprecated("deprecated union field")
+        @PrimeUnion
+        val deprecatedListPrimes: List<Any> = listOf(Two("2"), Three("3"))
+    )
 
     /**
      * Each union here is valid, but using them together in the same schema means the union "Number"
