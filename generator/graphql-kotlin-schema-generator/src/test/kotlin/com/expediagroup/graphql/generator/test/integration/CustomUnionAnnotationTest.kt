@@ -77,7 +77,7 @@ class CustomUnionAnnotationTest {
     }
 
     @Test
-    fun `custom union annotations can be used on deprecated properties`() {
+    fun `deprecated annotation does not prevent custom union detection`() {
         val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(DeprecatedPropertyQuery())))
 
         val deprecatedListPrimes = schema.getObjectType("DeprecatedUnionHolder").getFieldDefinition("deprecatedListPrimes")
