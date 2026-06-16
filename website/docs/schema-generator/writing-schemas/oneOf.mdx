@@ -1,0 +1,462 @@
+---
+id: oneOf
+title: OneOf
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The `@oneOf` directive lets you define an input type where exactly one field must be supplied. In `graphql-kotlin`, `@oneOf` input objects are modeled using Kotlin sealed interfaces, with each implementing class becoming one field of the generated input type.
+
+## The Problem Without `@oneOf`
+
+Most GraphQL queries start at a single node and traverse the data graph from there. But often there is more than one way to locate that node — for example, finding a user by ID, email address, or username. Traditionally that meant multiple root-level fields:
+
+```graphql
+type Query {
+  user(id: ID!): User
+  userByEmail(email: String!): User
+  userByUsername(username: String!): User
+}
+```
+
+This clutters the schema with near-duplicate fields and makes it hard to add new lookup strategies without a breaking change. The alternative was a single field accepting a catch-all input object with every option as a nullable field:
+
+```graphql
+input UserLookupInput {
+  id: ID
+  email: String
+  username: String
+}
+
+type Query {
+  user(input: UserLookupInput!): User
+}
+```
+
+```kotlin
+class Query {
+    fun user(input: UserLookupInput): User {
+        val count = listOfNotNull(input.id, input.email, input.username).size
+        require(count == 1) { "Exactly one lookup field must be provided" }
+        return when {
+            input.id != null -> userRepository.findById(input.id)
+            input.email != null -> userRepository.findByEmail(input.email)
+            else -> userRepository.findByUsername(input.username!!)
+        }
+    }
+}
+```
+
+This is worse: the schema permits any combination of fields — including none — with no indication to clients that exactly one is expected. Validation is pushed into application code, nullability is lost in the resolver, and the constraint is invisible to schema tooling and code generators.
+
+`@oneOf` solves both problems. A single field accepts a typed input where exactly one option must be set, enforced at the schema level before your resolver runs:
+
+```graphql
+input UserLookupInput @oneOf {
+  id: ID
+  email: String
+  username: String
+}
+
+type Query {
+  user(input: UserLookupInput!): User
+}
+```
+
+## `@GraphQLOneOf`
+
+Apply `@GraphQLOneOf` to a sealed interface to designate it as a `@oneOf` input type. The schema generator will produce an `input` type with the `@oneOf` directive applied, and each sealed subclass becomes one of its fields.
+
+```kotlin
+@GraphQLOneOf
+sealed interface UserLookupInput
+```
+
+## `@GraphQLOneOfField`
+
+Apply `@GraphQLOneOfField` to each implementing class to declare it as a named field of the generated `@oneOf` input type. The `fieldName` parameter sets the field name in the schema.
+
+```kotlin
+@GraphQLOneOf
+sealed interface UserLookupInput {
+
+    @GraphQLOneOfField("id", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ById(val id: String) : UserLookupInput
+
+    @GraphQLOneOfField("email", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByEmail(val email: String) : UserLookupInput
+
+    @GraphQLOneOfField("username", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByUsername(val username: String) : UserLookupInput
+}
+```
+
+The `type` parameter of `@GraphQLOneOfField` controls how the subtype is projected into the schema.
+
+### `WRAPPED` (Default)
+
+The subtype itself becomes the field's input object type. Use this when the field carries multiple properties. The generated type name follows the standard graphql-kotlin `Input` suffix rule — if the class name does not already end in `Input`, it is appended.
+
+```kotlin
+@GraphQLOneOf
+sealed interface ContentBlockInput {
+
+    @GraphQLOneOfField("paragraph", GraphQLOneOfFieldType.WRAPPED)
+    data class Paragraph(val text: String) : ContentBlockInput
+
+    @GraphQLOneOfField("blockquote", GraphQLOneOfFieldType.WRAPPED)
+    data class BlockQuote(
+        val text: String,
+        val attribution: String? = null
+    ) : ContentBlockInput
+}
+```
+
+```graphql
+input ContentBlockInput @oneOf {
+  paragraph: ParagraphInput
+  blockquote: BlockQuoteInput
+}
+
+input ParagraphInput {
+  text: String!
+}
+
+input BlockQuoteInput {
+  text: String!
+  attribution: String
+}
+```
+
+### `UNWRAPPED`
+
+The field type is taken directly from the subtype's single constructor property. Use this for scalar and enum fields to keep the schema flat.
+
+```kotlin
+@GraphQLOneOf
+sealed interface UserLookupInput {
+
+    @GraphQLOneOfField("id", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ById(val id: ID) : UserLookupInput
+
+    @GraphQLOneOfField("email", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByEmail(val email: String) : UserLookupInput
+
+    @GraphQLOneOfField("username", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByUsername(val username: String) : UserLookupInput
+}
+```
+
+```graphql
+input UserLookupInput @oneOf {
+  id: ID
+  email: String
+  username: String
+}
+```
+
+Using `WRAPPED` instead would generate a redundant intermediate input type for each subclass, wrapping the scalar in an unnecessary object:
+
+```graphql
+input UserLookupInput @oneOf {
+  id: ByIdInput
+  email: ByEmailInput
+  username: ByUsernameInput
+}
+
+input ByIdInput {
+  id: ID!
+}
+
+input ByEmailInput {
+  email: String!
+}
+
+input ByUsernameInput {
+  username: String!
+}
+```
+
+## Validation Rules
+
+`graphql-kotlin` validates the sealed interface structure at schema generation time — incorrect annotation usage throws an exception before the schema is built.
+
+At query execution time, `graphql-java` enforces the `@oneOf` contract: exactly one non-null field must be supplied. Clients sending zero or multiple fields will receive a validation error.
+
+## Examples
+
+### Scalar Field Lookup
+
+A `@oneOf` input where each option resolves to a scalar or ID. Use `UNWRAPPED` to keep the generated SDL clean — the field type is taken directly from the single constructor property rather than wrapping it in a nested input object.
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin Definition', value: 'kotlin' },
+    { label: 'Generated SDL', value: 'sdl' },
+    { label: 'Code', value: 'resolver' },
+    { label: 'Query', value: 'query' },
+  ]}
+>
+
+<TabItem value="kotlin">
+
+```kotlin
+@GraphQLDescription("A user lookup input where exactly one lookup strategy must be supplied.")
+@GraphQLOneOf
+sealed interface UserLookupInput {
+
+    @GraphQLDescription("Look up a user by their unique ID.")
+    @GraphQLOneOfField("id", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ById(
+        @param:GraphQLDescription("The user ID.")
+        val id: ID
+    ) : UserLookupInput
+
+    @GraphQLDescription("Look up a user by their email address.")
+    @GraphQLOneOfField("email", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByEmail(
+        @param:GraphQLDescription("The user's email address.")
+        val email: String
+    ) : UserLookupInput
+
+    @GraphQLDescription("Look up a user by their username.")
+    @GraphQLOneOfField("username", GraphQLOneOfFieldType.UNWRAPPED)
+    data class ByUsername(
+        @param:GraphQLDescription("The user's username.")
+        val username: String
+    ) : UserLookupInput
+}
+
+class Query {
+    fun findUser(input: UserLookupInput): User = TODO()
+}
+```
+
+</TabItem>
+
+<TabItem value="sdl">
+
+```graphql
+"""A user lookup input where exactly one lookup strategy must be supplied."""
+input UserLookupInput @oneOf {
+  id: ID
+  email: String
+  username: String
+}
+
+type Query {
+  findUser(input: UserLookupInput!): User!
+}
+```
+
+</TabItem>
+
+<TabItem value="resolver">
+
+```kotlin
+class Query {
+    fun findUser(input: UserLookupInput): User = when (input) {
+        is UserLookupInput.ById -> userRepository.findById(input.id)
+        is UserLookupInput.ByEmail -> userRepository.findByEmail(input.email)
+        is UserLookupInput.ByUsername -> userRepository.findByUsername(input.username)
+    }
+}
+```
+
+</TabItem>
+
+<TabItem value="query">
+
+```graphql
+query {
+  findUser(input: { email: "sam@example.com" }) {
+    id
+    name
+  }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+### Mixed Scalar and Object Fields
+
+A `@oneOf` input that combines scalar fields (using `UNWRAPPED`) with multi-property object fields (using `WRAPPED`). This pattern is common for content or product filter inputs where some options are simple identifiers and others carry structured data.
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin Definition', value: 'kotlin' },
+    { label: 'Generated SDL', value: 'sdl' },
+    { label: 'Code', value: 'resolver' },
+    { label: 'Query', value: 'query' },
+  ]}
+>
+
+<TabItem value="kotlin">
+
+```kotlin
+@GraphQLDescription("A content block input where exactly one block shape must be supplied.")
+@GraphQLOneOf
+sealed interface ContentBlockInput {
+
+    @GraphQLDescription("A raw Markdown string.")
+    @GraphQLOneOfField("markdown", GraphQLOneOfFieldType.UNWRAPPED)
+    data class Markdown(
+        @param:GraphQLDescription("The Markdown content.")
+        val content: String
+    ) : ContentBlockInput
+
+    @GraphQLDescription("A plain paragraph.")
+    @GraphQLOneOfField("paragraph")
+    data class Paragraph(
+        @param:GraphQLDescription("The paragraph text.")
+        val text: String
+    ) : ContentBlockInput
+
+    @GraphQLDescription("A block quote with optional attribution.")
+    @GraphQLOneOfField("blockquote")
+    data class BlockQuote(
+        @param:GraphQLDescription("The quoted text.")
+        val value: String,
+        @param:GraphQLDescription("The optional attribution source.")
+        val attribution: String?,
+        @param:GraphQLDescription("The optional URL for the attribution source.")
+        val attributionUrl: String?
+    ) : ContentBlockInput
+
+    @GraphQLDescription("An image block.")
+    @GraphQLOneOfField("image")
+    data class Image(
+        @param:GraphQLDescription("The image URL.")
+        val url: String,
+        @param:GraphQLDescription("The image alt text.")
+        val altText: String
+    ) : ContentBlockInput
+}
+
+class Mutation {
+    fun addContentBlock(input: ContentBlockInput): Boolean = TODO()
+}
+```
+
+</TabItem>
+
+<TabItem value="sdl">
+
+```graphql
+"""A content block input where exactly one block shape must be supplied."""
+input ContentBlockInput @oneOf {
+  markdown: String
+  paragraph: ParagraphInput
+  blockquote: BlockQuoteInput
+  image: ImageInput
+}
+
+input ParagraphInput {
+  """The paragraph text."""
+  text: String!
+}
+
+input BlockQuoteInput {
+  """The quoted text."""
+  value: String!
+  """The optional attribution source."""
+  attribution: String
+  """The optional URL for the attribution source."""
+  attributionUrl: String
+}
+
+input ImageInput {
+  """The image URL."""
+  url: String!
+  """The image alt text."""
+  altText: String!
+}
+
+type Mutation {
+  addContentBlock(input: ContentBlockInput!): Boolean!
+}
+```
+
+</TabItem>
+
+<TabItem value="resolver">
+
+```kotlin
+class Mutation {
+    fun addContentBlock(input: ContentBlockInput): Boolean = when (input) {
+        is ContentBlockInput.Markdown -> contentService.addMarkdown(input.content)
+        is ContentBlockInput.Paragraph -> contentService.addParagraph(input.text)
+        is ContentBlockInput.BlockQuote -> contentService.addBlockQuote(
+            value = input.value,
+            attribution = input.attribution,
+            attributionUrl = input.attributionUrl,
+        )
+        is ContentBlockInput.Image -> contentService.addImage(
+            url = input.url,
+            altText = input.altText,
+        )
+    }
+}
+```
+
+</TabItem>
+
+<TabItem value="query">
+
+```graphql
+# scalar field (UNWRAPPED):
+mutation {
+  addContentBlock(input: {
+    markdown: "**Hello**, world."
+  })
+}
+
+# object field (WRAPPED):
+mutation {
+  addContentBlock(input: {
+    blockquote: {
+      value: "Simple, clear, and direct."
+      attribution: "Style Guide"
+    }
+  })
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+## Constraints and Validation Errors
+
+The following exceptions are thrown during schema generation when the `@GraphQLOneOf` or `@GraphQLOneOfField` annotations are used incorrectly.
+
+| Exception | Trigger |
+|---|---|
+| `InvalidGraphQLOneOfTargetException` | `@GraphQLOneOf` was applied to a concrete class, abstract class, sealed class, or non-sealed interface. Only sealed interfaces are supported. |
+| `NoGraphQLOneOfImplementationsException` | The sealed interface annotated with `@GraphQLOneOf` has no implementing subclasses. |
+| `MissingOneOfInputFieldAnnotationException` | A sealed subclass of a `@GraphQLOneOf` interface is missing the `@GraphQLOneOfField` annotation. |
+| `DuplicateOneOfInputFieldException` | Two or more sealed subclasses share the same `fieldName` in their `@GraphQLOneOfField` annotations. |
+| `InvalidGraphQLOneOfUnwrappedFieldException` | A subclass using `type = UNWRAPPED` does not define exactly one primary constructor parameter, its constructor is not public, or the subtype is abstract or an interface. |
+
+## Nesting `@oneOf` Types
+
+`@oneOf` input types can be nested inside other `@oneOf` types. Use `UNWRAPPED` on the outer subtype to keep the SDL flat — the field type resolves directly to the nested `@oneOf` type rather than creating an intermediate wrapper object:
+
+```kotlin
+@GraphQLOneOf
+sealed interface EntityLookupInput {
+
+    @GraphQLOneOfField("user", GraphQLOneOfFieldType.UNWRAPPED)
+    data class User(val lookup: UserLookupInput) : EntityLookupInput
+
+    @GraphQLOneOfField("organization", GraphQLOneOfFieldType.UNWRAPPED)
+    data class Organization(val lookup: OrganizationLookupInput) : EntityLookupInput
+}
+```
+
+This produces a flat `@oneOf` input whose fields are themselves `@oneOf` input types, which allows clients to compose lookup strategies across entity types with full schema-level validation at every level.
