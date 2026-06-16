@@ -36,7 +36,7 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? =
 
 internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation<GraphQLIgnore>() != null
 
-internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull() ?: this.map { it.getMetaUnionAnnotation() }.firstOrNull()
+internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull() ?: this.mapNotNull { it.getMetaUnionAnnotation() }.firstOrNull()
 
 internal fun List<Annotation>.getCustomUnionClassWithMetaUnionAnnotation(): KClass<*>? = this.firstOrNull { it.getMetaUnionAnnotation() != null }?.annotationClass
 
