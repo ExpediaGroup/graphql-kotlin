@@ -113,6 +113,14 @@ open class GraphQLPluginClientExtension {
 open class GraphQLPluginSchemaExtension {
     /** List of supported packages that can contain GraphQL schema type definitions. */
     var packages: List<String> = emptyList()
+
+    /**
+     * JVM arguments passed to the process-isolated worker that generates the SDL, e.g. `listOf("-Xmx2g")`.
+     *
+     * SDL generation runs in a forked JVM that uses the Gradle default heap. Schemas large enough to
+     * exhaust that heap (resulting in an `OutOfMemoryError`) can raise it by configuring these arguments.
+     */
+    var jvmArguments: List<String> = emptyList()
 }
 
 open class GraphQLPluginGraalVmExtension {
