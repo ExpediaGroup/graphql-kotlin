@@ -16,18 +16,23 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.annotations.GraphQLOneOfField
+import com.expediagroup.graphql.generator.annotations.GraphQLOneOfFieldType
 import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
+import com.expediagroup.graphql.generator.internal.extensions.isGraphQLOneOfSealedInput
 import com.expediagroup.graphql.generator.internal.extensions.isNotOptionalNullable
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
+import com.expediagroup.graphql.generator.internal.types.utils.getValidOneOfUnwrappedFieldParameter
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 
 /**
@@ -73,7 +78,13 @@ private fun convertValue(
     // If the value is a generic map, parse each entry which may have some values already parsed
     if (argumentValue is Map<*, *>) {
         @Suppress("UNCHECKED_CAST")
-        return mapToKotlinObject(argumentValue as Map<String, *>, paramType.getKClass())
+        val input = argumentValue as Map<String, *>
+        val targetClass = paramType.getKClass()
+        return if (targetClass.isGraphQLOneOfSealedInput()) {
+            mapToOneOfKotlinObject(input, targetClass)
+        } else {
+            mapToKotlinObject(input, targetClass)
+        }
     }
 
     // If the value is enum we need to find the correct value
@@ -95,7 +106,6 @@ private fun convertValue(
  * the only thing left to parse is object maps into the nested Kotlin classes
  */
 private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
-
     val targetConstructor = targetClass.primaryConstructor ?: run {
         if (targetClass.constructors.size == 1) {
             targetClass.constructors.first()
@@ -119,6 +129,31 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
         convertArgumentValue(parameter.getName(), parameter, input)
     }
     return targetConstructor.callBy(constructorArguments)
+}
+
+/**
+ *
+ */
+private fun <T : Any> mapToOneOfKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
+    // at this stage, graphql-java already did the validation of only one value allowed
+    // and input fields match the fields of the GraphQLType marked with @OneOf
+    // https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/ValuesResolverOneOfValidation.java
+    val (fieldName, value) = input.entries.single()
+    val (subType, subTypeAnnotation) = targetClass.sealedSubclasses.firstNotNullOf { subClass ->
+        subClass.findAnnotation<GraphQLOneOfField>()
+            ?.takeIf { annotation -> annotation.fieldName == fieldName }
+            ?.let { annotation -> subClass to annotation }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return when (subTypeAnnotation.type) {
+        GraphQLOneOfFieldType.WRAPPED -> mapToKotlinObject(value as Map<String, *>, subType)
+        GraphQLOneOfFieldType.UNWRAPPED -> {
+            val parameter = getValidOneOfUnwrappedFieldParameter(subType)
+            val input = mapOf(parameter.getName() to value)
+            mapToKotlinObject(input, subType)
+        }
+    }
 }
 
 private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> = paramType.getKClass()

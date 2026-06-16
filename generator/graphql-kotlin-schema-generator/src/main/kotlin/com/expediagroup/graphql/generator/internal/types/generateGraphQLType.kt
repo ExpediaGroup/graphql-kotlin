@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getMetaUnionAnnota
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
+import com.expediagroup.graphql.generator.internal.extensions.isGraphQLOneOf
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
@@ -93,6 +94,9 @@ private fun getGraphQLType(
     }
 
     return when {
+        typeInfo.inputType && kClass.isGraphQLOneOf() -> {
+            generateOneOfInputObject(generator, kClass)
+        }
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
         kClass.isListType(typeInfo.isDirective) -> generateList(generator, type, typeInfo)
         kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(

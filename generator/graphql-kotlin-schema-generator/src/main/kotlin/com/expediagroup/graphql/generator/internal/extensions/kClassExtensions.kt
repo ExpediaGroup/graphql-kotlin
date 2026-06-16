@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLOneOf
 import com.expediagroup.graphql.generator.annotations.GraphQLSkipInputSuffix
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
@@ -102,3 +103,9 @@ internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()
 internal fun KClass<*>.isPublic(): Boolean = this.visibility == KVisibility.PUBLIC
 
 internal fun KClass<*>.isNotPublic(): Boolean = this.isPublic().not()
+
+internal fun KClass<*>.isGraphQLOneOf(): Boolean =
+    this.findAnnotation<GraphQLOneOf>() != null
+
+internal fun KClass<*>.isGraphQLOneOfSealedInput(): Boolean =
+    this.isGraphQLOneOf() && this.isSealed
