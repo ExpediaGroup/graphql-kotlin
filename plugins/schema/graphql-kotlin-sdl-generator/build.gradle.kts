@@ -36,10 +36,12 @@ tasks {
     }
 
     jacocoTestReport {
+        dependsOn(integrationTest)
         // we need to explicitly add integrationTest coverage info
         executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
     }
     jacocoTestCoverageVerification {
+        dependsOn(integrationTest)
         // we need to explicitly add integrationTest coverage info
         executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
         violationRules {
