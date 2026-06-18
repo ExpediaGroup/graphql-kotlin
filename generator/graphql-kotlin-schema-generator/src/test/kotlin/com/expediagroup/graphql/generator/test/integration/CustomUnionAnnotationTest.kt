@@ -76,6 +76,16 @@ class CustomUnionAnnotationTest {
         }
     }
 
+    @Test
+    fun `deprecated annotation does not prevent custom union detection`() {
+        val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(DeprecatedPropertyQuery())))
+
+        val deprecatedListPrimes = schema.getObjectType("DeprecatedUnionHolder").getFieldDefinition("deprecatedListPrimes")
+
+        assertEquals("[Prime!]!", deprecatedListPrimes.type.deepName)
+        assertEquals("deprecated union field", deprecatedListPrimes.deprecationReason)
+    }
+
     class One(val value: String)
     class Two(val value: String)
     class Three(val value: String)
@@ -112,6 +122,16 @@ class CustomUnionAnnotationTest {
         @PrimeUnion
         fun nullableListPrimes(): List<Any?>? = null
     }
+
+    class DeprecatedPropertyQuery {
+        fun unionHolder(): DeprecatedUnionHolder = DeprecatedUnionHolder()
+    }
+
+    class DeprecatedUnionHolder(
+        @Deprecated("deprecated union field")
+        @PrimeUnion
+        val deprecatedListPrimes: List<Any> = listOf(Two("2"), Three("3"))
+    )
 
     /**
      * Each union here is valid, but using them together in the same schema means the union "Number"
