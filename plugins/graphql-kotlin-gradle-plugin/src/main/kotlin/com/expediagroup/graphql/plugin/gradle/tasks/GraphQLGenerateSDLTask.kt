@@ -116,7 +116,7 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
                 it.jvmArgs(jvmArguments.getOrElse(emptyList()))
             }
             logger.debug("worker executable: \n${workerSpec.forkOptions.executable}")
-            logger.debug("worker jvm args: \n${workerSpec.forkOptions.jvmArgs}")
+            logger.debug("worker jvm args: \n${workerSpec.forkOptions.allJvmArgs}")
 
             val workerClasspath = pluginClasspath.plus(projectClasspath).plus(source.files)
             workerSpec.classpath.from(workerClasspath)

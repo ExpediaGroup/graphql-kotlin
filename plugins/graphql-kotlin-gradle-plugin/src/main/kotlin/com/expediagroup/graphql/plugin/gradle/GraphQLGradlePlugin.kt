@@ -154,7 +154,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
             val generateSchemaTask = project.tasks.named(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java).get()
             generateSchemaTask.packages.set(supportedPackages)
-            generateSchemaTask.jvmArguments.set(extension.schemaExtension.jvmArguments)
+            generateSchemaTask.jvmArguments.convention(extension.schemaExtension.jvmArguments)
         }
 
         if (extension.isGraalVmConfigurationAvailable()) {

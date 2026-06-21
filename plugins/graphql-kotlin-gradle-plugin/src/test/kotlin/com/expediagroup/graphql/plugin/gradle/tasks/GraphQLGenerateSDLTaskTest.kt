@@ -54,4 +54,25 @@ class GraphQLGenerateSDLTaskTest {
         val task = project.tasks.getByName(GENERATE_SDL_TASK_NAME) as GraphQLGenerateSDLTask
         assertEquals(listOf("-Xmx2g", "-XX:+UseG1GC"), task.jvmArguments.get())
     }
+
+    @Test
+    fun `jvmArguments set directly on the task are not overridden by the schema extension`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("java")
+        project.pluginManager.apply(GraphQLGradlePlugin::class.java)
+
+        val task = project.tasks.getByName(GENERATE_SDL_TASK_NAME) as GraphQLGenerateSDLTask
+        task.jvmArguments.set(listOf("-Xmx4g"))
+
+        val extension = project.extensions.getByType(GraphQLPluginExtension::class.java)
+        extension.schema {
+            it.packages = listOf("com.example")
+            it.jvmArguments = listOf("-Xmx2g")
+        }
+
+        // extension configuration is applied to the task in an afterEvaluate hook
+        (project as ProjectInternal).evaluate()
+
+        assertEquals(listOf("-Xmx4g"), task.jvmArguments.get())
+    }
 }
