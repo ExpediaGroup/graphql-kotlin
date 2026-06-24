@@ -18,35 +18,58 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOfFieldType
+import com.expediagroup.graphql.generator.directives.deprecatedDirectiveWithReason
+import com.expediagroup.graphql.generator.internal.extensions.getDeprecationReason
+import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import com.expediagroup.graphql.generator.internal.types.utils.getValidOneOfUnwrappedFieldParameter
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputType
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.withNullability
 
+/*
+ * WRAPPED subtype directives are ambiguous: @SimpleDirective on ParagraphInput could target
+ * `input ParagraphInput @simpleDirective` or
+ * `paragraph: ParagraphInput @simpleDirective`.
+ * Add an explicit way to distinguish type directives from synthetic oneOf field directives.
+ */
 internal fun generateOneOfInputProperty(
     generator: SchemaGenerator,
     metadata: OneOfFieldMetadata
 ): GraphQLInputObjectField {
+    // Field metadata comes from the generated field source: constructor parameter for UNWRAPPED, subtype class for WRAPPED.
+    val unwrappedParameter = if (metadata.fieldType == GraphQLOneOfFieldType.UNWRAPPED) {
+        getValidOneOfUnwrappedFieldParameter(metadata.subClass)
+    } else {
+        null
+    }
+    val fieldMetadata: KAnnotatedElement = unwrappedParameter ?: metadata.subClass
+    // oneOf input fields stay nullable, @oneOf validation enforces that exactly one nullable field is provided.
+    val type = unwrappedParameter?.type?.withNullability(true) ?: metadata.subClass.createType(nullable = true)
     val graphQLInputType = generateGraphQLType(
         generator = generator,
-        type = getOneOfInputFieldType(metadata.subClass, metadata.fieldType),
-        typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = metadata.fieldName),
+        type = type,
+        typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = metadata.fieldName, fieldAnnotations = unwrappedParameter?.annotations.orEmpty()),
     ).safeCast<GraphQLInputType>()
 
-    return GraphQLInputObjectField.newInputObjectField()
+    val builder = GraphQLInputObjectField.newInputObjectField()
         .name(metadata.fieldName)
+        .description(fieldMetadata.getGraphQLDescription())
         .type(graphQLInputType)
-        .build()
-}
 
-private fun getOneOfInputFieldType(
-    subClass: KClass<*>,
-    fieldType: GraphQLOneOfFieldType
-): KType = when (fieldType) {
-    GraphQLOneOfFieldType.WRAPPED -> subClass.createType(nullable = true)
-    GraphQLOneOfFieldType.UNWRAPPED -> getValidOneOfUnwrappedFieldParameter(subClass).type.withNullability(true)
+    fieldMetadata.getDeprecationReason()?.let {
+        builder.deprecate(it)
+        builder.withAppliedDirective(deprecatedDirectiveWithReason(it))
+    }
+
+    unwrappedParameter?.let {
+        generateDirectives(generator, it, DirectiveLocation.INPUT_FIELD_DEFINITION).forEach { directive ->
+            builder.withAppliedDirective(directive)
+        }
+    }
+
+    return builder.build()
 }

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOf
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOfField
@@ -73,6 +74,7 @@ sealed interface ContentBlockInput {
 
     @GraphQLDescription("Paragraph content supplied as a wrapped @oneOf object field.")
     @GraphQLOneOfField("paragraph")
+    @GraphQLDeprecated("This paragraph field is deprecated.")
     data class Paragraph(
         @param:GraphQLDescription("The paragraph text.")
         val text: String
@@ -107,6 +109,7 @@ sealed interface UserLookupInput {
     @GraphQLOneOfField("id", GraphQLOneOfFieldType.UNWRAPPED)
     data class ById(
         @param:GraphQLDescription("The user ID.")
+        @param:GraphQLDeprecated("lookup by ID is deprecated.")
         val id: ID
     ) : UserLookupInput
 

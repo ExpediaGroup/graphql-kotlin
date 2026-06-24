@@ -16,9 +16,12 @@
 
 package com.expediagroup.graphql.generator.internal.types
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOf
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOfField
 import com.expediagroup.graphql.generator.annotations.GraphQLOneOfFieldType
+import com.expediagroup.graphql.generator.annotations.GraphQLType
 import com.expediagroup.graphql.generator.exceptions.DuplicateOneOfInputFieldException
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLOneOfUnwrappedFieldException
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLOneOfTargetException
@@ -43,10 +46,19 @@ class GenerateArgumentOneOfTest : TypeTestHelper() {
             is PostElementInput.BlockQuoteInput -> input.value
         }
 
+        fun oneOfDeprecatedWrappedInput(input: DeprecatedWrappedOneOfInput): String = when (input) {
+            is DeprecatedWrappedOneOfInput.DeprecatedParagraphInput -> input.text
+            is DeprecatedWrappedOneOfInput.DeprecatedBlockQuoteInput -> input.value
+        }
+
         fun oneOfScalarInput(input: UserByInput): String = when (input) {
             is UserByInput.UserByID -> input.id.value
             is UserByInput.UserByEmail -> input.email
             is UserByInput.UserByCriteria -> "${input.name} ${input.address}"
+        }
+
+        fun oneOfCustomGraphQLTypeInput(input: UserByUnWrappedWithDirectivesInput): String = when (input) {
+            is UserByUnWrappedWithDirectivesInput.ById -> input.value
         }
 
         fun nestedOneOfInput(input: SearchTargetInput): String = input.toString()
@@ -79,6 +91,16 @@ class GenerateArgumentOneOfTest : TypeTestHelper() {
     }
 
     @GraphQLOneOf
+    sealed interface DeprecatedWrappedOneOfInput {
+        @GraphQLOneOfField("paragraph")
+        @GraphQLDeprecated("Deprecated")
+        @GraphQLDescription("the paragraph description")
+        data class DeprecatedParagraphInput(val text: String) : DeprecatedWrappedOneOfInput
+        @GraphQLOneOfField("blockquote")
+        data class DeprecatedBlockQuoteInput(val value: String) : DeprecatedWrappedOneOfInput
+    }
+
+    @GraphQLOneOf
     sealed interface UserByInput {
         @GraphQLOneOfField("email", GraphQLOneOfFieldType.UNWRAPPED)
         data class UserByEmail(val email: String) : UserByInput
@@ -86,6 +108,18 @@ class GenerateArgumentOneOfTest : TypeTestHelper() {
         data class UserByID(val id: ID) : UserByInput
         @GraphQLOneOfField("criteria")
         data class UserByCriteria(val name: String?, val address: String?) : UserByInput
+    }
+
+    @GraphQLOneOf
+    sealed interface UserByUnWrappedWithDirectivesInput {
+        @GraphQLOneOfField("id", GraphQLOneOfFieldType.UNWRAPPED)
+        data class ById(
+            @param:GraphQLDescription("something")
+            @param:GraphQLDeprecated("Deprecated")
+            @param:GraphQLType("ID")
+            @param:SimpleDirective
+            val value: String
+        ) : UserByUnWrappedWithDirectivesInput
     }
 
     @GraphQLOneOf
@@ -201,6 +235,27 @@ class GenerateArgumentOneOfTest : TypeTestHelper() {
     }
 
     @Test
+    fun `oneOf wrapped field uses subtype deprecation annotation`() {
+        val kParameter = OneOfArgumentTestClass::oneOfDeprecatedWrappedInput.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        val result = generateArgument(generator, kParameter)
+
+        val nonNullType = assertNotNull(result.type as? GraphQLNonNull)
+        val oneOfInputType = assertNotNull(nonNullType.wrappedType as? GraphQLInputObjectType)
+        assertEquals(
+            expected = """
+                input DeprecatedWrappedOneOfInput @oneOf {
+                  blockquote: DeprecatedBlockQuoteInput
+                  "the paragraph description"
+                  paragraph: DeprecatedParagraphInput @deprecated(reason : "Deprecated")
+                }
+            """.trimIndent(),
+            actual = SchemaPrinter().print(oneOfInputType).trim()
+        )
+    }
+
+    @Test
     fun `oneOf sealed interface argument scalar type is valid`() {
         val kParameter = OneOfArgumentTestClass::oneOfScalarInput.findParameterByName("input")
         assertNotNull(kParameter)
@@ -232,6 +287,26 @@ class GenerateArgumentOneOfTest : TypeTestHelper() {
                 }
             """.trimIndent(),
             actual = SchemaPrinter().print(criteriaInputType).trim()
+        )
+    }
+
+    @Test
+    fun `oneOf unwrapped field uses custom GraphQL type annotation`() {
+        val kParameter = OneOfArgumentTestClass::oneOfCustomGraphQLTypeInput.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        val result = generateArgument(generator, kParameter)
+
+        val nonNullType = assertNotNull(result.type as? GraphQLNonNull)
+        val oneOfInputType = assertNotNull(nonNullType.wrappedType as? GraphQLInputObjectType)
+        assertEquals(
+            expected = """
+                input UserByUnWrappedWithDirectivesInput @oneOf {
+                  "something"
+                  id: ID @deprecated(reason : "Deprecated") @simpleDirective
+                }
+            """.trimIndent(),
+            actual = SchemaPrinter().print(oneOfInputType).trim()
         )
     }
 

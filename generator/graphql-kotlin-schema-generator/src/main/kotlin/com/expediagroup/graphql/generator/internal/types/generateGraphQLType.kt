@@ -41,7 +41,10 @@ import kotlin.reflect.full.createType
  */
 internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeInfo: GraphQLKTypeMetadata = GraphQLKTypeMetadata()): GraphQLType {
     val hookGraphQLType = generator.config.hooks.willGenerateGraphQLType(type)
+    val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
     val graphQLType = hookGraphQLType
+        // @GraphQLType overrides the reflected Kotlin type, including built-in scalar mappings.
+        ?: customTypeAnnotation?.let { GraphQLTypeReference.typeRef(it.typeName) }
         ?: generateScalar(generator, type)
         ?: objectFromReflection(generator, type, typeInfo)
 
@@ -88,11 +91,6 @@ private fun getGraphQLType(
     type: KType,
     typeInfo: GraphQLKTypeMetadata
 ): GraphQLType {
-    val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
-    if (customTypeAnnotation != null) {
-        return GraphQLTypeReference.typeRef(customTypeAnnotation.typeName)
-    }
-
     return when {
         typeInfo.inputType && kClass.isGraphQLOneOf() -> {
             generateOneOfInputObject(generator, kClass)
