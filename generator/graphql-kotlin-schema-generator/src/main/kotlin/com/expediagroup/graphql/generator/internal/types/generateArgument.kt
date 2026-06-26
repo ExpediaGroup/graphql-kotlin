@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescript
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
+import com.expediagroup.graphql.generator.internal.extensions.isGraphQLOneOf
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
@@ -36,15 +37,11 @@ import kotlin.reflect.KType
 
 @Throws(InvalidInputFieldTypeException::class)
 internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter): GraphQLArgument {
-
     val inputTypeFromHooks = generator.config.hooks.willResolveInputMonad(parameter.type)
     val unwrappedType = inputTypeFromHooks.unwrapOptionalInputType()
 
-    // Validate that the input is not a polymorphic type
-    // This is not currently supported by the GraphQL spec
-    // https://github.com/graphql/graphql-spec/blob/master/rfcs/InputUnion.md
     val unwrappedClass = getUnwrappedClass(unwrappedType)
-    if (unwrappedClass.isUnion() || unwrappedClass.isInterface()) {
+    if ((unwrappedClass.isUnion() || unwrappedClass.isInterface()) && !unwrappedClass.isGraphQLOneOf()) {
         throw InvalidInputFieldTypeException(parameter)
     }
 

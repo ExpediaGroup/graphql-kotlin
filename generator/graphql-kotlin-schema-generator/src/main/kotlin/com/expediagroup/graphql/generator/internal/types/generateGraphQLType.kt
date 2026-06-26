@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getMetaUnionAnnota
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
+import com.expediagroup.graphql.generator.internal.extensions.isGraphQLOneOf
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
@@ -40,7 +41,10 @@ import kotlin.reflect.full.createType
  */
 internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeInfo: GraphQLKTypeMetadata = GraphQLKTypeMetadata()): GraphQLType {
     val hookGraphQLType = generator.config.hooks.willGenerateGraphQLType(type)
+    val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
     val graphQLType = hookGraphQLType
+        // @GraphQLType overrides the reflected Kotlin type, including built-in scalar mappings.
+        ?: customTypeAnnotation?.let { GraphQLTypeReference.typeRef(it.typeName) }
         ?: generateScalar(generator, type)
         ?: objectFromReflection(generator, type, typeInfo)
 
@@ -87,12 +91,10 @@ private fun getGraphQLType(
     type: KType,
     typeInfo: GraphQLKTypeMetadata
 ): GraphQLType {
-    val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
-    if (customTypeAnnotation != null) {
-        return GraphQLTypeReference.typeRef(customTypeAnnotation.typeName)
-    }
-
     return when {
+        typeInfo.inputType && kClass.isGraphQLOneOf() -> {
+            generateOneOfInputObject(generator, kClass)
+        }
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
         kClass.isListType(typeInfo.isDirective) -> generateList(generator, type, typeInfo)
         kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(
