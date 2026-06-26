@@ -64,6 +64,18 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
     @OutputFile
     val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
+    /**
+     * JVM arguments passed to the process-isolated worker that generates the SDL, e.g. `listOf("-Xmx2g")`.
+     *
+     * SDL generation runs in a forked JVM that uses the Gradle default heap. Schemas large enough to
+     * exhaust that heap (resulting in an `OutOfMemoryError`) can raise it by configuring these arguments.
+     * Defaults to an empty list, i.e. no additional JVM arguments.
+     */
+    @Input
+    @Optional
+    @Option(option = "jvm-args", description = "JVM arguments for the SDL generation worker, e.g. -Xmx2g")
+    val jvmArguments: ListProperty<String> = project.objects.listProperty(String::class.java)
+
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
 
@@ -101,8 +113,10 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
         val workQueue: WorkQueue = workerExecutor.processIsolation { workerSpec: ProcessWorkerSpec ->
             workerSpec.forkOptions {
                 it.setExecutable(launcher.get().executablePath.asFile)
+                it.jvmArgs(jvmArguments.getOrElse(emptyList()))
             }
             logger.debug("worker executable: \n${workerSpec.forkOptions.executable}")
+            logger.debug("worker jvm args: \n${workerSpec.forkOptions.allJvmArgs}")
 
             val workerClasspath = pluginClasspath.plus(projectClasspath).plus(source.files)
             workerSpec.classpath.from(workerClasspath)
