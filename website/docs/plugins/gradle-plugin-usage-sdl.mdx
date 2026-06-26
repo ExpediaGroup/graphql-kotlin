@@ -80,6 +80,72 @@ This task does not automatically configure itself to be part of your build lifec
 invoke it OR configure it as a dependency of some other task.
 :::
 
+## Configuring the SDL Generation Heap
+
+SDL generation runs in a process-isolated worker JVM that uses the Gradle default heap. Large schemas can exhaust that
+heap and fail with an `OutOfMemoryError`. You can raise the heap (or pass any other JVM arguments) to the worker through
+the optional `jvmArguments` property.
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
+
+<TabItem value="kotlin">
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+graphql {
+  schema {
+    packages = listOf("com.example")
+    jvmArguments = listOf("-Xmx2g")
+  }
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
+
+val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
+    packages.set(listOf("com.example"))
+    jvmArguments.set(listOf("-Xmx2g"))
+}
+```
+
+</TabItem>
+<TabItem value="groovy">
+
+```groovy
+// build.gradle
+graphql {
+  schema {
+    packages = ["com.example"]
+    jvmArguments = ["-Xmx2g"]
+  }
+}
+```
+
+Above configuration is equivalent to the following task definition
+
+```groovy
+//build.gradle
+graphqlGenerateSDL {
+    packages = ["com.example"]
+    jvmArguments = ["-Xmx2g"]
+}
+```
+
+</TabItem>
+</Tabs>
+
 ## Using Custom Hooks Provider
 
 Plugin will default to use `NoopSchemaGeneratorHooks` to generate target GraphQL schema. If your project uses custom hooks
