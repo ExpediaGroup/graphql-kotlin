@@ -58,7 +58,7 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
         .distinct()
 
 internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
-    this.primaryConstructor?.findParameterByName(name)
+    if (this.isAnnotation()) null else this.primaryConstructor?.findParameterByName(name)
 
 internal fun KClass<*>.isInterface(): Boolean =
     this.java.isInterface || this.isAbstract || this.isSealed
