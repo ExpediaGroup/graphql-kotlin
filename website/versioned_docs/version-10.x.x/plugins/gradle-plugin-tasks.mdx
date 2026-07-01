@@ -171,6 +171,8 @@ graphql {
   schema {
     // List of supported packages that can contain GraphQL schema type definitions
     packages = listOf("com.example")
+    // Optional JVM arguments for the SDL generation worker, e.g. to raise the heap for large schemas
+    jvmArguments = listOf("-Xmx2g")
   }
 }
 ```
@@ -239,6 +241,8 @@ graphql {
     }
     schema {
         packages = ["com.example"]
+        // Optional JVM arguments for the SDL generation worker, e.g. to raise the heap for large schemas
+        jvmArguments = ["-Xmx2g"]
     }
 }
 ```
@@ -352,6 +356,7 @@ GraphQL types.
 | -------- | ---- | -------- | ----------- |
 | `packages` | `List<String>` | yes | List of supported packages that can be scanned to generate SDL. |
 | `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+| `jvmArguments` | `List<String>` | | JVM arguments passed to the process-isolated worker that generates the SDL, e.g. `listOf("-Xmx2g")`. Useful for raising the heap when generating large schemas that would otherwise fail with an `OutOfMemoryError`.<br/>**Default value is:** empty list |
 
 By default, this task will attempt to generate the schema using `NoopSchemaGeneratorHooks`. If you need to customize your
 schema generation process, you will need to provide your custom instance of `SchemaGeneratorHooksProvider` service provider.

@@ -21,6 +21,7 @@
           "schema-generator/writing-schemas/lists",
           "schema-generator/writing-schemas/interfaces",
           "schema-generator/writing-schemas/unions",
+          "schema-generator/writing-schemas/oneOf",
           "schema-generator/writing-schemas/nested-arguments"
         ]
       },
