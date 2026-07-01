@@ -73,7 +73,7 @@ private const val INTROSPECTION_QUERY =
         isDeprecated
         deprecationReason
       }
-      inputFields {
+      inputFields(includeDeprecated: true) {
         ...InputValue
       }
       interfaces {
