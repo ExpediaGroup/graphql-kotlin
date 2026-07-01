@@ -39,7 +39,7 @@ class KotlinDataLoaderRegistryFactoryTest {
             override val dataLoaderName: String = "MockDataLoader"
             override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
                 DataLoaderFactory.newDataLoader { keys ->
-                    keys.toFlux().map(String::uppercase).collectList().toFuture()
+                    keys.toFlux().map(String::uppercase).collectList().toFuture().thenApply { it!! }
                 }
         }
 
