@@ -57,8 +57,20 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
         .plus(this.superclasses.flatMap { it.getValidSuperclasses(hooks) })
         .distinct()
 
-internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
-    if (this.isAnnotation()) null else this.primaryConstructor?.findParameterByName(name)
+internal fun KClass<*>.findConstructorParameter(name: String): KParameter? {
+    if (this.isAnnotation()) return null
+    val param = this.primaryConstructor?.findParameterByName(name) ?: return null
+    // Kotlin 2.3.x throws KotlinReflectionInternalError when accessing annotations on KParameters
+    // from annotation class constructors ("Unsupported parameter owner: null") or nested class
+    // constructors in GraalVM native ("Could not compute caller for function"). Probe the annotations
+    // eagerly so callers receive null rather than a crash.
+    return try {
+        param.annotations
+        param
+    } catch (_: Error) {
+        null
+    }
+}
 
 internal fun KClass<*>.isInterface(): Boolean =
     this.java.isInterface || this.isAbstract || this.isSealed
