@@ -19,6 +19,13 @@ package com.expediagroup.graphql.plugin.client
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import graphql.Directives
+import graphql.GraphQL
+import graphql.introspection.IntrospectionResultToSchema
+import graphql.schema.idl.RuntimeWiring
+import graphql.schema.idl.SchemaGenerator
+import graphql.schema.idl.SchemaParser
+import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.runBlocking
@@ -30,6 +37,7 @@ import org.junit.jupiter.api.assertThrows
 import java.io.BufferedReader
 import java.net.UnknownHostException
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class IntrospectSchemaTest {
 
@@ -108,6 +116,44 @@ class IntrospectSchemaTest {
             println(sdl)
             assertEquals(expectedSchema, sdl.trim())
         }
+    }
+
+    @Test fun `print sdl from introspection query when schema contains an input object with all fields deprecated`() {
+        val sdl = """
+            schema {
+              query: Query
+            }
+
+            type Query {
+              rootField(input: ExampleInput): String!
+            }
+
+            input ExampleInput {
+              deprecatedField: String @deprecated(reason: "Shows what happens when an object has all fields deprecated")
+            }
+        """.trimIndent()
+
+        // Build an executable schema so introspection runs the same code path as production
+        val typeRegistry = SchemaParser().parse(sdl)
+        val schema = SchemaGenerator().makeExecutableSchema(typeRegistry, RuntimeWiring.newRuntimeWiring().build())
+
+        // Execute the same introspection query used by introspectSchema() in production
+        val result = GraphQL.newGraphQL(schema).build().execute(INTROSPECTION_QUERY)
+        @Suppress("UNCHECKED_CAST")
+        val data = result.getData<Map<String, Any?>>()
+
+        // Mirror the production print logic from introspectSchema.kt
+        val document = IntrospectionResultToSchema().createSchemaDefinition(data)
+        val options = SchemaPrinter.Options.defaultOptions()
+            .includeScalarTypes(true)
+            .includeSchemaDefinition(true)
+            .includeDirectives(true)
+            .includeDirectives { directiveName -> directiveName != Directives.DeferDirective.name }
+
+        // This should not throw any exception printing a valid schemas introspection result
+        val sdlOut = SchemaPrinter(options).print(document)
+
+        assertTrue(sdlOut.contains("ExampleInput"))
     }
 
     @Test

@@ -37,7 +37,7 @@ import io.ktor.serialization.jackson3.jackson
 import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 
-private const val INTROSPECTION_QUERY =
+internal const val INTROSPECTION_QUERY =
     """
     query IntrospectionQuery {
       __schema {
