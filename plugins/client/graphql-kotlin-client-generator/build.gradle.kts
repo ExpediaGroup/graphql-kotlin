@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.slf4j)
     testImplementation(projects.graphqlKotlinClientJackson)
     testImplementation(projects.graphqlKotlinClientSerialization)
+    testImplementation(libs.dataloader)
     testImplementation(libs.wiremock.lib)
     testImplementation(libs.compile.testing)
     testImplementation(libs.icu)
