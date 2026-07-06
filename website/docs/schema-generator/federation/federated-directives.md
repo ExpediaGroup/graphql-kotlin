@@ -25,6 +25,31 @@ Directive that is used to indicate that the target element is accessible only to
 [`@requiresScopes`[#requirescope-directive] directive usage. Refer to the [Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#authenticated)
 for additional details.
 
+## `@cacheTag` directive
+
+:::info
+Available since Federation v2.12
+:::
+
+```graphql
+directive @cacheTag(format: String!) repeatable on FIELD_DEFINITION | OBJECT
+```
+
+`@cacheTag` assigns cache tags to cached data in the Apollo Router for
+[active cache invalidation](https://www.apollographql.com/docs/graphos/routing/performance/caching/response-caching/invalidation#active-invalidation).
+Use cache tags to remove specific cached entries on demand when data changes, instead of waiting for time-to-live (TTL)
+expiration. The `format` argument is a template string that can interpolate field arguments (`{$args.fieldName}`) and
+entity key fields (`{$key.fieldName}`).
+
+#### Example
+
+```kotlin
+class Query {
+  @CacheTagDirective(format = "all-products")
+  fun products(): List<Product> = TODO()
+}
+```
+
 ## `@composeDirective` directive
 
 :::info
