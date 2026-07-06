@@ -42,7 +42,7 @@ import kotlin.test.assertNotNull
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
+schema @link(url : "https://specs.apollo.dev/federation/v2.15"){
   query: Query
 }
 
@@ -70,7 +70,7 @@ scalar link__Import
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.7"){
+schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.15"){
   query: Query
 }
 
