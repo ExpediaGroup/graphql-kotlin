@@ -140,6 +140,30 @@ schema @contact(description : "send urgent issues to [#oncall](https://yourteam.
 }
 ```
 
+## `@context` directive
+
+:::info
+Available since Federation v2.8
+:::
+
+```graphql
+directive @context(name: String!) repeatable on INTERFACE | OBJECT | UNION
+```
+The `@context` directive defines a named context from which a field of the annotated type can be passed to a receiver of the context.
+The receiver must be a field annotated with the [`@fromContext`](#fromcontext-directive) directive.
+
+#### Example
+
+```kotlin
+@KeyDirective(FieldSet("id"))
+@ContextDirective(name = "userContext")
+class Product(val id: ID) {
+  fun discountedPrice(
+    @FromContextDirective(ContextFieldValue("\$userContext { userId }")) userId: String
+  ): Int = TODO()
+}
+```
+
 ## `@cost` directive
 
 :::info
@@ -238,6 +262,21 @@ type Product @key(fields : "id") {
   newFunctionality: String!
 }
 ```
+
+## `@fromContext` directive
+
+:::info
+Available since Federation v2.8
+:::
+
+```graphql
+directive @fromContext(field: ContextFieldValue) on ARGUMENT_DEFINITION
+```
+
+The `@fromContext` directive sets the context from which to receive the value of the annotated field. The context must have been defined
+with the [`@context`](#context-directive) directive.
+
+See the [`@context` example](#context-directive) for combined usage.
 
 ## `@inaccessible` directive
 

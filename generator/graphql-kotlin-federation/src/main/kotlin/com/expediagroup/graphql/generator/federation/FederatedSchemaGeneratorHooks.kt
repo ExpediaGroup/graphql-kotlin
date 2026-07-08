@@ -26,12 +26,15 @@ import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIV
 import com.expediagroup.graphql.generator.federation.directives.COST_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.CONTEXT_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.ContextFieldValue
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_URL
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
+import com.expediagroup.graphql.generator.federation.directives.FROM_CONTEXT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.INTERFACE_OBJECT_DIRECTIVE_NAME
@@ -49,6 +52,7 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_SCOPE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.fromContextDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.listSizeDirectiveDefinition
@@ -68,6 +72,7 @@ import com.expediagroup.graphql.generator.federation.exception.UnknownSpecificat
 import com.expediagroup.graphql.generator.federation.execution.EntitiesDataFetcher
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.types.ANY_SCALAR_TYPE
+import com.expediagroup.graphql.generator.federation.types.CONTEXT_FIELD_VALUE_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_NAME
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
@@ -159,6 +164,18 @@ open class FederatedSchemaGeneratorHooks(
             }
         }
     }
+    private val contextFieldValueScalar: GraphQLScalarType by lazy {
+        CONTEXT_FIELD_VALUE_SCALAR_TYPE.run {
+            val contextFieldValueScalarName = namespacedTypeName(FEDERATION_SPEC, this.name)
+            if (contextFieldValueScalarName != this.name) {
+                this.transform {
+                    it.name(contextFieldValueScalarName)
+                }
+            } else {
+                this
+            }
+        }
+    }
 
     override fun willBuildSchema(
         queries: List<TopLevelObject>,
@@ -225,6 +242,7 @@ open class FederatedSchemaGeneratorHooks(
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         FieldSet::class -> fieldSetScalar
         LinkImport::class -> linkImportScalar
+        ContextFieldValue::class -> contextFieldValueScalar
         else -> super.willGenerateGraphQLType(type)
     }
 
@@ -235,6 +253,8 @@ open class FederatedSchemaGeneratorHooks(
             AUTHENTICATED_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
             REQUIRES_SCOPE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 5))
             POLICY_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 6))
+            CONTEXT_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 8))
+            FROM_CONTEXT_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 8))
             COST_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 9))
             LIST_SIZE_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 9))
             CACHE_TAG_DIRECTIVE_NAME -> checkDirectiveVersionCompatibility(directiveInfo.effectiveName, Pair(2, 12))
@@ -246,6 +266,7 @@ open class FederatedSchemaGeneratorHooks(
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
             LINK_DIRECTIVE_NAME -> linkDirectiveDefinition(linkImportScalar)
             LIST_SIZE_DIRECTIVE_NAME -> listSizeDirectiveDefinition()
+            FROM_CONTEXT_DIRECTIVE_NAME -> fromContextDirectiveDefinition(contextFieldValueScalar)
             POLICY_DIRECTIVE_NAME -> policyDirectiveDefinition(policiesScalar)
             PROVIDES_DIRECTIVE_NAME -> providesDirectiveDefinition(fieldSetScalar)
             REQUIRES_DIRECTIVE_NAME -> requiresDirectiveDefinition(fieldSetScalar)
