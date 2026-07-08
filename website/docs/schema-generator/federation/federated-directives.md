@@ -140,6 +140,34 @@ schema @contact(description : "send urgent issues to [#oncall](https://yourteam.
 }
 ```
 
+## `@cost` directive
+
+:::info
+Available since Federation v2.9
+:::
+
+```graphql
+directive @cost(weight: Int!) on
+    ARGUMENT_DEFINITION
+  | ENUM
+  | FIELD_DEFINITION
+  | INPUT_FIELD_DEFINITION
+  | OBJECT
+  | SCALAR
+```
+
+The `@cost` directive defines a custom weight for a schema location. For GraphOS Router, it customizes the operation cost calculation of the
+[demand control feature](https://www.apollographql.com/docs/router/executing-operations/demand-control/).
+
+#### Example
+
+```kotlin
+class Query {
+  @CostDirective(weight = 5)
+  fun expensiveField(): Int = TODO()
+}
+```
+
 ## `@extends` directive
 
 :::caution
@@ -462,6 +490,39 @@ schema @link(as: "custom", url : "https://myspecs.dev/custom/v1.0") {
 }
 
 directive @custom__foo on FIELD_DEFINITION
+```
+
+## `@listSize` directive
+
+:::info
+Available since Federation v2.9
+:::
+
+```graphql
+directive @listSize(
+  assumedSize: Int,
+  slicingArguments: [String!],
+  sizedFields: [String!],
+  requireOneSlicingArgument: Boolean = true
+) on FIELD_DEFINITION
+```
+
+The `@listSize` directive is used to customize the cost calculation of the
+[demand control feature](https://www.apollographql.com/docs/router/executing-operations/demand-control/)
+of GraphOS Router.
+
+#### Example
+
+```kotlin
+class Query {
+  // assume this list always returns 10 elements
+  @ListSizeDirective(assumedSize = 10)
+  fun items(): List<String> = TODO()
+
+  // derive the list size from the `first` argument
+  @ListSizeDirective(slicingArguments = ["first"], requireOneSlicingArgument = false)
+  fun paginatedItems(first: Int): List<String> = TODO()
+}
 ```
 
 ## `@override` directive
