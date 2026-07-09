@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.federation.types
 
 import com.expediagroup.graphql.generator.federation.directives.ContextFieldValue
+import com.expediagroup.graphql.generator.federation.exception.CoercingValueToLiteralException
 import graphql.GraphQLContext
 import graphql.execution.CoercedVariables
 import graphql.language.IntValue
@@ -75,6 +76,24 @@ class ContextFieldValueTest {
     fun `parseLiteral should throw exception on non-StringValue`() {
         assertFailsWith<CoercingParseLiteralException> {
             coercing.parseLiteral(IntValue(BigInteger.ONE), CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
+    fun `valueToLiteral should map a ContextFieldValue to a StringValue`() {
+
+        @ContextFieldValue($$"$ctx { id }")
+        class MyClass
+
+        val result = coercing.valueToLiteral(MyClass::class.annotations.first(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        assertTrue(result is StringValue)
+        assertEquals(expected = $$"$ctx { id }", actual = (result as StringValue).value)
+    }
+
+    @Test
+    fun `valueToLiteral should throw exception when not a ContextFieldValue`() {
+        assertFailsWith<CoercingValueToLiteralException> {
+            coercing.valueToLiteral("hello", GraphQLContext.getDefault(), Locale.ENGLISH)
         }
     }
 }

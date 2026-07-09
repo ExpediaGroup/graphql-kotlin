@@ -133,6 +133,22 @@ class ListSizeDirectiveTest {
         )
     }
 
+    @Test
+    fun `verify listSize sizedFields argument is emitted`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.listsize"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                    namespace = FEDERATION_SPEC,
+                    imports = mapOf("listSize" to "listSize"),
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
+                )
+            }
+        )
+        val schema = toFederatedSchema(config, listOf(TopLevelObject(SizedFieldsQuery())))
+        assertTrue(schema.print().contains("@listSize(sizedFields : [\"items\"])"))
+    }
+
     class Query {
         @ListSizeDirective(assumedSize = 10)
         fun assumed(): List<String> = emptyList()
@@ -140,4 +156,11 @@ class ListSizeDirectiveTest {
         @ListSizeDirective(slicingArguments = ["first"], requireOneSlicingArgument = false)
         fun sliced(first: Int): List<String> = emptyList()
     }
+
+    class SizedFieldsQuery {
+        @ListSizeDirective(sizedFields = ["items"])
+        fun connection(): Connection = Connection(emptyList())
+    }
+
+    class Connection(val items: List<String>)
 }
