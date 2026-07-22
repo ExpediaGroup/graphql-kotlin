@@ -23,6 +23,7 @@ import graphql.language.IntValue
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
@@ -55,7 +56,7 @@ class ScopesTest {
 
     @Test
     fun `parseValue should throw exception on non-StringValue`() {
-        assertFailsWith<CoercingParseLiteralException> {
+        assertFailsWith<CoercingParseValueException> {
             coercing.parseValue(IntValue(BigInteger.ONE), GraphQLContext.getDefault(), Locale.ENGLISH)
         }
     }
