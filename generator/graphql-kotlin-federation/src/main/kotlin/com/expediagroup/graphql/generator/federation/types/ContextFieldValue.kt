@@ -25,6 +25,7 @@ import graphql.language.StringValue
 import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLScalarType
@@ -61,7 +62,7 @@ private object ContextFieldValueCoercing : Coercing<ContextFieldValue, String> {
         when (input) {
             is ContextFieldValue -> input
             is StringValue -> ContextFieldValue::class.constructors.first().call(input.value)
-            else -> throw CoercingParseLiteralException(
+            else -> throw CoercingParseValueException(
                 "Cannot parse $input to ContextFieldValue. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'."
             )
         }
