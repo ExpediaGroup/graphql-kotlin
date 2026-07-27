@@ -24,11 +24,9 @@ import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.LIST_SIZE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.ListSizeDirective
-import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -151,48 +149,6 @@ class ListSizeDirectiveTest {
         assertTrue(schema.print().contains("@listSize(sizedFields : [\"items\"])"))
     }
 
-    @Test
-    fun `verify listSize rejects a slicingArguments entry that does not exist on the field`() {
-        val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.listsize"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
-                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
-                    namespace = FEDERATION_SPEC,
-                    imports = mapOf("listSize" to "listSize"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
-                )
-            }
-        )
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config, listOf(TopLevelObject(UnknownSlicingArgumentQuery())))
-        }
-        Assertions.assertEquals(
-            "Invalid federated schema:\n - @listSize directive on Query.sliced references unknown argument: last",
-            exception.message
-        )
-    }
-
-    @Test
-    fun `verify listSize rejects a sizedFields entry that does not exist on the return type`() {
-        val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.listsize"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
-                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
-                    namespace = FEDERATION_SPEC,
-                    imports = mapOf("listSize" to "listSize"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
-                )
-            }
-        )
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config, listOf(TopLevelObject(UnknownSizedFieldQuery())))
-        }
-        Assertions.assertEquals(
-            "Invalid federated schema:\n - @listSize directive on Query.connection references unknown field: edges",
-            exception.message
-        )
-    }
-
     class Query {
         @ListSizeDirective(assumedSize = 10)
         fun assumed(): List<String> = emptyList()
@@ -203,16 +159,6 @@ class ListSizeDirectiveTest {
 
     class SizedFieldsQuery {
         @ListSizeDirective(sizedFields = ["items"])
-        fun connection(): Connection = Connection(emptyList())
-    }
-
-    class UnknownSlicingArgumentQuery {
-        @ListSizeDirective(slicingArguments = ["last"])
-        fun sliced(first: Int): List<String> = emptyList()
-    }
-
-    class UnknownSizedFieldQuery {
-        @ListSizeDirective(sizedFields = ["edges"])
         fun connection(): Connection = Connection(emptyList())
     }
 

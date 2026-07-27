@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLFieldsContainer
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
@@ -89,20 +88,4 @@ internal class FederatedSchemaValidator {
     }
 
     private fun GraphQLDirectiveContainer.isFederatedType() = this.getAppliedDirectives(KEY_DIRECTIVE_NAME).isNotEmpty()
-
-    /**
-     * Validates `@listSize` directive usage on every field of the given type, if present.
-     *
-     * Verifies:
-     * - `slicingArguments` references existing arguments on the field
-     * - `sizedFields` references existing fields on the field's return type
-     */
-    internal fun validateListSizeUsage(type: GraphQLType): List<String> {
-        val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
-        return if (unwrappedType is GraphQLFieldsContainer) {
-            unwrappedType.fieldDefinitions.flatMap { field -> validateListSize(typeName = unwrappedType.name, field = field) }
-        } else {
-            emptyList()
-        }
-    }
 }

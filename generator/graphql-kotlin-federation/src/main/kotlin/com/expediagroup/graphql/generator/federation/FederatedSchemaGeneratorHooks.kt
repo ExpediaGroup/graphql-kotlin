@@ -409,14 +409,10 @@ open class FederatedSchemaGeneratorHooks(
             .filterIsInstance<GraphQLDirectiveContainer>()
             .filter { type -> type.hasAppliedDirective(keyDirectiveName) }
 
-        val entityErrors = entities
+        val errors = entities
             .filterIsInstance<GraphQLNamedType>()
-            .flatMap { type -> validator.validateGraphQLType(type) }
-
-        val listSizeErrors = originalSchema.allTypesAsList
-            .flatMap { type -> validator.validateListSizeUsage(type) }
-
-        val errors = entityErrors + listSizeErrors
+            .map { type -> validator.validateGraphQLType(type) }
+            .flatten()
         if (errors.isNotEmpty()) {
             throw InvalidFederatedSchema(errors)
         }
