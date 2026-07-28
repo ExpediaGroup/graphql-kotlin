@@ -3,6 +3,8 @@ package com.expediagroup.federation.compatibility
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.federation.directives.ComposeDirective
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_URL
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_LATEST_VERSION
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.LinkDirective
 import com.expediagroup.graphql.generator.federation.directives.LinkImport
 import com.expediagroup.graphql.generator.federation.directives.LinkedSpec
@@ -11,7 +13,7 @@ import graphql.introspection.Introspection
 import org.springframework.stereotype.Component
 
 @LinkDirective(
-    url = FEDERATION_SPEC_LATEST_URL,
+    url = "$FEDERATION_SPEC_URL_PREFIX/v2.7",
     `as` = "federation",
     import = [
         LinkImport("@composeDirective"),
