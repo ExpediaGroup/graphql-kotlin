@@ -40,10 +40,17 @@ class KotlinDataLoaderRegistryFactory(
         dataLoaderInstrumentation?.let {
             builder.instrumentation(dataLoaderInstrumentation)
         }
+
         dataLoaders.forEach { kotlinDataLoader ->
             builder.register(
                 kotlinDataLoader.dataLoaderName,
-                kotlinDataLoader.getDataLoader(graphQLContext)
+                kotlinDataLoader.getDataLoader(graphQLContext).let { dataLoader ->
+                    if (!dataLoader.options.batchingEnabled() && dataLoader.options.cachingEnabled()) {
+                        SynchronizedDataLoader(dataLoader)
+                    } else {
+                        dataLoader
+                    }
+                }
             )
         }
         return builder.build().also {

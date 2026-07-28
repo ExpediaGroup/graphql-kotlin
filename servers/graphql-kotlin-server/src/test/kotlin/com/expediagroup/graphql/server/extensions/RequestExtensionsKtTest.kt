@@ -23,7 +23,9 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQLContext
 import io.mockk.mockk
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -66,7 +68,8 @@ class RequestExtensionsKtTest {
         val dataLoaderRegistry = KotlinDataLoaderRegistryFactory(
             object : KotlinDataLoader<String, String> {
                 override val dataLoaderName: String = "abc"
-                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> = mockk()
+                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                    DataLoaderFactory.newDataLoader { keys -> CompletableFuture.completedFuture(keys) }
             }
         ).generate(mockk(relaxed = true))
 
