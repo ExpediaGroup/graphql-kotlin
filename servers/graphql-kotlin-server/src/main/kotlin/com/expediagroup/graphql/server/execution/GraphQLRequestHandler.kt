@@ -55,7 +55,7 @@ open class GraphQLRequestHandler(
 ) {
 
     private val batchDataLoaderInstrumentationType: Class<Instrumentation>? =
-        graphQL.instrumentation?.let { instrumentation ->
+        graphQL.instrumentation.let { instrumentation ->
             when {
                 instrumentation is ChainedInstrumentation -> {
                     instrumentation.instrumentations
