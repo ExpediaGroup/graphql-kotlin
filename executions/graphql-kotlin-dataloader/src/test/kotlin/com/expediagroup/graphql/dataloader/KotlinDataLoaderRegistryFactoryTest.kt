@@ -18,11 +18,19 @@ package com.expediagroup.graphql.dataloader
 
 import graphql.GraphQLContext
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderOptions
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -53,5 +61,37 @@ class KotlinDataLoaderRegistryFactoryTest {
         )
         assertEquals(1, registry.dataLoaders.size)
         assertEquals(customInstrumentation, registry.instrumentation)
+    }
+
+    @Test
+    fun `cached and non-batched data loader is invoked once for concurrent loads of the same key`() {
+        runBlocking {
+            val invocations = AtomicInteger()
+            val kotlinDataLoader = object : KotlinDataLoader<String, String> {
+                override val dataLoaderName = "NonBatchingDataLoader"
+                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                    DataLoaderFactory.newMappedDataLoader(
+                        { keys ->
+                            invocations.incrementAndGet()
+                            Thread.sleep(100)
+                            CompletableFuture.completedFuture(keys.associateWith { it })
+                        },
+                        DataLoaderOptions.newOptions()
+                            .setBatchingEnabled(false)
+                            .build()
+                    )
+            }
+            val registry = KotlinDataLoaderRegistryFactory(kotlinDataLoader).generate(mockk(relaxed = true))
+
+            val dataLoader = requireNotNull(registry.getDataLoader<String, String>(kotlinDataLoader.dataLoaderName))
+
+            List(2) {
+                async(Dispatchers.Default) {
+                    dataLoader.load("same-key").await()
+                }
+            }.awaitAll()
+
+            assertEquals(1, invocations.get())
+        }
     }
 }
