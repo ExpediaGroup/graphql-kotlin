@@ -23,7 +23,7 @@ class GenerateCustomSDLTest {
     @Test
     fun `verify we can generate SDL using custom hooks provider`() {
         val expectedSchema = """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 

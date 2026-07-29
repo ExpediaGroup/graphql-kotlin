@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
-import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.ContextFieldValue
+import com.expediagroup.graphql.generator.federation.exception.CoercingValueToLiteralException
 import graphql.GraphQLContext
 import graphql.execution.CoercedVariables
 import graphql.language.IntValue
@@ -32,31 +33,31 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class FieldSetTest {
-    private val coercing: Coercing<*, *> = FIELD_SET_SCALAR_TYPE.coercing
+class ContextFieldValueTest {
+    private val coercing: Coercing<*, *> = CONTEXT_FIELD_VALUE_SCALAR_TYPE.coercing
 
     @Test
-    fun `serialize should throw exception when not a FieldSet`() {
+    fun `serialize should throw exception when not a ContextFieldValue`() {
         assertFailsWith<CoercingSerializeException> {
             coercing.serialize(StringValue("hello"), GraphQLContext.getDefault(), Locale.ENGLISH)
         }
     }
 
     @Test
-    fun `serialize should return the value when a FieldSet`() {
+    fun `serialize should return the value when a ContextFieldValue`() {
 
-        @FieldSet("1")
+        @ContextFieldValue($$"$ctx { id }")
         class MyClass
 
         val result = coercing.serialize(MyClass::class.annotations.first(), GraphQLContext.getDefault(), Locale.ENGLISH)
-        assertEquals(expected = "1", actual = result)
+        assertEquals(expected = $$"$ctx { id }", actual = result)
     }
 
     @Test
     fun `parseValue should run to parseLiteral`() {
         val result = coercing.parseValue(StringValue("hello"), GraphQLContext.getDefault(), Locale.ENGLISH)
 
-        assertTrue(result is FieldSet)
+        assertTrue(result is ContextFieldValue)
     }
 
     @Test
@@ -67,15 +68,33 @@ class FieldSetTest {
     }
 
     @Test
-    fun `parseLiteral should map StringValue to a FieldSet`() {
+    fun `parseLiteral should map StringValue to a ContextFieldValue`() {
         val result = coercing.parseLiteral(StringValue("hello"), CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ENGLISH)
-        assertTrue(result is FieldSet)
+        assertTrue(result is ContextFieldValue)
     }
 
     @Test
     fun `parseLiteral should throw exception on non-StringValue`() {
         assertFailsWith<CoercingParseLiteralException> {
             coercing.parseLiteral(IntValue(BigInteger.ONE), CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        }
+    }
+
+    @Test
+    fun `valueToLiteral should map a ContextFieldValue to a StringValue`() {
+
+        @ContextFieldValue($$"$ctx { id }")
+        class MyClass
+
+        val result = coercing.valueToLiteral(MyClass::class.annotations.first(), GraphQLContext.getDefault(), Locale.ENGLISH)
+        assertTrue(result is StringValue)
+        assertEquals(expected = $$"$ctx { id }", actual = (result as StringValue).value)
+    }
+
+    @Test
+    fun `valueToLiteral should throw exception when not a ContextFieldValue`() {
+        assertFailsWith<CoercingValueToLiteralException> {
+            coercing.valueToLiteral("hello", GraphQLContext.getDefault(), Locale.ENGLISH)
         }
     }
 }

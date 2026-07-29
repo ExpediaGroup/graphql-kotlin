@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,46 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.expediagroup.graphql.generator.federation.directives.compose
+
+package com.expediagroup.graphql.generator.federation.directives.fromcontext
 
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.generator.federation.directives.ComposeDirective
+import com.expediagroup.graphql.generator.federation.directives.ContextDirective
+import com.expediagroup.graphql.generator.federation.directives.ContextFieldValue
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL_PREFIX
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.FromContextDirective
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.LinkDirective
-import com.expediagroup.graphql.generator.federation.directives.LinkImport
-import com.expediagroup.graphql.generator.federation.directives.LinkedSpec
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
-import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
-import com.expediagroup.graphql.generator.scalars.ID
-import graphql.introspection.Introspection
-import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
-class ComposeDirectiveTest {
+class FromContextDirectiveTest {
 
     @Test
-    fun `verify we can generate valid schema with @composeDirective`() {
+    fun `verify fromContext directive definition for fed215`() {
+        // language=GraphQL
         val expectedSchema =
-            """
-            schema @composeDirective(name : "custom") @link(as : "myspec", import : ["@custom"], url : "https://www.myspecs.dev/myspec/v1.0") @link(import : ["@composeDirective", "@key", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.15"){
+            $$"""
+            schema @link(import : ["@key", "@context", "@fromContext", "ContextFieldValue"], url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 
-            "Marks underlying custom directive to be included in the Supergraph schema"
-            directive @composeDirective(name: String!) repeatable on SCHEMA
-
-            directive @custom on FIELD_DEFINITION
+            "Defines a named context from which a field of the annotated type can be passed to a receiver of the context"
+            directive @context(name: String!) repeatable on OBJECT | INTERFACE | UNION
 
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
@@ -63,6 +55,9 @@ class ComposeDirectiveTest {
             "This directive disables error propagation when a non nullable field returns null for the given operation."
             directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
+            "Sets the context from which to receive the value of the annotated field"
+            directive @fromContext(field: ContextFieldValue) on ARGUMENT_DEFINITION
+
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
                 "Included when true."
@@ -70,7 +65,7 @@ class ComposeDirectiveTest {
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+            directive @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
             "Links definitions within the document to external schemas."
             directive @link(as: String, import: [link__Import], url: String!) repeatable on SCHEMA
@@ -90,90 +85,98 @@ class ComposeDirectiveTest {
                 url: String!
               ) on SCALAR
 
-            union _Entity = Foo
+            union _Entity = Product
 
-            type Foo @key(fields : "id", resolvable : true) {
-              id: ID!
-              name: String
+            type Product @context(name : "userContext") @key(fields : "id", resolvable : true) {
+              discountedPrice(userId: String! @fromContext(field : "$userContext { userId }")): Int!
+              id: String!
             }
 
             type Query {
               "Union of all types that use the @key directive, including both types native to the schema and extended types"
               _entities(representations: [_Any!]!): [_Entity]!
               _service: _Service!
-              foo: Foo! @custom
+              product: Product!
             }
 
             type _Service {
               sdl: String!
             }
 
-            "Federation type representing set of fields"
-            scalar FieldSet
+            "Federation type representing a selection statement resolving a value from a @context"
+            scalar ContextFieldValue
 
             "Federation scalar type used to represent any external entities passed to _entities query."
             scalar _Any
+
+            "Federation type representing set of fields"
+            scalar federation__FieldSet
 
             scalar link__Import
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.compose"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList())
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.fromcontext"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
+                this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
+                    namespace = FEDERATION_SPEC,
+                    imports = mapOf(
+                        "key" to "key",
+                        "context" to "context",
+                        "fromContext" to "fromContext",
+                        "ContextFieldValue" to "ContextFieldValue"
+                    ),
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
+                )
+            }
         )
-
-        val schema = toFederatedSchema(queries = listOf(TopLevelObject(FooQuery())), schemaObject = TopLevelObject(CustomSchema()), config = config)
+        val schema = toFederatedSchema(config, listOf(TopLevelObject(Query())))
         Assertions.assertEquals(expectedSchema, schema.print().trim())
-        val fooType = schema.getObjectType("Foo")
-        assertNotNull(fooType)
-        assertNotNull(fooType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
 
-        val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
-        assertNotNull(entityUnion)
-        assertTrue(entityUnion.types.contains(fooType))
+        val product = schema.getObjectType("Product")
+        assertNotNull(product)
+        val field = product.getField("discountedPrice")
+        assertNotNull(field)
     }
 
     @Test
-    fun `verify ComposeDirective is not created for federation v2_0`() {
+    fun `verify fromContext directive is not created for federation v2_7`() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.compose"),
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.directives.fromcontext"),
             hooks = FederatedSchemaGeneratorHooks(emptyList()).apply {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = emptyMap(),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.0"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.7"
                 )
             }
         )
         val exception = Assertions.assertThrows(IllegalArgumentException::class.java) {
             toFederatedSchema(
-                queries = listOf(TopLevelObject(FooQuery())),
-                schemaObject = TopLevelObject(CustomSchema()),
+                queries = listOf(TopLevelObject(FromContextOnlyQuery())),
                 config = config
             )
         }
         Assertions.assertEquals(
-            "@composeDirective directive requires Federation 2.1 or later, but version https://specs.apollo.dev/federation/v2.0 was specified",
+            "@fromContext directive requires Federation 2.8 or later, but version https://specs.apollo.dev/federation/v2.7 was specified",
             exception.message
         )
     }
 
-    @LinkDirective(url = "https://www.myspecs.dev/myspec/v1.0", `as` = "myspec", import = [LinkImport("@custom")])
-    @ComposeDirective(name = "custom")
-    class CustomSchema
+    class Query {
+        fun product(): Product = Product("1")
+    }
 
-    @KeyDirective(fields = FieldSet("id"))
-    data class Foo(val id: ID, val name: String?)
+    // isolates @fromContext (no @context) so the version check unambiguously reports @fromContext
+    class FromContextOnlyQuery {
+        fun foo(@FromContextDirective(ContextFieldValue($$"$userContext { userId }")) userId: String): String = userId
+    }
 
-    @LinkedSpec("myspec")
-    @GraphQLDirective(
-        name = "custom",
-        locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
-    )
-    annotation class CustomDirective
-
-    class FooQuery {
-        @CustomDirective
-        fun foo(): Foo = TODO()
+    @KeyDirective(FieldSet("id"))
+    @ContextDirective(name = "userContext")
+    class Product(val id: String) {
+        fun discountedPrice(
+            @FromContextDirective(ContextFieldValue($$"$userContext { userId }")) userId: String,
+        ): Int = 0
     }
 }

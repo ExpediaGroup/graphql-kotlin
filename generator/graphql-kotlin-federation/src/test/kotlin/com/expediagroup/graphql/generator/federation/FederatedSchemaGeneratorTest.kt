@@ -36,7 +36,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.7"){
+            schema @link(import : ["@external", "@key", "@provides", "@requires", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 
@@ -164,7 +164,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify generator does not add federation queries for non-federated schemas`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 
@@ -226,7 +226,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify a schema with self nested query still works`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.7"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 

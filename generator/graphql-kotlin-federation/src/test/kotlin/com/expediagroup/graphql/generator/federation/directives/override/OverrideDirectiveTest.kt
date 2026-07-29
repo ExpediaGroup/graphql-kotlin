@@ -32,10 +32,10 @@ import kotlin.test.assertNotNull
 class OverrideDirectiveTest {
 
     @Test
-    fun `verify override directive definition for fed27`() {
+    fun `verify override directive definition for fed 2_15`() {
         val expectedSchema =
             """
-            schema @link(import : ["@override"], url : "https://specs.apollo.dev/federation/v2.7"){
+            schema @link(import : ["@override"], url : "https://specs.apollo.dev/federation/v2.15"){
               query: Query
             }
 
@@ -111,7 +111,7 @@ class OverrideDirectiveTest {
     }
 
     @Test
-    fun `verify override directive definition for fed20`() {
+    fun `verify override directive definition for fed 2_0`() {
         val expectedSchema =
             """
             schema @link(import : ["@override"], url : "https://specs.apollo.dev/federation/v2.0"){

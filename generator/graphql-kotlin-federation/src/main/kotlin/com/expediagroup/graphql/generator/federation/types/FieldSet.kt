@@ -25,6 +25,7 @@ import graphql.language.StringValue
 import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
@@ -68,7 +69,7 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
         when (input) {
             is FieldSet -> input
             is StringValue -> FieldSet::class.constructors.first().call(input.value)
-            else -> throw CoercingParseLiteralException(
+            else -> throw CoercingParseValueException(
                 "Cannot parse $input to FieldSet. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'."
             )
         }

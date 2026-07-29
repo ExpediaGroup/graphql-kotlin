@@ -65,7 +65,7 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
         }
         is ObjectValue -> {
             val nameValue = input.objectFields.firstOrNull { it.name == "name" }?.value as? StringValue ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
-            val name = nameValue.value ?: throw CoercingParseLiteralException("Cannot parse $input to LinkImport")
+            val name = nameValue.value ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
             val namespacedValue = input.objectFields.firstOrNull { it.name == "as" }?.value as? StringValue
             LinkImport(name = name, `as` = namespacedValue?.value ?: name)
         }
@@ -77,7 +77,7 @@ private class LinkImportCoercing : Coercing<LinkImport, Any> {
     override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): LinkImport =
         when (input) {
             is StringValue -> {
-                val value = input.value ?: throw CoercingParseValueException("Cannot parse $input to LinkImport")
+                val value = input.value ?: throw CoercingParseLiteralException("Cannot parse $input to LinkImport")
                 LinkImport(name = value, `as` = value)
             }
             is ObjectValue -> {

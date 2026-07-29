@@ -25,6 +25,31 @@ Directive that is used to indicate that the target element is accessible only to
 [`@requiresScopes`[#requirescope-directive] directive usage. Refer to the [Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#authenticated)
 for additional details.
 
+## `@cacheTag` directive
+
+:::info
+Available since Federation v2.12
+:::
+
+```graphql
+directive @cacheTag(format: String!) repeatable on FIELD_DEFINITION | OBJECT
+```
+
+`@cacheTag` assigns cache tags to cached data in the Apollo Router for
+[active cache invalidation](https://www.apollographql.com/docs/graphos/routing/performance/caching/response-caching/invalidation#active-invalidation).
+Use cache tags to remove specific cached entries on demand when data changes, instead of waiting for time-to-live (TTL)
+expiration. The `format` argument is a template string that can interpolate field arguments (`{$args.fieldName}`) and
+entity key fields (`{$key.fieldName}`).
+
+#### Example
+
+```kotlin
+class Query {
+  @CacheTagDirective(format = "all-products")
+  fun products(): List<Product> = TODO()
+}
+```
+
 ## `@composeDirective` directive
 
 :::info
@@ -115,6 +140,58 @@ schema @contact(description : "send urgent issues to [#oncall](https://yourteam.
 }
 ```
 
+## `@context` directive
+
+:::info
+Available since Federation v2.8
+:::
+
+```graphql
+directive @context(name: String!) repeatable on INTERFACE | OBJECT | UNION
+```
+The `@context` directive defines a named context from which a field of the annotated type can be passed to a receiver of the context.
+The receiver must be a field annotated with the [`@fromContext`](#fromcontext-directive) directive.
+
+#### Example
+
+```kotlin
+@KeyDirective(FieldSet("id"))
+@ContextDirective(name = "userContext")
+class Product(val id: ID) {
+  fun discountedPrice(
+    @FromContextDirective(ContextFieldValue("\$userContext { userId }")) userId: String
+  ): Int = TODO()
+}
+```
+
+## `@cost` directive
+
+:::info
+Available since Federation v2.9
+:::
+
+```graphql
+directive @cost(weight: Int!) on
+    ARGUMENT_DEFINITION
+  | ENUM
+  | FIELD_DEFINITION
+  | INPUT_FIELD_DEFINITION
+  | OBJECT
+  | SCALAR
+```
+
+The `@cost` directive defines a custom weight for a schema location. For GraphOS Router, it customizes the operation cost calculation of the
+[demand control feature](https://www.apollographql.com/docs/router/executing-operations/demand-control/).
+
+#### Example
+
+```kotlin
+class Query {
+  @CostDirective(weight = 5)
+  fun expensiveField(): Int = TODO()
+}
+```
+
 ## `@extends` directive
 
 :::caution
@@ -185,6 +262,21 @@ type Product @key(fields : "id") {
   newFunctionality: String!
 }
 ```
+
+## `@fromContext` directive
+
+:::info
+Available since Federation v2.8
+:::
+
+```graphql
+directive @fromContext(field: ContextFieldValue) on ARGUMENT_DEFINITION
+```
+
+The `@fromContext` directive sets the context from which to receive the value of the annotated field. The context must have been defined
+with the [`@context`](#context-directive) directive.
+
+See the [`@context` example](#context-directive) for combined usage.
 
 ## `@inaccessible` directive
 
@@ -437,6 +529,39 @@ schema @link(as: "custom", url : "https://myspecs.dev/custom/v1.0") {
 }
 
 directive @custom__foo on FIELD_DEFINITION
+```
+
+## `@listSize` directive
+
+:::info
+Available since Federation v2.9
+:::
+
+```graphql
+directive @listSize(
+  assumedSize: Int,
+  slicingArguments: [String!],
+  sizedFields: [String!],
+  requireOneSlicingArgument: Boolean = true
+) on FIELD_DEFINITION
+```
+
+The `@listSize` directive is used to customize the cost calculation of the
+[demand control feature](https://www.apollographql.com/docs/router/executing-operations/demand-control/)
+of GraphOS Router.
+
+#### Example
+
+```kotlin
+class Query {
+  // assume this list always returns 10 elements
+  @ListSizeDirective(assumedSize = 10)
+  fun items(): List<String> = TODO()
+
+  // derive the list size from the `first` argument
+  @ListSizeDirective(slicingArguments = ["first"], requireOneSlicingArgument = false)
+  fun paginatedItems(first: Int): List<String> = TODO()
+}
 ```
 
 ## `@override` directive

@@ -25,6 +25,7 @@ import graphql.language.StringValue
 import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.util.Locale
@@ -53,7 +54,7 @@ private object PolicyCoercing : Coercing<Policy, String> {
         when (input) {
             is Policy -> input
             is StringValue -> Policy::class.constructors.first().call(input.value)
-            else -> throw CoercingParseLiteralException(
+            else -> throw CoercingParseValueException(
                 "Cannot parse $input to Policy. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'."
             )
         }

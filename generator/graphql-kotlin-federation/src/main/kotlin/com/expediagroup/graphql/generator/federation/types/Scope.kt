@@ -25,6 +25,7 @@ import graphql.language.StringValue
 import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.util.Locale
@@ -53,7 +54,7 @@ private object ScopeCoercing : Coercing<Scope, String> {
         when (input) {
             is Scope -> input
             is StringValue -> Scope::class.constructors.first().call(input.value)
-            else -> throw CoercingParseLiteralException(
+            else -> throw CoercingParseValueException(
                 "Cannot parse $input to Scope. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'."
             )
         }
