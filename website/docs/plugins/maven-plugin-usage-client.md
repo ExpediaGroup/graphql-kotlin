@@ -403,6 +403,7 @@ the GraphQL client data models using `kotlinx.serialization` that are based on t
                                 <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
                             </queryFiles>
                             <serializer>KOTLINX</serializer>
+                            <useSharedResponseTypes>false</useSharedResponseTypes>
                         </configuration>
                     </execution>
                 </executions>
