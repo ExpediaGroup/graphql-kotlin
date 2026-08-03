@@ -1,0 +1,6 @@
+query FetchObjectQuery1 {
+    complexQuery {
+        id
+        name
+    }
+}
