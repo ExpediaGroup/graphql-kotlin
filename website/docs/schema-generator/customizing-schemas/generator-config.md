@@ -27,7 +27,8 @@ schema.
 - `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
 - `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
 - `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
-- `additionalTypes` _[Optional]_ - Set of additional GraphQL types to include when generating the schema.
+- `additionalTypes` _[Optional]_ - Set of additional named GraphQL types (`GraphQLNamedType`) to include when generating
+    the schema.
 - `schemaObject` _[Optional]_ - Object that contains schema directive information
 
 ## SchemaGeneratorHooks

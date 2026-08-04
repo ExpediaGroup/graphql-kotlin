@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,6 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 
     val interfaceType: GraphQLInterfaceType = builder.build()
-    generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(checkNotNull(env.getObject<Any>()).javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(interfaceType, null, generator.codeRegistry).safeCast()
 }

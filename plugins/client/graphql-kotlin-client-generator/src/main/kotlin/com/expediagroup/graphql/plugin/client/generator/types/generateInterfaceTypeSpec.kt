@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ internal fun generateInterfaceTypeSpec(
         // polymorphic selection set can contain selection set against interface or concrete types
         context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java)
             .find { it.name == fragment.name } ?: throw InvalidFragmentException(context.operationName, fragment.name, interfaceName)
-    }.associateBy { it.typeCondition.name }
+    }.associateBy { checkNotNull(checkNotNull(it.typeCondition).name) }
 
     // find super selection set that contains
     // - directly selected fields
@@ -122,8 +122,9 @@ internal fun generateInterfaceTypeSpec(
             namedFragment.typeCondition to fragmentSelections
         }.toMutableMap()
     selectionSet.getSelectionsOfType(InlineFragment::class.java).forEach { fragment ->
-        val existing = implementationSelections.computeIfAbsent(fragment.typeCondition.name) {
-            fragment.typeCondition to superSelectionSet.selections.toMutableList()
+        val typeCondition = checkNotNull(fragment.typeCondition)
+        val existing = implementationSelections.computeIfAbsent(checkNotNull(typeCondition.name)) {
+            typeCondition to superSelectionSet.selections.toMutableList()
         }
         existing.second.addAll(fragment.selectionSet.selections)
     }

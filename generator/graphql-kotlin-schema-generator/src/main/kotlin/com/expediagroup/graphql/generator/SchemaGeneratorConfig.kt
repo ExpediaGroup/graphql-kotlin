@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFacto
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
-import graphql.schema.GraphQLType
+import graphql.schema.GraphQLNamedType
 import java.io.Closeable
 
 /**
@@ -34,7 +34,7 @@ open class SchemaGeneratorConfig(
     open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks,
     open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
     open val introspectionEnabled: Boolean = true,
-    open val additionalTypes: Set<GraphQLType> = emptySet(),
+    open val additionalTypes: Set<GraphQLNamedType> = emptySet(),
     open val typeResolver: GraphQLTypeResolver = ClasspathTypeResolver(ClassScanner(supportedPackages))
 ) : Closeable {
     override fun close() {

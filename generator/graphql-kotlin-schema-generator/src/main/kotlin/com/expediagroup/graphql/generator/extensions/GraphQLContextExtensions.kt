@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ inline fun <reified T> GraphQLContext.get(): T? =
  * @return a value or default value
  */
 inline fun <reified T> GraphQLContext.getOrDefault(defaultValue: T): T =
-    getOrDefault(T::class, defaultValue)
+    get(T::class) ?: defaultValue
 
 /**
  * Returns a value in the context by KClass key
@@ -69,5 +69,5 @@ operator fun GraphQLContext.plus(map: Map<*, Any>): GraphQLContext =
  * Create a [GraphQLContext] from [this] map
  * @return a new [GraphQLContext]
  */
-fun Map<*, Any?>.toGraphQLContext(): GraphQLContext =
+fun Map<*, Any>.toGraphQLContext(): GraphQLContext =
     GraphQLContext.of(this)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ class RecursiveInterfaceTest {
     fun recursiveInterface() {
         val queries = listOf(TopLevelObject(RecursiveInterfaceQuery()))
         val schema = toSchema(queries = queries, config = testSchemaConfig())
-        assertEquals(1, schema.queryType.fieldDefinitions.size)
-        val field = schema.queryType.fieldDefinitions.first()
+        val queryType = checkNotNull(schema.queryType)
+        assertEquals(1, queryType.fieldDefinitions.size)
+        val field = queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)
     }
 
@@ -37,8 +38,9 @@ class RecursiveInterfaceTest {
     fun `interface with self field`() {
         val queries = listOf(TopLevelObject(InterfaceWithSelfFieldQuery()))
         val schema = toSchema(queries = queries, config = testSchemaConfig())
-        assertEquals(1, schema.queryType.fieldDefinitions.size)
-        val field = schema.queryType.fieldDefinitions.first()
+        val queryType = checkNotNull(schema.queryType)
+        assertEquals(1, queryType.fieldDefinitions.size)
+        val field = queryType.fieldDefinitions.first()
         assertEquals("getInterface", field.name)
     }
 }

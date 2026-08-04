@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -67,11 +68,11 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { ticker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val list = mutableListOf<Int>()
         flow.collect {
-            list.add(it.getData<Map<String, Int>>().getValue("ticker"))
-            assertEquals(it.extensions["testKey"], "testValue")
+            list.add(assertNotNull(it.getData<Map<String, Int>>()).getValue("ticker"))
+            assertEquals(assertNotNull(it.extensions)["testKey"], "testValue")
         }
         assertEquals(5, list.size)
         for (i in list.indices) {
@@ -83,12 +84,12 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to datafetcher flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { datafetcher }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val list = mutableListOf<Int>()
         flow.collect {
-            val intVal = it.getData<Map<String, Int>>().getValue("datafetcher")
+            val intVal = assertNotNull(it.getData<Map<String, Int>>()).getValue("datafetcher")
             list.add(intVal)
-            assertEquals(it.extensions["testKey"], "testValue")
+            assertEquals(assertNotNull(it.extensions)["testKey"], "testValue")
         }
         assertEquals(5, list.size)
         for (i in list.indices) {
@@ -100,10 +101,10 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to publisher`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { publisherTicker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val list = mutableListOf<Int>()
         flow.collect {
-            list.add(it.getData<Map<String, Int>>().getValue("publisherTicker"))
+            list.add(assertNotNull(it.getData<Map<String, Int>>()).getValue("publisherTicker"))
         }
         assertEquals(5, list.size)
         for (i in list.indices) {
@@ -118,10 +119,10 @@ class FlowSubscriptionExecutionStrategyTest {
             .graphQLContext(mapOf("foo" to "junitHandler"))
             .build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val list = mutableListOf<Int>()
         flow.collect {
-            val contextValue = it.getData<Map<String, String>>().getValue("contextualTicker")
+            val contextValue = assertNotNull(it.getData<Map<String, String>>()).getValue("contextualTicker")
             assertTrue(contextValue.startsWith("junitHandler:"))
             list.add(contextValue.substringAfter("junitHandler:").toInt())
         }
@@ -135,7 +136,7 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to failing flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { alwaysThrows }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val errors = mutableListOf<GraphQLError>()
         val results = mutableListOf<Int>()
         try {
@@ -147,7 +148,9 @@ class FlowSubscriptionExecutionStrategyTest {
                 errors.addAll(it.errors)
             }
         } catch (e: Exception) {
-            errors.add(GraphqlErrorBuilder.newError().message(e.message).build())
+            val errorBuilder: GraphqlErrorBuilder<*> = GraphqlErrorBuilder.newError()
+            errorBuilder.message(e.message)
+            errors.add(errorBuilder.build())
         }
 
         assertEquals(2, results.size)
@@ -173,10 +176,10 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription alias`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { t: ticker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
         val list = mutableListOf<Int>()
         flow.collect { executionResult ->
-            list.add(executionResult.getData<Map<String, Int>>().getValue("t"))
+            list.add(assertNotNull(executionResult.getData<Map<String, Int>>()).getValue("t"))
         }
         assertEquals(5, list.size)
         for (i in list.indices) {

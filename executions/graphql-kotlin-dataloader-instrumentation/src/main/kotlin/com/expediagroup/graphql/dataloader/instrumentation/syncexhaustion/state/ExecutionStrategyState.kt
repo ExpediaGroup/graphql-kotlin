@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,7 +184,7 @@ class ExecutionStrategyState(
          */
         fun isCompletedListOfComplexObjects(): Boolean =
             fetchState == FieldFetchState.COMPLETED && result != null &&
-                GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+                graphQLType?.let { GraphQLTypeUtil.isList(it) && !GraphQLTypeUtil.isLeaf(it) } == true &&
                 (result as? List<*>)?.filterNotNull()?.size == executionStrategyPaths.size
 
         /**
@@ -195,7 +195,7 @@ class ExecutionStrategyState(
          */
         fun isCompletedComplexObject(): Boolean =
             fetchState == FieldFetchState.COMPLETED && result != null &&
-                !GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+                graphQLType?.let { !GraphQLTypeUtil.isList(it) && !GraphQLTypeUtil.isLeaf(it) } == true &&
                 executionStrategyPaths.isNotEmpty()
 
         /**
@@ -206,7 +206,7 @@ class ExecutionStrategyState(
          */
         fun isCompletedLeafOrNull(): Boolean =
             fetchState == FieldFetchState.COMPLETED &&
-                (GraphQLTypeUtil.isLeaf(graphQLType) || result == null)
+                (graphQLType?.let(GraphQLTypeUtil::isLeaf) == true || result == null)
 
         /**
          * field [fetchType] is [FieldFetchType.ASYNC],

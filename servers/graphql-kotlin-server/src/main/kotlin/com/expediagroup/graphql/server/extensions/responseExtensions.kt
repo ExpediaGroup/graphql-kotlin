@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import graphql.language.SourceLocation
  * Convert a graphql-java result to the common serializable type [GraphQLResponse]
  */
 fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
-    val data: Any? = getData<Any?>()
-    val filteredErrors: List<GraphQLServerError>? = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
+    val data: Any? = getData<Any>()
+    val filteredErrors: List<GraphQLServerError>? = errors.takeIf { it.isNotEmpty() }?.map { it.toGraphQLKotlinType() }
     val filteredExtensions: Map<Any, Any>? = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(data, filteredErrors, filteredExtensions)
 }

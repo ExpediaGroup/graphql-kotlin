@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -422,10 +422,10 @@ open class FederatedSchemaGeneratorHooks(
             .toSet()
     }
 
-    private fun TypeResolutionEnvironment.getObjectName(): String? {
-        val kClass = this.getObject<Any>().javaClass.kotlin
+    private fun TypeResolutionEnvironment.getObjectName(): String {
+        val kClass = checkNotNull(this.getObject<Any>()).javaClass.kotlin
         return kClass.findAnnotation<GraphQLName>()?.value
-            ?: kClass.simpleName
+            ?: checkNotNull(kClass.simpleName)
     }
 
     private fun checkDirectiveVersionCompatibility(directiveName: String, requiredVersion: Pair<Int, Int>) {

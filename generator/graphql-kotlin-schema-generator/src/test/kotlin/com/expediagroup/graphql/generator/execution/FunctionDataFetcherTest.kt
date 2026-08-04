@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class FunctionDataFetcherTest {
 
         fun printList(items: List<String>) = items.joinToString(separator = ":")
 
-        fun contextClass(environment: DataFetchingEnvironment): String = environment.graphQlContext.get("value")
+        fun contextClass(environment: DataFetchingEnvironment): String = checkNotNull(environment.graphQlContext.get<String>("value"))
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 

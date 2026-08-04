@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.expediagroup.graphql.examples.server.spring.instrumentation
 
 import com.expediagroup.graphql.examples.server.spring.directives.TRACK_TIMES_INVOKED_DIRECTIVE_NAME
 import graphql.ExecutionResult
-import graphql.execution.instrumentation.InstrumentationContext
+import graphql.execution.instrumentation.FieldFetchingInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
-import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
@@ -40,15 +39,15 @@ class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
 
     override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = TrackTimesInvokedInstrumenationState()
 
-    override fun beginFieldFetch(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState?): InstrumentationContext<Any> {
-        if (parameters.field.getDirective(TRACK_TIMES_INVOKED_DIRECTIVE_NAME) != null) {
+    override fun beginFieldFetching(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState): FieldFetchingInstrumentationContext? {
+        if (parameters.field.hasAppliedDirective(TRACK_TIMES_INVOKED_DIRECTIVE_NAME)) {
             (state as? TrackTimesInvokedInstrumenationState)?.incrementCount(parameters.field.name)
         }
 
-        return SimpleInstrumentationContext<Any>()
+        return null
     }
 
-    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
+    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState): CompletableFuture<ExecutionResult> {
         val count = (state as? TrackTimesInvokedInstrumenationState)?.getCount()
         logger.info("Fields invoked: $count")
         return super.instrumentExecutionResult(executionResult, parameters, state)

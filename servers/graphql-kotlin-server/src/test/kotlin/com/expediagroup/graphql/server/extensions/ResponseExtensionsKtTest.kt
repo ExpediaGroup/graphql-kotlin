@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,31 +30,16 @@ import kotlin.test.assertTrue
 class ResponseExtensionsKtTest {
 
     @Test
-    fun `null data, errors, and extensions can still be mapped`() {
+    fun `null data and extensions and empty errors can still be mapped`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns null
-            every { errors } returns null
+            every { errors } returns emptyList()
             every { extensions } returns null
         }
 
         val result = executionResult.toGraphQLResponse()
 
         assertNull(result.data)
-        assertNull(result.errors)
-        assertNull(result.extensions)
-    }
-
-    @Test
-    fun `null errors or null extensions converts to null`() {
-        val executionResult: ExecutionResult = mockk {
-            every { getData<Any>() } returns mockk()
-            every { errors } returns null
-            every { extensions } returns null
-        }
-
-        val result = executionResult.toGraphQLResponse()
-
-        assertNotNull(result.data)
         assertNull(result.errors)
         assertNull(result.extensions)
     }

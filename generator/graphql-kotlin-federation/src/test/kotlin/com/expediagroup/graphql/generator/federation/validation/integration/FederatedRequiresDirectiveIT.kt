@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires directive`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._1"))
-            val validatedType = schema.getObjectType("SimpleRequires")
+            val validatedType = assertNotNull(schema.getObjectType("SimpleRequires"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val weightField = validatedType.getFieldDefinition("weight")
             assertNotNull(weightField)
@@ -49,7 +49,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires directive can be applied on a list field`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._2"))
-            val validatedType = schema.getObjectType("RequiresSelectionOnList")
+            val validatedType = assertNotNull(schema.getObjectType("RequiresSelectionOnList"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
@@ -64,7 +64,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires directive can be applied on an interface field`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._3"))
-            val validatedType = schema.getObjectType("RequiresSelectionOnInterface")
+            val validatedType = assertNotNull(schema.getObjectType("RequiresSelectionOnInterface"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
@@ -79,7 +79,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires directive can be applied on a union field`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._4"))
-            val validatedType = schema.getObjectType("RequiresSelectionOnUnion")
+            val validatedType = assertNotNull(schema.getObjectType("RequiresSelectionOnUnion"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
@@ -94,7 +94,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires needs @external leaf fields only`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._5"))
-            val validatedType = schema.getObjectType("LeafRequires")
+            val validatedType = assertNotNull(schema.getObjectType("LeafRequires"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val localType = validatedType.getFieldDefinition("complexType")?.type
             assertNotNull(localType)
@@ -113,7 +113,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @external is recursively applied for @requires selection set`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._6"))
-            val validatedType = schema.getObjectType("RecursiveExternalRequires")
+            val validatedType = assertNotNull(schema.getObjectType("RecursiveExternalRequires"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("complexType")
             assertNotNull(externalField)
@@ -136,7 +136,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @requires directive can use inline fragments on union type`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._8"))
-            val validatedType = schema.getObjectType("RequiresInlineFragmentOnUnion")
+            val validatedType = assertNotNull(schema.getObjectType("RequiresInlineFragmentOnUnion"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("animal")
             assertNotNull(externalField)
@@ -151,7 +151,7 @@ class FederatedRequiresDirectiveIT {
     fun `verifies @external is applied on all fields within external type`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._7"))
-            val validatedType = schema.getObjectType("ExternalRequiresType")
+            val validatedType = assertNotNull(schema.getObjectType("ExternalRequiresType"))
             assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("externalType")
             assertNotNull(externalField)

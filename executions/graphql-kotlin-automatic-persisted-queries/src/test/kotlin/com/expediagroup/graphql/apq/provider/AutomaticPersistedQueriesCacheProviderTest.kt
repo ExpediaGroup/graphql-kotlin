@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,9 @@ class AutomaticPersistedQueriesCacheProviderTest {
         assertEquals(firstResultWithQueryId.errors.size, 1)
         assertTrue(firstResultWithQueryId.errors[0].errorType is PersistedQueryNotFound)
         assertEquals("PersistedQueryNotFound", firstResultWithQueryId.errors[0].message)
-        assertEquals("2ec03b0d1d2e458ffafa173a7e965de18e1c91e7c28546f0ef093778ddeeb49c", firstResultWithQueryId.errors[0].extensions["persistedQueryId"])
-        assertEquals("graphql-java", firstResultWithQueryId.errors[0].extensions["generatedBy"])
+        val errorExtensions = checkNotNull(firstResultWithQueryId.errors[0].extensions)
+        assertEquals("2ec03b0d1d2e458ffafa173a7e965de18e1c91e7c28546f0ef093778ddeeb49c", errorExtensions["persistedQueryId"])
+        assertEquals("graphql-java", errorExtensions["generatedBy"])
 
         // Second execution persists query string and hash
 
@@ -128,7 +129,7 @@ class AutomaticPersistedQueriesCacheProviderTest {
         assertEquals(result.errors.size, 1)
         assertTrue(result.errors[0].errorType is PersistedQueryIdInvalid)
         assertEquals("PersistedQueryIdInvalid", result.errors[0].message)
-        assertEquals("0000000000000000000000000000000000000000000000000000000000000000", result.errors[0].extensions["persistedQueryId"])
+        assertEquals("0000000000000000000000000000000000000000000000000000000000000000", checkNotNull(result.errors[0].extensions)["persistedQueryId"])
     }
 
     @Test

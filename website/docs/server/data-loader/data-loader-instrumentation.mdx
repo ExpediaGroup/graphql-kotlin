@@ -15,6 +15,22 @@ from `graphql-java`, the main difference is that regular instrumentations apply 
 whereas these custom instrumentations apply to multiple GraphQL operations (say a BatchRequest) and stores their state in the `GraphQLContext`
 allowing batching and deduplication of transactions across those multiple GraphQL operations.
 
+:::caution graphql-java 26 instrumentation state
+graphql-java 26 marks instrumentation callback state parameters as non-null for Kotlin, while a stateless
+`SimplePerformantInstrumentation.createState()` can still return null. Custom Kotlin instrumentations that override
+these callbacks should return a non-null marker state:
+
+```kotlin
+private object StatelessInstrumentationState : InstrumentationState
+
+override fun createState(
+    parameters: InstrumentationCreateStateParameters
+): InstrumentationState = StatelessInstrumentationState
+```
+
+See the [upstream JSpecify instrumentation change](https://github.com/graphql-java/graphql-java/pull/4272).
+:::
+
 By default, each GraphQL operation is processed independently of each other. Multiple operations can be processed
 together as if they were single GraphQL request if they are part of the same batch request.
 

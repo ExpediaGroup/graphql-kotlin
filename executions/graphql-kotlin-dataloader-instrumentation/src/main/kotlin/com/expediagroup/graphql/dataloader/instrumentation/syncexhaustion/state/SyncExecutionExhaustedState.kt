@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,8 +119,8 @@ class SyncExecutionExhaustedState(
         parameters: InstrumentationFieldFetchParameters
     ): FieldFetchingInstrumentationContext {
         val executionId = parameters.executionContext.executionInput.executionIdNonNull
-        val field = parameters.executionStepInfo.field.singleField
-        val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
+        val field = checkNotNull(parameters.executionStepInfo.field).singleField
+        val fieldExecutionStrategyPath = checkNotNull(parameters.executionStepInfo.path.parent)
         val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : FieldFetchingInstrumentationContext {

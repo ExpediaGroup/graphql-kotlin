@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -38,17 +39,19 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
  */
 class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstrumentation() {
 
+    override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = object : InstrumentationState {}
+
     override fun beginExecution(
         parameters: InstrumentationExecutionParameters,
-        state: InstrumentationState?
+        state: InstrumentationState
     ): InstrumentationContext<ExecutionResult>? =
         parameters.graphQLContext
-            ?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
+            .get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginExecution(parameters)
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
-        state: InstrumentationState?
+        state: InstrumentationState
     ): ExecutionStrategyInstrumentationContext? {
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
@@ -58,7 +61,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstru
 
     override fun beginExecuteObject(
         parameters: InstrumentationExecutionStrategyParameters,
-        state: InstrumentationState?
+        state: InstrumentationState
     ): ExecuteObjectInstrumentationContext? {
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)

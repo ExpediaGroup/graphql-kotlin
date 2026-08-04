@@ -20,6 +20,8 @@ Given the generic server request, the interface should attempt to create a `Grap
 interface from `graphql-kotlin-schema-generator`. See [execution context](../schema-generator/execution/contextual-data.md)
 for more info on how the context can be used in the schema functions.
 
+GraphQL context keys and values are non-null. Omit an entry when no value is available instead of adding a null value.
+
 ## Coroutine Context
 
 By default, `graphql-kotlin-server` creates a supervisor scope with currently available coroutine context. You can provide

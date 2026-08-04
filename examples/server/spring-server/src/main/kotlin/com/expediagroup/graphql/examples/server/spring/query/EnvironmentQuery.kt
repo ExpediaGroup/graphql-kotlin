@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,7 @@ data class NestedNode(
     val parentValue: Int? = null
 ) {
     fun nested(environment: DataFetchingEnvironment, value: Int): NestedNode {
-        val parentValue: Int? = if (environment.executionStepInfo.hasParent()) {
-            environment.executionStepInfo.parent.getArgument("value")
-        } else {
-            null
-        }
+        val parentValue: Int? = environment.executionStepInfo.parent?.getArgument("value")
 
         return NestedNode(value, parentValue)
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import graphql.ExecutionResultImpl
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,7 +63,9 @@ class InstrumentationIT {
     }
 
     class OrderedInstrumentation(private val instrumentationOrder: Int, private val counter: AtomicInteger) : SimplePerformantInstrumentation(), Ordered {
-        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
+        override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = object : InstrumentationState {}
+
+        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState): CompletableFuture<ExecutionResult> {
             val currentExt: MutableMap<Any, Any> = executionResult.extensions?.toMutableMap() ?: mutableMapOf()
             currentExt[instrumentationOrder] = counter.getAndIncrement()
 

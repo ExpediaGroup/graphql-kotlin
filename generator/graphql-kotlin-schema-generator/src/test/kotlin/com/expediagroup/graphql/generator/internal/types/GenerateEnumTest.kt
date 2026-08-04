@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ class GenerateEnumTest : TypeTestHelper() {
 
         assertEquals("enum 'ONE' description", assertNotNull(gqlEnum.getValue("ONE")).description)
         assertEquals("enum 'TWO' description", assertNotNull(gqlEnum.getValue("TWO")).description)
-        assertNull(gqlEnum.getValue("THREE").description)
+        assertNull(checkNotNull(gqlEnum.getValue("THREE")).description)
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,12 +77,12 @@ class AnimalDetailsDataFetcher : DataFetcher<NestedAnimalDetails>, BeanFactoryAw
 class CoffeeBean {
 
     fun icedCoffee(environment: DataFetchingEnvironment, size: String): String {
-        val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
+        val beanChoice = environment.executionStepInfo.parent?.arguments?.get("beanName")
         return "Iced Coffee, Bean choice: $beanChoice, size: $size"
     }
 
     fun hotCoffee(environment: DataFetchingEnvironment, size: String): String {
-        val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
+        val beanChoice = environment.executionStepInfo.parent?.arguments?.get("beanName")
         return "Hot Coffee, Bean choice: $beanChoice, size: $size"
     }
 }
