@@ -18,7 +18,6 @@ package com.expediagroup.graphql.examples.federation.products
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.ShareableDirective
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
