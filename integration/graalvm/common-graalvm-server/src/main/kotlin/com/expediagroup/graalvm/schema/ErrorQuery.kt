@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import kotlin.random.Random
 class ErrorQuery : Query {
     private val random: Random = Random(100)
 
-    fun resultsWithError(): DataFetcherResult<Int> = DataFetcherResult.newResult<Int>()
-        .data(random.nextInt())
-        .error(
-            GraphqlErrorBuilder.newError()
-                .message("example error")
-                .build()
-        )
-        .build()
+    fun resultsWithError(): DataFetcherResult<Int> {
+        val errorBuilder: GraphqlErrorBuilder<*> = GraphqlErrorBuilder.newError()
+        errorBuilder.message("example error")
+        return DataFetcherResult.newResult<Int>()
+            .data(random.nextInt())
+            .error(errorBuilder.build())
+            .build()
+    }
 }
