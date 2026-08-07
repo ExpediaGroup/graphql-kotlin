@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,8 +95,8 @@ internal fun generateTypeName(
  * selection set.
  */
 internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, graphQLType: NamedNode<*>, selectionSet: SelectionSet? = null): ClassName {
-    val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(graphQLType.name).get()
-    val graphQLTypeName = graphQLTypeDefinition.name
+    val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(checkNotNull(graphQLType.name)).get()
+    val graphQLTypeName = checkNotNull(graphQLTypeDefinition.name)
     val cachedTypeNames = context.classNameCache[graphQLTypeName]
 
     return if (cachedTypeNames == null || cachedTypeNames.isEmpty()) {
@@ -231,11 +231,12 @@ internal fun generateClassName(
     nameOverride: String? = null,
     packageName: String = "${context.packageName}.${context.operationName.lowercase()}"
 ): ClassName {
-    val typeName = nameOverride ?: graphQLType.name
+    val graphQLTypeName = checkNotNull(graphQLType.name)
+    val typeName = nameOverride ?: graphQLTypeName
     val className = ClassName(packageName, typeName)
-    val classNames = context.classNameCache.getOrDefault(graphQLType.name, mutableListOf())
+    val classNames = context.classNameCache.getOrDefault(graphQLTypeName, mutableListOf())
     classNames.add(className)
-    context.classNameCache[graphQLType.name] = classNames
+    context.classNameCache[graphQLTypeName] = classNames
 
     if (selectionSet != null) {
         val selectedFields = calculateSelectedFields(context, typeName, selectionSet)
@@ -271,30 +272,30 @@ private fun calculateSelectedFields(
     selectionSet.selections.forEach { selection ->
         when (selection) {
             is Field -> {
-                val fieldName = selection.alias ?: selection.name
+                val fieldName = selection.alias ?: checkNotNull(selection.name)
                 result.add(path + fieldName)
-                if (selection.selectionSet != null) {
-                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path$fieldName."))
+                selection.selectionSet?.let {
+                    result.addAll(calculateSelectedFields(context, targetType, it, "$path$fieldName."))
                 }
             }
             is InlineFragment -> {
-                val targetFragmentType = selection.typeCondition.name
+                val targetFragmentType = checkNotNull(selection.typeCondition).name
                 val fragmentPathPrefix = if (targetFragmentType == targetType) {
                     path
                 } else {
                     "$path$targetFragmentType."
                 }
-                result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, fragmentPathPrefix))
+                result.addAll(calculateSelectedFields(context, targetType, checkNotNull(selection.selectionSet), fragmentPathPrefix))
             }
             is FragmentSpread -> {
-                val fragmentDefinition = context.queryDocument.findFragmentDefinition(context, selection.name, targetType)
-                val targetFragmentType = fragmentDefinition.typeCondition.name
+                val fragmentDefinition = context.queryDocument.findFragmentDefinition(context, checkNotNull(selection.name), targetType)
+                val targetFragmentType = checkNotNull(fragmentDefinition.typeCondition).name
                 val fragmentPathPrefix = if (targetFragmentType == targetType) {
                     path
                 } else {
                     "$path$targetFragmentType."
                 }
-                result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet, fragmentPathPrefix))
+                result.addAll(calculateSelectedFields(context, targetType, checkNotNull(fragmentDefinition.selectionSet), fragmentPathPrefix))
             }
         }
     }

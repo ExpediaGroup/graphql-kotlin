@@ -24,6 +24,9 @@ val schema = generator.generateSchema(
 )
 ```
 
+These method arguments accept Kotlin `KType`s for the generator to discover. In contrast,
+`SchemaGeneratorConfig.additionalTypes` accepts already constructed `GraphQLNamedType`s.
+
 ### `SchemaGenerator::addAdditionalTypesWithAnnotation`
 
 This method is protected so if you override the `SchemaGenerator` used you can call this method to add types that have a specific annotation.

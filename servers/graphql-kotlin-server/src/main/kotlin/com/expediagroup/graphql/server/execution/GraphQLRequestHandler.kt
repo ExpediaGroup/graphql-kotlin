@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ open class GraphQLRequestHandler(
     ): Pair<GraphQLContext, DataLoaderInstrumentation?> =
         when (batchDataLoaderInstrumentationType) {
             GraphQLSyncExecutionExhaustedDataLoaderDispatcher::class.java -> {
-                val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize) { graphQLContext.get(DataLoaderRegistry::class) }
+                val syncExecutionExhaustedState = SyncExecutionExhaustedState(batchSize) { checkNotNull(graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)) }
                 graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
                 graphQLContext to DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(syncExecutionExhaustedState)
             }
@@ -164,7 +164,7 @@ open class GraphQLRequestHandler(
         val executionResult = graphQL.execute(input)
 
         val resultFlow: Flow<ExecutionResult> = executionResult
-            .getData<Flow<ExecutionResult>?>() ?: flowOf(executionResult)
+            .getData<Flow<ExecutionResult>>() ?: flowOf(executionResult)
 
         return resultFlow
             .map { result -> result.toGraphQLResponse() }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
 
     val constructorBuilder = FunSpec.constructorBuilder()
     inputObjectDefinition.inputValueDefinitions.forEach { fieldDefinition ->
-        val (inputPropertySpec, defaultValue) = createInputPropertySpec(context, fieldDefinition.name, fieldDefinition.type, fieldDefinition.description?.content)
+        val (inputPropertySpec, defaultValue) = createInputPropertySpec(context, checkNotNull(fieldDefinition.name), fieldDefinition.type, fieldDefinition.description?.content)
         inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
 
         constructorBuilder.addParameter(
@@ -98,7 +98,7 @@ internal fun createInputPropertySpec(
 
     val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)
     val isScalar = rawType in setOf(BOOLEAN, DOUBLE, INT, STRING) ||
-        (graphqlFieldType is NamedNode<*> && context.isTypeAlias(graphqlFieldType.name))
+        (graphqlFieldType is NamedNode<*> && context.isTypeAlias(checkNotNull(graphqlFieldType.name)))
     val isCustomScalar = context.isCustomScalar(rawType)
     val shouldWrapInOptional = shouldWrapInOptional(kotlinFieldTypeName, context)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class CustomFieldTypeTest {
     fun `generate a custom nullable by default scalar type`() {
         val queries = listOf(TopLevelObject(CustomScalar()))
         val schema = toSchema(testSchemaConfig(), queries)
-        val returnType = schema.queryType.getField("scalarType").type
+        val returnType = checkNotNull(schema.queryType).getField("scalarType").type
         assertIsNot<GraphQLNonNull>(returnType)
         assertEquals("String", returnType.deepName)
     }
@@ -51,7 +51,7 @@ class CustomFieldTypeTest {
     fun `generate a custom non-null scalar type`() {
         val queries = listOf(TopLevelObject(CustomNonNullScalar()))
         val schema = toSchema(testSchemaConfig(), queries)
-        val returnType = schema.queryType.getField("nonNullScalarType").type
+        val returnType = checkNotNull(schema.queryType).getField("nonNullScalarType").type
         assertIs<GraphQLNonNull>(returnType)
         assertEquals("String!", returnType.deepName)
     }
@@ -69,7 +69,7 @@ class CustomFieldTypeTest {
             .build()
         val config = SchemaGeneratorConfig(defaultSupportedPackages, additionalTypes = setOf(fooCustom))
         val schema = toSchema(config, queries)
-        val returnType = schema.queryType.getField("customObject").type
+        val returnType = checkNotNull(schema.queryType).getField("customObject").type
         assertIs<GraphQLObjectType>(returnType)
         assertEquals("FooCustom", returnType.deepName)
     }
@@ -94,7 +94,7 @@ class CustomFieldTypeTest {
                 )
             )
         }
-        val returnType = schema.queryType.getField("customUnion").type
+        val returnType = checkNotNull(schema.queryType).getField("customUnion").type
         assertIs<GraphQLUnionType>(returnType)
         assertEquals("FooOrBar", returnType.deepName)
     }

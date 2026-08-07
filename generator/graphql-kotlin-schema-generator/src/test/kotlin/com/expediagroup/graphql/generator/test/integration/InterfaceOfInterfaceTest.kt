@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class InterfaceOfInterfaceTest {
     fun `interface of interface`() {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
         val schema = toSchema(queries = queries, config = testSchemaConfig())
-        assertEquals(expected = 2, actual = schema.queryType.fieldDefinitions.size)
+        assertEquals(expected = 2, actual = checkNotNull(schema.queryType).fieldDefinitions.size)
 
         val implementation = schema.getObjectType("MyClass")
         assertNotNull(implementation)
@@ -60,8 +60,9 @@ class InterfaceOfInterfaceTest {
         // The ignored class should not be in the schema at all
         assertNull(schema.getType("IgnoredClass"))
 
-        assertEquals(expected = 2, actual = schema.queryType.fieldDefinitions.size)
-        val queryField = assertNotNull(schema.queryType.getFieldDefinition("getIgnoredClass"))
+        val queryType = checkNotNull(schema.queryType)
+        assertEquals(expected = 2, actual = queryType.fieldDefinitions.size)
+        val queryField = assertNotNull(queryType.getFieldDefinition("getIgnoredClass"))
         assertEquals("SecondLevel!", queryField.type.deepName)
     }
 

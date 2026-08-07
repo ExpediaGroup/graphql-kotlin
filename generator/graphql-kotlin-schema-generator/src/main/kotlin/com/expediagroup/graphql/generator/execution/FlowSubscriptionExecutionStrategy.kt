@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
     }
 
     private fun getRootFieldName(parameters: ExecutionStrategyParameters): String {
-        val rootField = parameters.field.singleField
+        val rootField = checkNotNull(parameters.field).singleField
         return rootField.alias ?: rootField.name
     }
 
@@ -215,7 +215,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         newCallContext: Boolean
     ): ExecutionStrategyParameters {
         val fields = parameters.fields
-        val firstField = fields.getSubField(fields.keys[0])
+        val firstField = checkNotNull(fields.getSubField(fields.keys[0]))
 
         val fieldPath = parameters.path.segment(mkNameForPath(firstField.singleField))
         val nonNullableFieldValidator = NonNullableFieldValidator(executionContext)
@@ -236,7 +236,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
     ): ExecutionStepInfo {
-        val field = parameters.field.singleField
+        val field = checkNotNull(parameters.field).singleField
         val parentType = parameters.executionStepInfo.unwrappedNonNullType as GraphQLObjectType
         val fieldDef = getFieldDef(executionContext.graphQLSchema, parentType, field)
         return createExecutionStepInfo(executionContext, parameters, fieldDef, parentType)

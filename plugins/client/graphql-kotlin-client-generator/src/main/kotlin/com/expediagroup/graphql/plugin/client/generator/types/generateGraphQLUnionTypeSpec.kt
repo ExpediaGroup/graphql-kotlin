@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ internal fun generateGraphQLUnionTypeSpec(
         throw InvalidSelectionSetException(context.operationName, unionDefinition.name, "union")
     }
 
-    val unionName = unionNameOverride ?: unionDefinition.name
-    val unionImplementations = unionDefinition.memberTypes.filterIsInstance(TypeName::class.java).map { it.name }
+    val unionName = unionNameOverride ?: checkNotNull(unionDefinition.name)
+    val unionImplementations = unionDefinition.memberTypes.filterIsInstance<TypeName>().map { checkNotNull(it.name) }
 
     return generateInterfaceTypeSpec(
         context = context,

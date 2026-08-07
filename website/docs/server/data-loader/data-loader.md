@@ -99,6 +99,16 @@ class User(val id: ID) {
 }
 ```
 
+graphql-java 26 supports nullable DataLoader values directly, so no unchecked cast is needed:
+
+```kotlin
+val user: CompletableFuture<User?> =
+    dataFetchingEnvironment.getValueFromDataLoader("UserDataLoader", id)
+```
+
+This resolves [graphql-java #4374](https://github.com/graphql-java/graphql-java/issues/4374) through the
+[JSpecify DataLoader fix](https://github.com/graphql-java/graphql-java/pull/4180).
+
 ## DataLoaders and Coroutines
 
 `graphql-java` relies on `CompletableFuture`s for scheduling and asynchronously executing GraphQL operations.

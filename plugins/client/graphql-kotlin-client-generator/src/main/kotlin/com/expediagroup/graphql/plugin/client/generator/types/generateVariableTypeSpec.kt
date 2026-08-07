@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
 
     val constructorSpec = FunSpec.constructorBuilder()
     variableDefinitions.forEach { variableDef ->
-        val (variable, defaultValue) = createInputPropertySpec(context, variableDef.name, variableDef.type)
+        val (variable, defaultValue) = createInputPropertySpec(context, checkNotNull(variableDef.name), variableDef.type)
         variableTypeSpec.addProperty(variable)
 
         constructorSpec.addParameter(

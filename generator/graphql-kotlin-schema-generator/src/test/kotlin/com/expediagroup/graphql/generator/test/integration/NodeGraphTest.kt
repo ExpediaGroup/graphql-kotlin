@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,9 @@ class NodeGraphTest {
 
         val schema = toSchema(queries = queries, config = testSchemaConfig())
 
-        assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
-        assertEquals(expected = "nodeGraph", actual = schema.queryType.fieldDefinitions.first().name)
+        val queryType = checkNotNull(schema.queryType)
+        assertEquals(expected = 1, actual = queryType.fieldDefinitions.size)
+        assertEquals(expected = "nodeGraph", actual = queryType.fieldDefinitions.first().name)
 
         val nodeFields = (schema.typeMap["Node"] as? GraphQLObjectType)?.fieldDefinitions
 

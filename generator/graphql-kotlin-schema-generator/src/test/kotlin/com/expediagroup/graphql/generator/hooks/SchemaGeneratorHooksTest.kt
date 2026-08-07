@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,9 +108,9 @@ class SchemaGeneratorHooksTest {
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.calledFilterFunction)
-        assertFalse(schema.queryType.fieldDefinitions.isEmpty())
-        assertTrue(schema.getObjectType("SomeData").fieldDefinitions.size == 1)
-        assertTrue(schema.getObjectType("SomeData").fieldDefinitions.first().name == "id")
+        assertFalse(checkNotNull(schema.queryType).fieldDefinitions.isEmpty())
+        assertTrue(checkNotNull(schema.getObjectType("SomeData")).fieldDefinitions.size == 1)
+        assertTrue(checkNotNull(schema.getObjectType("SomeData")).fieldDefinitions.first().name == "id")
     }
 
     @Test
@@ -255,7 +255,7 @@ class SchemaGeneratorHooksTest {
             queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        val topLevelQuery = schema.getObjectType("Query")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         val query = topLevelQuery.getFieldDefinition("query")
         assertEquals("Hijacked Description", query.description)
     }
@@ -280,7 +280,7 @@ class SchemaGeneratorHooksTest {
             mutations = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        val topLevelQuery = schema.getObjectType("Mutation")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Mutation"))
         val query = topLevelQuery.getFieldDefinition("query")
         assertEquals("Hijacked Description", query.description)
     }
@@ -295,7 +295,7 @@ class SchemaGeneratorHooksTest {
                 config = getTestSchemaConfigWithHooks(hooks)
             )
             assertTrue(hooks.isValidSubscriptionReturnType(Publisher::class, TestSubscription::subscription))
-            val topLevelSub = schema.getObjectType("Subscription")
+            val topLevelSub = checkNotNull(schema.getObjectType("Subscription"))
             val sub = topLevelSub.getFieldDefinition("subscription")
             assertEquals("SomeData!", sub.type.deepName)
         }

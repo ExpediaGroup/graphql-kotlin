@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,16 +42,17 @@ class CustomUnionAnnotationTest {
         assertNotNull(schema.getType("Odd"))
         assertNotNull(schema.getType("Number"))
         assertNotNull(schema.getType("Prime"))
-        assertEquals("Even!", schema.queryType.getFieldDefinition("even").type.deepName)
-        assertEquals("Odd!", schema.queryType.getFieldDefinition("odd").type.deepName)
-        assertEquals("Number!", schema.queryType.getFieldDefinition("number").type.deepName)
-        assertEquals("Number", schema.queryType.getFieldDefinition("nullableNumber").type.deepName)
-        assertEquals("[Number!]!", schema.queryType.getFieldDefinition("listNumbers").type.deepName)
-        assertEquals("[Number]", schema.queryType.getFieldDefinition("nullableListNumbers").type.deepName)
-        assertEquals("Prime!", schema.queryType.getFieldDefinition("prime").type.deepName)
-        assertEquals("Prime", schema.queryType.getFieldDefinition("nullablePrime").type.deepName)
-        assertEquals("[Prime!]!", schema.queryType.getFieldDefinition("listPrimes").type.deepName)
-        assertEquals("[Prime]", schema.queryType.getFieldDefinition("nullableListPrimes").type.deepName)
+        val queryType = checkNotNull(schema.queryType)
+        assertEquals("Even!", queryType.getFieldDefinition("even").type.deepName)
+        assertEquals("Odd!", queryType.getFieldDefinition("odd").type.deepName)
+        assertEquals("Number!", queryType.getFieldDefinition("number").type.deepName)
+        assertEquals("Number", queryType.getFieldDefinition("nullableNumber").type.deepName)
+        assertEquals("[Number!]!", queryType.getFieldDefinition("listNumbers").type.deepName)
+        assertEquals("[Number]", queryType.getFieldDefinition("nullableListNumbers").type.deepName)
+        assertEquals("Prime!", queryType.getFieldDefinition("prime").type.deepName)
+        assertEquals("Prime", queryType.getFieldDefinition("nullablePrime").type.deepName)
+        assertEquals("[Prime!]!", queryType.getFieldDefinition("listPrimes").type.deepName)
+        assertEquals("[Prime]", queryType.getFieldDefinition("nullableListPrimes").type.deepName)
 
         val unionWithDirective = schema.getType("Prime") as GraphQLUnionType
         assertNotNull(unionWithDirective.appliedDirectives)
@@ -80,7 +81,7 @@ class CustomUnionAnnotationTest {
     fun `deprecated annotation does not prevent custom union detection`() {
         val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(DeprecatedPropertyQuery())))
 
-        val deprecatedListPrimes = schema.getObjectType("DeprecatedUnionHolder").getFieldDefinition("deprecatedListPrimes")
+        val deprecatedListPrimes = checkNotNull(schema.getObjectType("DeprecatedUnionHolder")).getFieldDefinition("deprecatedListPrimes")
 
         assertEquals("[Prime!]!", deprecatedListPrimes.type.deepName)
         assertEquals("deprecated union field", deprecatedListPrimes.deprecationReason)

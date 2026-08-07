@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,21 +63,20 @@ class AutomaticPersistedQueriesProvider(
                 }
             }
         } catch (persistedQueryError: PersistedQueryError) {
+            val errorBuilder: GraphqlErrorBuilder<*> = GraphqlErrorBuilder.newError()
+            errorBuilder.errorType(persistedQueryError)
+            errorBuilder.message(persistedQueryError.message)
+            errorBuilder.extensions(
+                when (persistedQueryError) {
+                    // persistedQueryError.getExtensions()
+                    // Cannot access 'getExtensions': it is package-private in 'PersistedQueryError'
+                    is PersistedQueryNotFound -> persistedQueryError.extensions
+                    is PersistedQueryIdInvalid -> persistedQueryError.extensions
+                    else -> emptyMap()
+                }
+            )
             CompletableFuture.completedFuture(
-                PreparsedDocumentEntry(
-                    GraphqlErrorBuilder.newError()
-                        .errorType(persistedQueryError)
-                        .message(persistedQueryError.message)
-                        .extensions(
-                            when (persistedQueryError) {
-                                // persistedQueryError.getExtensions()
-                                // Cannot access 'getExtensions': it is package-private in 'PersistedQueryError'
-                                is PersistedQueryNotFound -> persistedQueryError.extensions
-                                is PersistedQueryIdInvalid -> persistedQueryError.extensions
-                                else -> emptyMap()
-                            }
-                        ).build()
-                )
+                PreparsedDocumentEntry(errorBuilder.build())
             )
         }
 }

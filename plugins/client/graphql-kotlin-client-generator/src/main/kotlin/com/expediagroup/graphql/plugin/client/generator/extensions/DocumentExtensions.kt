@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,5 +23,5 @@ import graphql.language.FragmentDefinition
 
 internal fun Document.findFragmentDefinition(context: GraphQLClientGeneratorContext, targetFragment: String, targetType: String): FragmentDefinition =
     this.getDefinitionsOfType(FragmentDefinition::class.java)
-        .find { it.name == targetFragment && context.graphQLSchema.getType(it.typeCondition.name).isPresent }
+        .find { it.name == targetFragment && context.graphQLSchema.getType(checkNotNull(checkNotNull(it.typeCondition).name)).isPresent }
         ?: throw InvalidFragmentException(context.operationName, targetFragment, targetType)

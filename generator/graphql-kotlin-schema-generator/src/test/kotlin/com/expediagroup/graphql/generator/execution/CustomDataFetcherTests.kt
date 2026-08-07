@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class CustomDataFetcherTests {
     @Test
@@ -36,13 +37,13 @@ class CustomDataFetcherTests {
         val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.generator"), dataFetcherFactoryProvider = CustomDataFetcherFactoryProvider())
         val schema = toSchema(queries = listOf(TopLevelObject(AnimalQuery())), config = config)
 
-        val animalType = schema.getObjectType("Animal")
+        val animalType = assertNotNull(schema.getObjectType("Animal"))
         assertEquals("AnimalDetails!", animalType.getFieldDefinition("details").type.deepName)
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val execute = graphQL.execute("{ findAnimal { id type details { specialId } } }")
 
-        val data = execute.getData<Map<String, Any>>()["findAnimal"] as? Map<*, *>
+        val data = assertNotNull(execute.getData<Map<String, Any>>())["findAnimal"] as? Map<*, *>
         assertEquals(1, data?.get("id"))
         assertEquals("cat", data?.get("type"))
 

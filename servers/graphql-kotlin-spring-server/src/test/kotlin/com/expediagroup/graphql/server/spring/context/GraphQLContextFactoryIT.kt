@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,6 @@ class GraphQLContextFactoryIT {
 
     class ContextualQuery : Query {
         fun contextMap(env: DataFetchingEnvironment): String =
-            "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
+            "${env.graphQlContext.get<String>("first")},${env.graphQlContext.get<String>("second")}"
     }
 }

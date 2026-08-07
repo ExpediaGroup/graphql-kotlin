@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class SubscriptionConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
-                val subscription = schema.subscriptionType
+                val subscription = assertNotNull(schema.subscriptionType)
                 val fields = subscription.fieldDefinitions
                 assertEquals(1, fields.size)
                 val tickerSubscription = fields.firstOrNull { it.name == "ticker" }

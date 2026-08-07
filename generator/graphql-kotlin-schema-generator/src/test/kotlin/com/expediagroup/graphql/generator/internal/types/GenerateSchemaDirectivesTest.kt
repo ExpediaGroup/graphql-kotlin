@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class GenerateSchemaDirectivesTest : TypeTestHelper() {
         assertEquals(1, schemaDirectives.size)
         val appliedSchemaDirective = schemaDirectives[0]
         assertEquals("schemaDirective", appliedSchemaDirective.name)
-        assertEquals("foo", appliedSchemaDirective.getArgument("arg").getValue())
+        assertEquals("foo", checkNotNull(appliedSchemaDirective.getArgument("arg")).getValue())
     }
 
     @Test
@@ -76,6 +76,6 @@ class GenerateSchemaDirectivesTest : TypeTestHelper() {
         assertEquals(1, schemaDirectives.size)
         val appliedSchemaDirective = schemaDirectives[0]
         assertEquals("schemaDirective", appliedSchemaDirective.name)
-        assertEquals("foo", appliedSchemaDirective.getArgument("arg").getValue())
+        assertEquals("foo", checkNotNull(appliedSchemaDirective.getArgument("arg")).getValue())
     }
 }

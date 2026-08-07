@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,12 +128,12 @@ class ToSchemaTest {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig(provider))
 
         assertTrue(
-            schema.queryType.fieldDefinitions.none {
+            checkNotNull(schema.queryType).fieldDefinitions.none {
                 it.name == "ignoredFunction"
             }
         )
 
-        val resultType = schema.getObjectType("ResultWithIgnored")
+        val resultType = checkNotNull(schema.getObjectType("ResultWithIgnored"))
         assertTrue(
             resultType.fieldDefinitions.none {
                 it.name == "ignoredFunction"
@@ -151,8 +151,8 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator generates a GraphQL schema with repeated types to test conflicts`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig(provider))
-        val resultType = schema.getObjectType("Result")
-        val topLevelQuery = schema.getObjectType("Query")
+        val resultType = checkNotNull(schema.getObjectType("Result"))
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         assertEquals("Result!", topLevelQuery.getFieldDefinition("query").type.deepName)
         assertEquals("SomeObject", resultType.getFieldDefinition("someObject").type.deepName)
         assertEquals("[Int!]!", resultType.getFieldDefinition("someIntValues").type.deepName)
@@ -165,8 +165,8 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator generates a GraphQL schema with mixed nullity`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig(provider))
-        val resultType = schema.getObjectType("MixedNullityResult")
-        val topLevelQuery = schema.getObjectType("Query")
+        val resultType = checkNotNull(schema.getObjectType("MixedNullityResult"))
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         assertEquals("MixedNullityResult!", topLevelQuery.getFieldDefinition("query").type.deepName)
         assertEquals("String", resultType.getFieldDefinition("oneThing").type.deepName)
         assertEquals("String!", resultType.getFieldDefinition("theNextThing").type.deepName)
@@ -176,7 +176,7 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator generates a GraphQL schema where the input types differ from the output types`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig(provider))
-        val topLevelQuery = schema.getObjectType("Query")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         assertEquals(
             "SomeObjectInput!",
             topLevelQuery.getFieldDefinition("query").getArgument("someObject").type.deepName
@@ -188,7 +188,7 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator generates a GraphQL schema where the input and output enum is the same`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig(provider))
-        val topLevelQuery = schema.getObjectType("Query")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").getArgument("someEnum").type.deepName)
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").type.deepName)
     }
@@ -197,7 +197,7 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator names types according to custom name in @GraphQLName`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig(provider))
-        val topLevelQuery = schema.getObjectType("Query")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
 
         assertEquals("SomeInputObjectRenamedInput!", topLevelQuery.getFieldDefinition("query").getArgument("someInputObjectWithCustomName").type.deepName)
         assertEquals("SomeEnumRenamed!", topLevelQuery.getFieldDefinition("query").getArgument("someEnumWithCustomName").type.deepName)
@@ -209,8 +209,8 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator names self-referencing types according to custom name in @GraphQLName`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig(provider))
-        val topLevelQuery = schema.getObjectType("Query")
-        val resultType = schema.getObjectType("ObjectSelfReferencingRenamed")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
+        val resultType = checkNotNull(schema.getObjectType("ObjectSelfReferencingRenamed"))
 
         assertEquals("ObjectSelfReferencingRenamed!", topLevelQuery.getFieldDefinition("query").type.deepName)
         assertEquals("ObjectSelfReferencingRenamed", resultType.getFieldDefinition("self").type.deepName)
@@ -224,7 +224,7 @@ class ToSchemaTest {
             mutations = listOf(TopLevelObject(MutationObject())),
             config = testSchemaConfig(provider)
         )
-        val geo = schema.getObjectType("Geography")
+        val geo = checkNotNull(schema.getObjectType("Geography"))
         assertTrue(geo.description?.startsWith("A place") == true)
     }
 
@@ -236,7 +236,7 @@ class ToSchemaTest {
             mutations = listOf(TopLevelObject(MutationObject())),
             config = testSchemaConfig(provider)
         )
-        val documentation = schema.queryType.fieldDefinitions.first().arguments.first().description
+        val documentation = checkNotNull(schema.queryType).fieldDefinitions.first().arguments.first().description
         assertEquals("A GraphQL value", documentation)
     }
 
@@ -248,7 +248,7 @@ class ToSchemaTest {
             mutations = listOf(TopLevelObject(MutationObject())),
             config = testSchemaConfig(provider)
         )
-        val documentation = schema.queryType.fieldDefinitions.first().description
+        val documentation = checkNotNull(schema.queryType).fieldDefinitions.first().description
         assertEquals("A GraphQL query method", documentation)
     }
 
@@ -256,7 +256,7 @@ class ToSchemaTest {
     @MethodSource("toSchemaTestArguments")
     fun `SchemaGenerator can expose functions on result classes`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig(provider))
-        val resultWithFunction = schema.getObjectType("ResultWithFunction")
+        val resultWithFunction = checkNotNull(schema.getObjectType("ResultWithFunction"))
         val repeatFieldDefinition = resultWithFunction.getFieldDefinition("repeat")
         assertEquals("repeat", repeatFieldDefinition.name)
         assertEquals("Int!", repeatFieldDefinition.arguments.first().type.deepName)
@@ -270,7 +270,7 @@ class ToSchemaTest {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig(provider))
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query(something: \"thing\") { repeat(n: 3) } }")
-        val data: Map<String, Map<String, Any>> = result.getData()
+        val data = checkNotNull(result.getData<Map<String, Map<String, Any>>>())
 
         assertEquals("thingthingthing", data["query"]?.get("repeat"))
     }
@@ -280,7 +280,7 @@ class ToSchemaTest {
     fun `SchemaGenerator ignores private fields`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema =
             toSchema(queries = listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig(provider))
-        val topLevelQuery = schema.getObjectType("Query")
+        val topLevelQuery = checkNotNull(schema.getObjectType("Query"))
         val query = topLevelQuery.getFieldDefinition("query")
         val resultWithPrivateParts = query.type as? GraphQLObjectType
         assertNotNull(resultWithPrivateParts)
@@ -339,7 +339,7 @@ class ToSchemaTest {
     fun `SchemaGenerator support GraphQLID scalar`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig(provider))
 
-        val placeType = schema.getObjectType("PlaceOfIds")
+        val placeType = checkNotNull(schema.getObjectType("PlaceOfIds"))
         assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("id").type as? GraphQLNonNull)?.wrappedType)
     }
 
@@ -348,7 +348,7 @@ class ToSchemaTest {
     fun `SchemaGenerator supports Scalar GraphQLID for input types`(provider: KotlinDataFetcherFactoryProvider, name: String) {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig(provider))
 
-        val furnitureType = schema.getObjectType("Furniture")
+        val furnitureType = checkNotNull(schema.getObjectType("Furniture"))
         val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull
         assertEquals(Scalars.GraphQLID, serialField?.wrappedType)
     }
@@ -382,7 +382,7 @@ class ToSchemaTest {
             .build()
         val result = graphql.execute(IntrospectionQuery.INTROSPECTION_QUERY)
         assertFalse(result.isDataPresent)
-        assertTrue(result.errors?.isEmpty() == false)
+        assertTrue(result.errors.isNotEmpty())
     }
 
     @ParameterizedTest(name = "{index} ==> {1}")

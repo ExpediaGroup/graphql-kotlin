@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ object ProductGraphQL {
         val dataLoaderRegistry = when (dataLoaderInstrumentationStrategy) {
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION -> {
                 val syncExecutionExhaustedState = SyncExecutionExhaustedState(queries.size) {
-                    graphQLContext.get(DataLoaderRegistry::class)
+                    checkNotNull(graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class))
                 }
                 graphQLContext.put(SyncExecutionExhaustedState::class, syncExecutionExhaustedState)
                 KotlinDataLoaderRegistryFactory(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class DataFetchingEnvironmentExtensionsKtTest {
     @Test
@@ -53,6 +54,20 @@ class DataFetchingEnvironmentExtensionsKtTest {
 
         assertEquals(1, result.get().size)
         assertEquals("123", result.get().first())
+    }
+
+    @Test
+    fun `getting nullable values from a dataloader`() {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
+            every { getDataLoader<String, String?>("foo") } returns mockk {
+                every { load("bar", any()) } returns CompletableFuture.completedFuture<String?>(null)
+            }
+        }
+
+        val result: CompletableFuture<String?> = dataFetchingEnvironment.getValueFromDataLoader("foo", "bar")
+
+        assertNull(result.get())
     }
 
     @Test

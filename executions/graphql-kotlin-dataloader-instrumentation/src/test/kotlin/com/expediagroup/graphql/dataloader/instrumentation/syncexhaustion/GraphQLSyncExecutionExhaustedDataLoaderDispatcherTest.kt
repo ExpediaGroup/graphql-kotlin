@@ -539,7 +539,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcherTest {
 
         assertEquals(1, results.size)
         verify(exactly = 0) {
-            graphQLContext.get(DataLoaderRegistry::class)
+            graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)
         }
     }
 

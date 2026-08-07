@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,6 @@ private fun createUnion(typeName: String, generator: SchemaGenerator, builder: G
         }
 
     val unionType: GraphQLUnionType = builder.build()
-    generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(checkNotNull(env.getObject<Any>()).javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(unionType, null, generator.codeRegistry).safeCast()
 }

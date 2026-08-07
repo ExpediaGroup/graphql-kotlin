@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2026 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,22 @@ import com.expediagroup.graphql.generator.extensions.getOrElse
 import com.expediagroup.graphql.generator.extensions.getOrThrow
 import com.expediagroup.graphql.server.exception.MissingDataLoaderException
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
 /**
  * Helper method to get a value from a registered DataLoader.
  * The provided key should be the cache key object used to save the value for that particular data loader.
  */
-@Suppress("UNCHECKED_CAST")
 fun <K : Any, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
-    // GraphQL Java exposes getDataLoader with non-null V, while java-dataloader allows nullable values.
-    val loader = getDataLoader<K, Any>(dataLoaderName) as? DataLoader<K, V> ?: throw MissingDataLoaderException(dataLoaderName)
+    val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
     return loader.load(key, this.graphQlContext)
 }
 
 /**
 * Helper method to get values from a registered DataLoader.
 */
-@Suppress("UNCHECKED_CAST")
 fun <K : Any, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
-    // GraphQL Java exposes getDataLoader with non-null V, while java-dataloader allows nullable values.
-    val loader = getDataLoader<K, Any>(dataLoaderName) as? DataLoader<K, V> ?: throw MissingDataLoaderException(dataLoaderName)
+    val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
     return loader.loadMany(keys, listOf(this.graphQlContext))
 }
 
