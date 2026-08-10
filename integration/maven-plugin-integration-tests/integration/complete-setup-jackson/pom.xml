@@ -101,6 +101,7 @@
                             </queryFiles>
                             <serializer>JACKSON</serializer>
                             <useOptionalInputWrapper>true</useOptionalInputWrapper>
+                            <useSharedResponseTypes>false</useSharedResponseTypes>
                         </configuration>
                     </execution>
                 </executions>
