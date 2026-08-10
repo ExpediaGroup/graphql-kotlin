@@ -126,6 +126,17 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     @Optional
     val parserOptions: Property<GraphQLParserOptions> = project.objects.property(GraphQLParserOptions::class.java)
 
+    /**
+     * Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates.
+     *
+     * **Default value is:** `false`.
+     * **Command line property is**: `useSharedResponseTypes`.
+     */
+    @Input
+    @Optional
+    @Option(option = "useSharedResponseTypes", description = "Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates.")
+    val useSharedResponseTypes: Property<Boolean> = project.objects.property(Boolean::class.java)
+
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -141,6 +152,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         serializer.convention(GraphQLSerializer.JACKSON)
         useOptionalInputWrapper.convention(false)
         parserOptions.convention(GraphQLParserOptions())
+        useSharedResponseTypes.convention(false)
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -188,6 +200,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             parameters.targetDirectory.set(targetDirectory)
             parameters.useOptionalInputWrapper.set(useOptionalInputWrapper)
             parameters.parserOptions.set(parserOptions)
+            parameters.useSharedResponseTypes.set(useSharedResponseTypes)
         }
         workQueue.await()
         logger.debug("successfully generated GraphQL HTTP client")
