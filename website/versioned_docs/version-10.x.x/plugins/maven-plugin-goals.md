@@ -74,6 +74,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `schemaFile`              | String               |          | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`.                                                                           |
 | `serializer`              | GraphQLSerializer    |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                                         |
 | `useOptionalInputWrapper` | Boolean              |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper`                                  |
+| `useSharedResponseTypes`  | Boolean              |          | Boolean flag indicating whether to generate shared response types across operations instead of operation-specific duplicates. Shared types are placed in a `responses` sub-package.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useSharedResponseTypes` |
 
 **Parameter Details**
 
@@ -183,6 +184,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
+| `useSharedResponseTypes`  | Boolean | | Boolean flag indicating whether to generate shared response types across operations instead of operation-specific duplicates. Shared types are placed in a `responses` sub-package.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useSharedResponseTypes` |
 
 **Parameter Details**
 
