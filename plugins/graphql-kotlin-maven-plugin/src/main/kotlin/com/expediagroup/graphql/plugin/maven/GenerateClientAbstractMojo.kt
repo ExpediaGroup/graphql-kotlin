@@ -118,6 +118,12 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var useOptionalInputWrapper: Boolean = false
 
     /**
+     * Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates, defaults to false.
+     */
+    @Parameter(defaultValue = "\${graphql.useSharedResponseTypes}", name = "useSharedResponseTypes")
+    private var useSharedResponseTypes: Boolean = false
+
+    /**
      * Target directory where to store generated files.
      */
     abstract var outputDirectory: File
@@ -145,7 +151,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
                 captureLineComments?.let { captureLineComments(it) }
                 captureSourceLocation?.let { captureSourceLocation(it) }
             }
-        }, useSharedResponseTypes = false).forEach {
+        }, useSharedResponseTypes = useSharedResponseTypes).forEach {
             it.writeTo(outputDirectory)
         }
 

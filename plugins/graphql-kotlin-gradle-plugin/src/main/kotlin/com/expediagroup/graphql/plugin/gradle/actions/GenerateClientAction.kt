@@ -39,6 +39,7 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val targetDirectory = parameters.targetDirectory.get()
         val useOptionalInputWrapper = parameters.useOptionalInputWrapper.get()
         val parserOptions = parameters.parserOptions.get()
+        val useSharedResponseTypes = parameters.useSharedResponseTypes.get()
 
         generateClient(
             targetPackage,
@@ -57,7 +58,7 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
                 parserOptions.captureSourceLocation?.let { captureSourceLocation(it) }
                 parserOptions.captureLineComments?.let { captureLineComments(it) }
             },
-            useSharedResponseTypes = false
+            useSharedResponseTypes = useSharedResponseTypes
         ).forEach {
             it.writeTo(targetDirectory)
         }

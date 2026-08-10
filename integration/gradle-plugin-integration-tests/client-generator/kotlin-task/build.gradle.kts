@@ -15,9 +15,12 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     schemaFile.set(file("${project.projectDir}/schema.graphql"))
     // optional config
     allowDeprecatedFields.set(true)
+    useSharedResponseTypes.set(true)
     queryFiles.from(
         "${project.projectDir}/src/main/resources/queries/HelloWorldQuery.graphql",
-        "${project.projectDir}/src/main/resources/queries/UpdateNameMutation.graphql"
+        "${project.projectDir}/src/main/resources/queries/UpdateNameMutation.graphql",
+        "${project.projectDir}/src/main/resources/queries/FetchObjectQuery1.graphql",
+        "${project.projectDir}/src/main/resources/queries/FetchObjectQuery2.graphql"
     )
 }
 
@@ -26,12 +29,23 @@ tasks {
         dependsOn("graphqlGenerateClient")
 
         doLast {
-            // verify files were generated
-            if (!File(project.buildDir, "generated/source/graphql/main/com/expediagroup/generated/HelloWorldQuery.kt").exists()) {
+            val generatedDir = "generated/source/graphql/main/com/example/generated"
+            // verify operation files were generated
+            if (!File(project.buildDir, "$generatedDir/HelloWorldQuery.kt").exists()) {
                 throw RuntimeException("failed to generate client for HelloWorldQuery")
             }
-            if (!File(project.buildDir, "generated/source/graphql/main/com/expediagroup/generated/UpdateNameMutation.kt").exists()) {
+            if (!File(project.buildDir, "$generatedDir/UpdateNameMutation.kt").exists()) {
                 throw RuntimeException("failed to generate client for UpdateNameMutation")
+            }
+            if (!File(project.buildDir, "$generatedDir/FetchObjectQuery1.kt").exists()) {
+                throw RuntimeException("failed to generate client for FetchObjectQuery1")
+            }
+            if (!File(project.buildDir, "$generatedDir/FetchObjectQuery2.kt").exists()) {
+                throw RuntimeException("failed to generate client for FetchObjectQuery2")
+            }
+            // verify that useSharedResponseTypes produced a shared type in the responses sub-package
+            if (!File(project.buildDir, "$generatedDir/responses/ComplexObject.kt").exists()) {
+                throw RuntimeException("shared response type ComplexObject was not generated — useSharedResponseTypes may not be working")
             }
         }
     }
