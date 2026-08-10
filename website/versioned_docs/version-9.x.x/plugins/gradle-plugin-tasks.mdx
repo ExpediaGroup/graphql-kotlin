@@ -161,6 +161,8 @@ graphql {
     }
     // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
     useOptionalInputWrapper = false
+    // Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates.
+    useSharedResponseTypes = false
   }
   graalVm {
     // List of supported packages that can contain GraphQL schema type definitions
@@ -230,6 +232,8 @@ graphql {
         }
         // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
         useOptionalInputWrapper = false
+        // Boolean flag indicating whether to generate shared response types instead of operation-specific duplicates.
+        useSharedResponseTypes = false
     }
     graalVm {
         // List of supported packages that can contain GraphQL schema type definitions
@@ -311,6 +315,7 @@ resulting generated code will be automatically added to the project main source 
 | `schemaFile`              | File                  | yes      | GraphQL schema file that will be used to generate client code.                                                                                                                                                                           |
 | `serializer`              | GraphQLSerializer     |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                   |
 | `useOptionalInputWrapper` | Boolean               |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper`            |
+| `useSharedResponseTypes`  | Boolean               |          | Boolean flag indicating whether to generate shared response types across operations instead of operation-specific duplicates. Shared types are placed in a `responses` sub-package.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useSharedResponseTypes` |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.
@@ -385,6 +390,7 @@ test source set.
 | `schemaFile`              | File                  | yes      | GraphQL schema file that will be used to generate client code.                                                                                                                                                                           |
 | `serializer`              | GraphQLSerializer     |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                   |
 | `useOptionalInputWrapper` | Boolean               |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper`            |
+| `useSharedResponseTypes`  | Boolean               |          | Boolean flag indicating whether to generate shared response types across operations instead of operation-specific duplicates. Shared types are placed in a `responses` sub-package.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useSharedResponseTypes` |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.
