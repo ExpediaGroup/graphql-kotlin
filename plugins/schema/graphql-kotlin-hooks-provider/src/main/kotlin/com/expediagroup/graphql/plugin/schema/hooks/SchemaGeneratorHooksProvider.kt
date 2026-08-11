@@ -33,4 +33,17 @@ interface SchemaGeneratorHooksProvider {
      * Create a new instance of a SchemaGeneratorHooks that will be used to generate GraphQL schema in SDL format.
      */
     fun hooks(): SchemaGeneratorHooks
+
+    /**
+     * Priority used to break ties when multiple `SchemaGeneratorHooksProvider`s are discovered on the classpath.
+     *
+     * When more than one provider is found, the one with the strictly highest priority is selected. If multiple
+     * providers share the highest priority the generator plugins still fail with an error so the conflict is surfaced
+     * to the user. Providers that do not override this method fall back to the default priority of `0`, which
+     * preserves the pre-existing fail-fast behaviour for users that have not opted in.
+     *
+     * Library authors that ship a `SchemaGeneratorHooksProvider` which must override a transitively-imported
+     * provider should return a positive value. Larger values win.
+     */
+    fun priority(): Int = 0
 }
