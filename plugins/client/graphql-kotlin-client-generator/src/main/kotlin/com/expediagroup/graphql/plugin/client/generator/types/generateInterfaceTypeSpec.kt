@@ -40,6 +40,7 @@ import graphql.language.FragmentSpread
 import graphql.language.InlineFragment
 import graphql.language.Selection
 import graphql.language.SelectionSet
+import graphql.language.TypeName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.slf4j.Logger
@@ -80,11 +81,12 @@ internal fun generateInterfaceTypeSpec(
         interfaceTypeSpec.addKdoc("%L", kdoc)
     }
 
+    // multiple fragments may share a type condition, so they are grouped rather than keyed - keying would discard all but the last and drop the other fragments' fields entirely
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
         // polymorphic selection set can contain selection set against interface or concrete types
         context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java)
             .find { it.name == fragment.name } ?: throw InvalidFragmentException(context.operationName, fragment.name, interfaceName)
-    }.associateBy { it.typeCondition.name }
+    }.groupBy { checkNotNull(checkNotNull(it.typeCondition).name) }
 
     // find super selection set that contains
     // - directly selected fields
@@ -92,7 +94,7 @@ internal fun generateInterfaceTypeSpec(
     val selections: MutableList<Selection<*>> = selectionSet.getSelectionsOfType(Field::class.java).toMutableList()
 
     // interface fields
-    namedFragments[interfaceName]?.let {
+    namedFragments[interfaceName]?.forEach {
         selections.addAll(it.selectionSet.selections)
     }
     val superSelectionSet = SelectionSet.newSelectionSet(selections).build()
@@ -115,17 +117,17 @@ internal fun generateInterfaceTypeSpec(
     // - super selections
     // - named fragment selections
     // - inline fragment selections
-    val implementationSelections = namedFragments.filterKeys { it != interfaceName }
-        .mapValues { (_, namedFragment) ->
+    val implementationSelections: MutableMap<String, MutableList<Selection<*>>> = namedFragments.filterKeys { it != interfaceName }
+        .mapValues { (_, fragmentsOnImplementation) ->
             val fragmentSelections = superSelectionSet.selections.toMutableList()
-            fragmentSelections.addAll(namedFragment.selectionSet.selections)
-            namedFragment.typeCondition to fragmentSelections
+            fragmentsOnImplementation.flatMapTo(fragmentSelections) { it.selectionSet.selections }
         }.toMutableMap()
+
     selectionSet.getSelectionsOfType(InlineFragment::class.java).forEach { fragment ->
-        val existing = implementationSelections.computeIfAbsent(fragment.typeCondition.name) {
-            fragment.typeCondition to superSelectionSet.selections.toMutableList()
-        }
-        existing.second.addAll(fragment.selectionSet.selections)
+        val typeConditionName = checkNotNull(checkNotNull(fragment.typeCondition).name)
+        implementationSelections
+            .computeIfAbsent(typeConditionName) { superSelectionSet.selections.toMutableList() }
+            .addAll(fragment.selectionSet.selections)
     }
 
     // log warning if not all implementations are selected
@@ -136,12 +138,12 @@ internal fun generateInterfaceTypeSpec(
 
     // generate implementations with final selection set
     val jsonSubTypesCodeBlock = CodeBlock.builder()
-    implementationSelections.forEach { implementationName, (typeCondition, selections) ->
+    implementationSelections.forEach { implementationName, selections ->
         val distinctSelections = selections.filterIsInstance(Field::class.java).distinctBy { if (it.alias != null) it.alias else it.name }
         if (!verifyTypeNameIsSelected(distinctSelections)) {
             throw MissingTypeNameException(context.operationName, implementationName, interfaceName)
         }
-        var implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
+        var implementationClassName = generateTypeName(context, TypeName(implementationName), SelectionSet.newSelectionSet(distinctSelections).build())
         if (implementationClassName.isNullable) {
             implementationClassName = implementationClassName.copy(nullable = false)
         }
