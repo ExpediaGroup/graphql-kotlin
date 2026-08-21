@@ -1,0 +1,30 @@
+query InterfaceWithFragmentsSharingTypeConditionQuery {
+  interfaceQuery {
+    __typename
+    ...interfaceIdFields
+    ...interfaceNameFields
+    ...firstImplementationIdFields
+    ...firstImplementationValueFields
+    ...secondImplementationFields
+  }
+}
+
+fragment interfaceIdFields on BasicInterface {
+  id
+}
+
+fragment interfaceNameFields on BasicInterface {
+  name
+}
+
+fragment firstImplementationIdFields on FirstInterfaceImplementation {
+  id
+}
+
+fragment firstImplementationValueFields on FirstInterfaceImplementation {
+  intValue
+}
+
+fragment secondImplementationFields on SecondInterfaceImplementation {
+  floatValue
+}

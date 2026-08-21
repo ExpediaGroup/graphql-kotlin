@@ -1,0 +1,25 @@
+query UnionWithFragmentsSharingTypeConditionQuery {
+  unionQuery {
+    __typename
+    ...basicObjectIdFields
+    ...basicObjectNameFields
+    ...complexObjectIdFields
+    ...complexObjectOptionalFields
+  }
+}
+
+fragment basicObjectIdFields on BasicObject {
+  id
+}
+
+fragment basicObjectNameFields on BasicObject {
+  name
+}
+
+fragment complexObjectIdFields on ComplexObject {
+  id
+}
+
+fragment complexObjectOptionalFields on ComplexObject {
+  optional
+}
