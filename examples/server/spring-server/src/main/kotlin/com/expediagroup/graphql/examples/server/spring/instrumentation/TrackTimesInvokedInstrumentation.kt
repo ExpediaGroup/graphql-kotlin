@@ -39,7 +39,7 @@ class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
 
     override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = TrackTimesInvokedInstrumenationState()
 
-    override fun beginFieldFetching(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState): FieldFetchingInstrumentationContext? {
+    override fun beginFieldFetching(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState?): FieldFetchingInstrumentationContext? {
         if (parameters.field.hasAppliedDirective(TRACK_TIMES_INVOKED_DIRECTIVE_NAME)) {
             (state as? TrackTimesInvokedInstrumenationState)?.incrementCount(parameters.field.name)
         }
@@ -47,7 +47,7 @@ class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
         return null
     }
 
-    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState): CompletableFuture<ExecutionResult> {
+    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
         val count = (state as? TrackTimesInvokedInstrumenationState)?.getCount()
         logger.info("Fields invoked: $count")
         return super.instrumentExecutionResult(executionResult, parameters, state)

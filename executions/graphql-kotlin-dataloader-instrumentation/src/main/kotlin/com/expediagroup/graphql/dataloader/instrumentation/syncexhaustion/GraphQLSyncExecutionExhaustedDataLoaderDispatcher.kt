@@ -43,7 +43,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstru
 
     override fun beginExecution(
         parameters: InstrumentationExecutionParameters,
-        state: InstrumentationState
+        state: InstrumentationState?
     ): InstrumentationContext<ExecutionResult>? =
         parameters.graphQLContext
             .get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
@@ -51,7 +51,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstru
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
-        state: InstrumentationState
+        state: InstrumentationState?
     ): ExecutionStrategyInstrumentationContext? {
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
@@ -61,7 +61,7 @@ class GraphQLSyncExecutionExhaustedDataLoaderDispatcher : SimplePerformantInstru
 
     override fun beginExecuteObject(
         parameters: InstrumentationExecutionStrategyParameters,
-        state: InstrumentationState
+        state: InstrumentationState?
     ): ExecuteObjectInstrumentationContext? {
         parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)

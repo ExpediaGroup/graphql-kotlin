@@ -65,7 +65,7 @@ class InstrumentationIT {
     class OrderedInstrumentation(private val instrumentationOrder: Int, private val counter: AtomicInteger) : SimplePerformantInstrumentation(), Ordered {
         override fun createState(parameters: InstrumentationCreateStateParameters): InstrumentationState = object : InstrumentationState {}
 
-        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState): CompletableFuture<ExecutionResult> {
+        override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
             val currentExt: MutableMap<Any, Any> = executionResult.extensions?.toMutableMap() ?: mutableMapOf()
             currentExt[instrumentationOrder] = counter.getAndIncrement()
 
