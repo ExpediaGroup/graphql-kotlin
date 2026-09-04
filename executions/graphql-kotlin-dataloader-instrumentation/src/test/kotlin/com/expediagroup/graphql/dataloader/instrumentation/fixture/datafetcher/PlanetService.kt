@@ -37,7 +37,7 @@ class PlanetsByMissionDataLoader : KotlinDataLoader<PlanetServiceRequest, List<P
                 PlanetRepository
                     .getPlanetsByMissionIds(keys.map(PlanetServiceRequest::missionId))
                     .collectList()
-                    .toFuture()
+                    .toFuture().thenApply { it!! }
             },
             DataLoaderOptions.newOptions()
                 .setStatisticsCollector(::SimpleStatisticsCollector)
