@@ -36,6 +36,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.tasks.Jar
+import org.gradle.util.GradleVersion
 import java.io.File
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
@@ -62,7 +63,9 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
     private fun configurePluginDependencies(project: Project) {
         project.configurations.create(GENERATE_CLIENT_CONFIGURATION) { configuration ->
-            configuration.isVisible = true
+            if (GradleVersion.current() < GradleVersion.version("9.0.0")) {
+                configuration.isVisible = true
+            }
             configuration.isTransitive = true
             configuration.description = "Configuration for generating GraphQL client"
 
@@ -70,7 +73,9 @@ class GraphQLGradlePlugin : Plugin<Project> {
         }
 
         project.configurations.create(GENERATE_SDL_CONFIGURATION) { configuration ->
-            configuration.isVisible = true
+            if (GradleVersion.current() < GradleVersion.version("9.0.0")) {
+                configuration.isVisible = true
+            }
             configuration.isTransitive = true
             configuration.description = "Configuration for generating GraphQL schema in SDL format"
 
@@ -78,7 +83,9 @@ class GraphQLGradlePlugin : Plugin<Project> {
         }
 
         project.configurations.create(GRAALVM_METADATA_CONFIGURATION) { configuration ->
-            configuration.isVisible = true
+            if (GradleVersion.current() < GradleVersion.version("9.0.0")) {
+                configuration.isVisible = true
+            }
             configuration.isTransitive = true
             configuration.description = "Configuration for generating GraalVM reflect metadata"
 
