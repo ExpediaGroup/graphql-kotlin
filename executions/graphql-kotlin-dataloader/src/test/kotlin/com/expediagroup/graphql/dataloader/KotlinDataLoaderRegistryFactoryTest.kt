@@ -27,9 +27,11 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.instrumentation.DataLoaderInstrumentation
+import org.dataloader.instrumentation.DataLoaderInstrumentationContext
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -92,6 +94,83 @@ class KotlinDataLoaderRegistryFactoryTest {
             }.awaitAll()
 
             assertEquals(1, invocations.get())
+        }
+    }
+
+    @Test
+    fun `cached and non-batched data loader is invoked once for concurrent loads of the same key when registry has instrumentation`() {
+        runBlocking {
+            val invocations = AtomicInteger()
+            val instrumentedLoads = AtomicInteger()
+            val kotlinDataLoader = object : KotlinDataLoader<String, String> {
+                override val dataLoaderName = "NonBatchingDataLoader"
+                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                    DataLoaderFactory.newMappedDataLoader(
+                        { keys ->
+                            invocations.incrementAndGet()
+                            Thread.sleep(100)
+                            CompletableFuture.completedFuture(keys.associateWith { it })
+                        },
+                        DataLoaderOptions.newOptions()
+                            .setBatchingEnabled(false)
+                            .build()
+                    )
+            }
+            val countingInstrumentation = object : DataLoaderInstrumentation {
+                override fun beginLoad(dataLoader: DataLoader<*, *>, key: Any, loadContext: Any?): DataLoaderInstrumentationContext<Any?>? {
+                    instrumentedLoads.incrementAndGet()
+                    return null
+                }
+            }
+            val registry = KotlinDataLoaderRegistryFactory(kotlinDataLoader).generate(mockk(relaxed = true), countingInstrumentation)
+
+            val dataLoader = requireNotNull(registry.getDataLoader<String, String>(kotlinDataLoader.dataLoaderName))
+
+            List(8) {
+                async(Dispatchers.Default) {
+                    dataLoader.load("same-key").await()
+                }
+            }.awaitAll()
+
+            assertEquals(1, invocations.get())
+            assertEquals(8, instrumentedLoads.get())
+        }
+    }
+
+    @Test
+    fun `cached and non-batched data loader is invoked once per key for concurrent loadMany of the same keys`() {
+        runBlocking {
+            val invocations = ConcurrentHashMap<String, AtomicInteger>()
+            val kotlinDataLoader = object : KotlinDataLoader<String, String> {
+                override val dataLoaderName = "NonBatchingDataLoader"
+                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                    DataLoaderFactory.newMappedDataLoader(
+                        { keys ->
+                            keys.forEach { key -> invocations.computeIfAbsent(key) { AtomicInteger() }.incrementAndGet() }
+                            Thread.sleep(100)
+                            CompletableFuture.completedFuture(keys.associateWith { it })
+                        },
+                        DataLoaderOptions.newOptions()
+                            .setBatchingEnabled(false)
+                            .build()
+                    )
+            }
+            val registry = KotlinDataLoaderRegistryFactory(kotlinDataLoader).generate(mockk(relaxed = true), object : DataLoaderInstrumentation {})
+
+            val dataLoader = requireNotNull(registry.getDataLoader<String, String>(kotlinDataLoader.dataLoaderName))
+            val keys = listOf("a", "b")
+
+            List(9) { index ->
+                async(Dispatchers.Default) {
+                    when (index % 3) {
+                        0 -> dataLoader.loadMany(keys).await()
+                        1 -> dataLoader.loadMany(keys, keys.map { key -> "context-$key" }).await()
+                        else -> dataLoader.loadMany(keys.associateWith { key -> "context-$key" }).await().values.toList()
+                    }
+                }
+            }.awaitAll()
+
+            assertEquals(mapOf("a" to 1, "b" to 1), invocations.mapValues { (_, count) -> count.get() })
         }
     }
 }
