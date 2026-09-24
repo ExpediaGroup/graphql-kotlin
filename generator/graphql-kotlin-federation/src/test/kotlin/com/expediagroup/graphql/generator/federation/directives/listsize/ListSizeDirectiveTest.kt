@@ -37,7 +37,7 @@ class ListSizeDirectiveTest {
         val expectedSchema =
             // language=GraphQL
             """
-            schema @link(import : ["@listSize"], url : "https://specs.apollo.dev/federation/v2.15"){
+            schema @link(import : ["@listSize"], url : "https://specs.apollo.dev/federation/v2.14"){
               query: Query
             }
 
@@ -96,7 +96,7 @@ class ListSizeDirectiveTest {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = mapOf("listSize" to "listSize"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.14"
                 )
             }
         )
@@ -141,7 +141,7 @@ class ListSizeDirectiveTest {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = mapOf("listSize" to "listSize"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.14"
                 )
             }
         )

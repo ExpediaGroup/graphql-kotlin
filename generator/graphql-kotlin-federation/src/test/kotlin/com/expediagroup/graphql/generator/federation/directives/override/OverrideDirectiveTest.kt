@@ -35,7 +35,7 @@ class OverrideDirectiveTest {
     fun `verify override directive definition for fed 2_15`() {
         val expectedSchema =
             """
-            schema @link(import : ["@override"], url : "https://specs.apollo.dev/federation/v2.15"){
+            schema @link(import : ["@override"], url : "https://specs.apollo.dev/federation/v2.14"){
               query: Query
             }
 
