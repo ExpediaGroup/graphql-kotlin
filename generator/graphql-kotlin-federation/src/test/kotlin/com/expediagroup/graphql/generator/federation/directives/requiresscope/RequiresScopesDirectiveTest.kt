@@ -37,7 +37,7 @@ class RequiresScopesDirectiveTest {
     fun `verify we can import federation spec using custom @link`() {
         val expectedSchema =
             """
-            schema @link(url : "https://specs.apollo.dev/federation/v2.14"){
+            schema @link(url : "https://specs.apollo.dev/federation/v2.13"){
               query: Query
             }
 

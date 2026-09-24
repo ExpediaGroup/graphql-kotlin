@@ -39,7 +39,7 @@ class ContextDirectiveTest {
         val expectedSchema =
             // language=GraphQL
             """
-            schema @link(import : ["@key", "@context"], url : "https://specs.apollo.dev/federation/v2.14"){
+            schema @link(import : ["@key", "@context"], url : "https://specs.apollo.dev/federation/v2.13"){
               query: Query
             }
 
@@ -114,7 +114,7 @@ class ContextDirectiveTest {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = mapOf("key" to "key", "context" to "context"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.14"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.13"
                 )
             }
         )
