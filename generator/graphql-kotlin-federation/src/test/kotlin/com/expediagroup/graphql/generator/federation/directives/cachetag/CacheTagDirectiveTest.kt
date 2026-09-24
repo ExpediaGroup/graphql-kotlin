@@ -37,7 +37,7 @@ class CacheTagDirectiveTest {
         val expectedSchema =
             // language=GraphQL
             """
-            schema @link(import : ["@cacheTag"], url : "https://specs.apollo.dev/federation/v2.15"){
+            schema @link(import : ["@cacheTag"], url : "https://specs.apollo.dev/federation/v2.14"){
               query: Query
             }
 
@@ -95,7 +95,7 @@ class CacheTagDirectiveTest {
                 this.linkSpecs[FEDERATION_SPEC] = FederatedSchemaGeneratorHooks.LinkSpec(
                     namespace = FEDERATION_SPEC,
                     imports = mapOf("cacheTag" to "cacheTag"),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.15"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.14"
                 )
             }
         )
