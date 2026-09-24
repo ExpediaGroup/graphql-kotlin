@@ -39,7 +39,7 @@ class FromContextDirectiveTest {
         // language=GraphQL
         val expectedSchema =
             $$"""
-            schema @link(import : ["@key", "@context", "@fromContext", "ContextFieldValue"], url : "https://specs.apollo.dev/federation/v2.14"){
+            schema @link(import : ["@key", "@context", "@fromContext", "ContextFieldValue"], url : "https://specs.apollo.dev/federation/v2.13"){
               query: Query
             }
 
@@ -126,7 +126,7 @@ class FromContextDirectiveTest {
                         "fromContext" to "fromContext",
                         "ContextFieldValue" to "ContextFieldValue"
                     ),
-                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.14"
+                    url = "$FEDERATION_SPEC_URL_PREFIX/v2.13"
                 )
             }
         )
