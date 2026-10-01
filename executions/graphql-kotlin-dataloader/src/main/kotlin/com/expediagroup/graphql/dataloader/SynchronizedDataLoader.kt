@@ -17,8 +17,12 @@
 package com.expediagroup.graphql.dataloader
 
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderRegistry
 import org.dataloader.DelegatingDataLoader
+import org.dataloader.instrumentation.DataLoaderInstrumentation
 import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 
 /**
  *
@@ -37,4 +41,26 @@ internal class SynchronizedDataLoader<K : Any, V : Any>(
         synchronized(this) {
             super.load(key, keyContext)
         }
+
+    override fun loadMany(keys: List<K>): CompletableFuture<List<V>> =
+        synchronized(this) {
+            super.loadMany(keys)
+        }
+
+    override fun loadMany(keys: List<K>, keyContexts: List<Any>): CompletableFuture<List<V>> =
+        synchronized(this) {
+            super.loadMany(keys, keyContexts)
+        }
+
+    override fun loadMany(keysAndContexts: Map<K, *>): CompletableFuture<Map<K, V>> =
+        synchronized(this) {
+            super.loadMany(keysAndContexts)
+        }
+
+    /**
+     * [DataLoaderRegistry] transforms every registered [DataLoader] to add its name and [DataLoaderInstrumentation],
+     * the transformed [DataLoader] needs to be synchronized as well
+     */
+    override fun transform(builderConsumer: Consumer<DataLoaderFactory.Builder<K, V>>): DataLoader<K, V> =
+        SynchronizedDataLoader(super.transform(builderConsumer))
 }
