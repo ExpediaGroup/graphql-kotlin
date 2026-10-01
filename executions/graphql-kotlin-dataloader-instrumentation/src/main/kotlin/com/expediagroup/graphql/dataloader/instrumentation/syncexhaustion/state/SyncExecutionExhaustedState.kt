@@ -157,6 +157,12 @@ class SyncExecutionExhaustedState(
     /**
      * This is invoked right after a [DataLoader.load] was dispatched
      */
+    @Deprecated(
+        "Loads are tracked by DataLoaderSyncExecutionExhaustedDataLoaderDispatcher, register it with " +
+            "KotlinDataLoaderRegistryFactory.generate instead of calling this method directly. " +
+            "Will be removed in the next major version."
+    )
+    @Suppress("DEPRECATION")
     fun onDataLoaderLoadDispatched() {
         dataLoadersDispatchState.onDataLoaderLoadDispatched()
     }
@@ -164,8 +170,35 @@ class SyncExecutionExhaustedState(
     /**
      * This is invoked right after a [DataLoader.load] was completed
      */
+    @Deprecated(
+        "Loads are tracked by DataLoaderSyncExecutionExhaustedDataLoaderDispatcher, register it with " +
+            "KotlinDataLoaderRegistryFactory.generate instead of calling this method directly. " +
+            "This method decreases the dispatched loads counter even for loads that were not included in the last dispatch. " +
+            "Will be removed in the next major version."
+    )
+    @Suppress("DEPRECATION")
     fun onDataLoaderLoadCompleted() {
         dataLoadersDispatchState.onDataLoaderLoadCompleted()
+        if (allSyncExecutionsExhausted()) {
+            dataLoaderRegistryProvider.invoke().dispatchAll()
+        }
+    }
+
+    /**
+     * This is invoked right after a [DataLoader.load] was dispatched
+     *
+     * @return the counter that the load was added to, it needs to be provided to [onDataLoaderLoadCompleted]
+     */
+    internal fun trackDataLoaderLoad(): AtomicInteger =
+        dataLoadersDispatchState.trackDataLoaderLoad()
+
+    /**
+     * This is invoked right after a [DataLoader.load] was completed
+     *
+     * @param loadCounter the counter returned by [trackDataLoaderLoad] when the load was dispatched
+     */
+    internal fun onDataLoaderLoadCompleted(loadCounter: AtomicInteger) {
+        dataLoadersDispatchState.onDataLoaderLoadCompleted(loadCounter)
         if (allSyncExecutionsExhausted()) {
             dataLoaderRegistryProvider.invoke().dispatchAll()
         }

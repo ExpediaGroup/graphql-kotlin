@@ -21,6 +21,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.
 import org.dataloader.DataLoader
 import org.dataloader.instrumentation.DataLoaderInstrumentation
 import org.dataloader.instrumentation.DataLoaderInstrumentationContext
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Custom [DataLoaderInstrumentation] implementation that helps to calculate the state of [DataLoader]s in the
@@ -29,20 +30,23 @@ import org.dataloader.instrumentation.DataLoaderInstrumentationContext
 class DataLoaderSyncExecutionExhaustedDataLoaderDispatcher(
     private val syncExecutionExhaustedState: SyncExecutionExhaustedState
 ) : DataLoaderInstrumentation {
-    private val contextForSyncExecutionExhausted: DataLoaderInstrumentationContext<Any?> =
-        object : DataLoaderInstrumentationContext<Any?> {
-            override fun onDispatched() {
-                syncExecutionExhaustedState.onDataLoaderLoadDispatched()
-            }
-            override fun onCompleted(result: Any?, t: Throwable?) {
-                syncExecutionExhaustedState.onDataLoaderLoadCompleted()
-            }
-        }
-
     override fun beginLoad(
         dataLoader: DataLoader<*, *>,
         key: Any,
         loadContext: Any?
     ): DataLoaderInstrumentationContext<Any?> =
-        contextForSyncExecutionExhausted
+        object : DataLoaderInstrumentationContext<Any?> {
+            /**
+             * Counter the load was added to, cleared on completion so the load is only decreased once
+             */
+            private var loadCounter: AtomicInteger? = null
+
+            override fun onDispatched() {
+                loadCounter = syncExecutionExhaustedState.trackDataLoaderLoad()
+            }
+            override fun onCompleted(result: Any?, t: Throwable?) {
+                loadCounter?.let(syncExecutionExhaustedState::onDataLoaderLoadCompleted)
+                loadCounter = null
+            }
+        }
 }
