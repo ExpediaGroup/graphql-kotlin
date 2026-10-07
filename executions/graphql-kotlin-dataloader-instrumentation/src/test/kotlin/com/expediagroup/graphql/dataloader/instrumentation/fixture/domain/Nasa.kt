@@ -30,5 +30,5 @@ class Nasa(
     val phoneNumber: String = "+1 123-456-7890"
 ) {
     fun getTwitter(): CompletableFuture<String> =
-        "https://twitter.com/NASA".toMono().delayElement(Duration.ofMillis(100)).toFuture()
+        "https://twitter.com/NASA".toMono().delayElement(Duration.ofMillis(100)).toFuture().thenApply { it!! }
 }

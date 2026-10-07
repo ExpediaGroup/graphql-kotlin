@@ -39,7 +39,7 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Optional<Missi
                 MissionRepository
                     .getMissions(keys.map(MissionServiceRequest::id))
                     .collectList()
-                    .toFuture()
+                    .toFuture().thenApply { it!! }
             },
             DataLoaderOptions.newOptions()
                 .setStatisticsCollector(::SimpleStatisticsCollector)
@@ -54,7 +54,7 @@ class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, Li
             { keys: List<MissionServiceRequest> ->
                 MissionRepository
                     .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
-                    .collectList().toFuture()
+                    .collectList().toFuture().thenApply { it!! }
             },
             DataLoaderOptions.newOptions()
                 .setStatisticsCollector(::SimpleStatisticsCollector)
@@ -89,7 +89,7 @@ class MissionService {
                 .getMissions(emptyList())
                 .collectList()
                 .map(List<Optional<Mission>>::toListOfNullables)
-                .toFuture()
+                .toFuture().thenApply { it!! }
         }
     }
 

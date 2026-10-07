@@ -45,7 +45,7 @@ class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Optional<A
                 AstronautRepository
                     .getAstronauts(keys.map(AstronautServiceRequest::id))
                     .collectList()
-                    .toFuture()
+                    .toFuture().thenApply { it!! }
             },
             DataLoaderOptions.newOptions()
                 .setStatisticsCollector(::SimpleStatisticsCollector)
@@ -67,7 +67,7 @@ class AstronautService {
     fun createAstronaut(
         request: CreateAstronautServiceRequest
     ): CompletableFuture<Astronaut> =
-        Astronaut(100, request.name).toMono().delayElement(Duration.ofMillis(100)).toFuture()
+        Astronaut(100, request.name).toMono().delayElement(Duration.ofMillis(100)).toFuture().thenApply { it!! }
 
     fun getAstronauts(
         requests: List<AstronautServiceRequest>,
@@ -85,7 +85,7 @@ class AstronautService {
                 .getAstronauts(emptyList())
                 .collectList()
                 .map(List<Optional<Astronaut>>::toListOfNullables)
-                .toFuture()
+                .toFuture().thenApply { it!! }
         }
     }
 

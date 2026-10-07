@@ -36,7 +36,7 @@ class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Optional<Produ
                 ProductRepository
                     .getProducts(requests)
                     .collectList()
-                    .toFuture()
+                    .toFuture().thenApply { it!! }
             },
             DataLoaderOptions.newOptions()
                 .setStatisticsCollector(::SimpleStatisticsCollector)
