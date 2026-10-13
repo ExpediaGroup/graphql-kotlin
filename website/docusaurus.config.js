@@ -23,14 +23,14 @@ module.exports = {
       {
         docs: {
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/website",
-          lastVersion: '10.x.x',
+          lastVersion: '11.x.x',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
               label: 'pre-release',
-              path: '11.x.x'
+              path: '12.x.x'
             }
           }
         }
