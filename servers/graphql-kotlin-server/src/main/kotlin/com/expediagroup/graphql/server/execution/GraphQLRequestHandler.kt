@@ -40,6 +40,8 @@ import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
@@ -109,6 +111,7 @@ open class GraphQLRequestHandler(
                 graphQLRequest.toExecutionInput(batchGraphQLContext, dataLoaderRegistry)
             ).await().toGraphQLResponse()
         } catch (exception: Exception) {
+            currentCoroutineContext().ensureActive()
             val error = exception.toGraphQLError()
             GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType()))
         }

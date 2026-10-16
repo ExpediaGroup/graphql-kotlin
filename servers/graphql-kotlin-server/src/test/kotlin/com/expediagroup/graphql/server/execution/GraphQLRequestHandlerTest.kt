@@ -32,6 +32,8 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerError
 import graphql.ExecutionInput
+import graphql.ExecutionResult
+import graphql.ExecutionResultImpl
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.execution.AbortExecutionException
@@ -42,14 +44,19 @@ import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -326,6 +333,37 @@ class GraphQLRequestHandlerTest {
                 assertNull(response.responses[0].extensions)
             }
         }
+    }
+
+    @Test
+    fun `cancelling a graphQL batch with a mutation stops the remaining requests`() {
+        val started = CompletableDeferred<Unit>()
+        val executions = AtomicInteger()
+        val mockGraphQL = mockk<GraphQL> {
+            every { executeAsync(any<ExecutionInput>()) } answers {
+                if (executions.incrementAndGet() == 1) {
+                    started.complete(Unit)
+                    CompletableFuture<ExecutionResult>()
+                } else {
+                    CompletableFuture.completedFuture(ExecutionResultImpl.newExecutionResult().data(mapOf("addUser" to null)).build())
+                }
+            }
+            every { instrumentation } returns ChainedInstrumentation()
+        }
+        val request = GraphQLBatchRequest(
+            GraphQLRequest(query = """mutation { addUser(name: "John Doe") { id } }"""),
+            GraphQLRequest(query = """mutation { addUser(name: "Jane Doe") { id } }"""),
+        )
+
+        runBlocking {
+            val job = launch(Dispatchers.Default) {
+                GraphQLRequestHandler(mockGraphQL).executeRequest(request)
+            }
+            started.await()
+            job.cancelAndJoin()
+        }
+
+        assertEquals(1, executions.get())
     }
 
     @Test
