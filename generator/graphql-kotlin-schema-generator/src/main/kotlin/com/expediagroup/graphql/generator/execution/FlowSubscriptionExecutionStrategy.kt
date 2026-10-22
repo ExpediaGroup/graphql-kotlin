@@ -178,6 +178,9 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
                     ExecutionResultImpl(fv, deferredCallContext.errors)
                 )
             }
+            .whenComplete { _, _ ->
+                executionContext.dataLoaderDispatcherStrategy.subscriptionEventExecutionDone(deferredCallContext)
+            }
 
         // dispatch instrumentation so they can know about each subscription event
         subscribedFieldCtx.onDispatched()

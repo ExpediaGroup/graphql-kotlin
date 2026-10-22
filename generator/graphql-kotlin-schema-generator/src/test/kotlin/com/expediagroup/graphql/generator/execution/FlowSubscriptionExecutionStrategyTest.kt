@@ -27,9 +27,12 @@ import graphql.ExecutionResultImpl
 import graphql.GraphQL
 import graphql.GraphQLError
 import graphql.GraphqlErrorBuilder
+import graphql.execution.DataLoaderDispatchStrategy
 import graphql.execution.DataFetcherResult
+import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationState
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatchingContextKeys
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
@@ -37,11 +40,17 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.runBlocking
+import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -187,6 +196,49 @@ class FlowSubscriptionExecutionStrategyTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `verify subscription events release their data loader dispatch state`(exhaustedDispatching: Boolean) = runBlocking {
+        val capturedExecutionContext = AtomicReference<ExecutionContext>()
+        val graphQL = GraphQL.newGraphQL(testSchema)
+            .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy())
+            .instrumentation(object : Instrumentation {
+                override fun instrumentExecutionContext(
+                    executionContext: ExecutionContext,
+                    parameters: InstrumentationExecutionParameters,
+                    state: InstrumentationState?
+                ): ExecutionContext {
+                    capturedExecutionContext.set(executionContext)
+                    return executionContext
+                }
+            })
+            .build()
+        val dataLoaderRegistry = DataLoaderRegistry()
+        dataLoaderRegistry.register(
+            "labelLoader",
+            DataLoaderFactory.newDataLoader<Int, String> { keys -> CompletableFuture.completedFuture(keys.map { "label $it" }) }
+        )
+        val request = ExecutionInput.newExecutionInput()
+            .query("subscription { dataLoaderTicker { label } }")
+            .dataLoaderRegistry(dataLoaderRegistry)
+            .graphQLContext(mapOf(DataLoaderDispatchingContextKeys.ENABLE_DATA_LOADER_EXHAUSTED_DISPATCHING to exhaustedDispatching))
+            .build()
+        val response = graphQL.execute(request)
+        val flow = assertNotNull(response.getData<Flow<ExecutionResult>>())
+        val labels = flow.toList().map { result ->
+            assertNotNull(result.getData<Map<String, Map<String, String>>>()).getValue("dataLoaderTicker").getValue("label")
+        }
+
+        assertEquals((1..5).map { "label $it" }, labels)
+        assertEquals(0, alternativeCallContextMap(capturedExecutionContext.get().dataLoaderDispatcherStrategy).size)
+    }
+
+    private fun alternativeCallContextMap(strategy: DataLoaderDispatchStrategy): Map<*, *> {
+        val field = strategy.javaClass.getDeclaredField("alternativeCallContextMap")
+        field.isAccessible = true
+        return field.get(strategy) as Map<*, *>
+    }
+
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
     // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
     class BasicQuery {
@@ -207,6 +259,11 @@ class FlowSubscriptionExecutionStrategyTest {
                     .build()
             )
         }
+    }
+
+    class Ticker(private val value: Int) {
+        fun label(environment: DataFetchingEnvironment): CompletableFuture<String> =
+            checkNotNull(environment.getDataLoader<Int, String>("labelLoader")).load(value)
     }
 
     class FlowSubscription {
@@ -235,6 +292,14 @@ class FlowSubscriptionExecutionStrategyTest {
                     emit(i)
                 }
             }.asPublisher()
+        }
+
+        fun dataLoaderTicker(): Flow<Ticker> {
+            return flow {
+                for (i in 1..5) {
+                    emit(Ticker(i))
+                }
+            }
         }
 
         fun throwsFast(): Flow<Int> {
