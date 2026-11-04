@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import graphql.GraphQLContext
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**
@@ -29,6 +30,21 @@ open class SpringGraphQLServer(
     requestHandler: GraphQLRequestHandler
 ) : GraphQLServer<ServerRequest>(
     requestParser,
-    contextFactory,
+    CacheControlAwareContextFactory(contextFactory),
     requestHandler
 )
+
+/**
+ * Delegates context creation and, if the route requested `Cache-Control` calculation, adds the request
+ * [CacheControlPolicies] to the generated [GraphQLContext].
+ */
+private class CacheControlAwareContextFactory(
+    private val delegate: SpringGraphQLContextFactory
+) : SpringGraphQLContextFactory() {
+    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+        delegate.generateContext(request).also { context ->
+            (request.attribute(CACHE_CONTROL_POLICIES_ATTRIBUTE).orElse(null) as? CacheControlPolicies)?.let { policies ->
+                context.put(CacheControlPolicies::class, policies)
+            }
+        }
+}

@@ -16,10 +16,14 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.server.spring.execution.CACHE_CONTROL_POLICIES_ATTRIBUTE
+import com.expediagroup.graphql.server.spring.execution.CacheControlPolicies
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
+import com.expediagroup.graphql.server.spring.execution.cacheControlHeaderValue
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
@@ -38,6 +42,8 @@ class GraphQLRoutesConfiguration(
     private val graphQLServer: SpringGraphQLServer
 ) {
 
+    private val isCacheControlEnabled: Boolean = config.federation.enabled && config.federation.cacheControl.enabled
+
     @Bean
     fun graphQLRoutes() = coRouter {
         val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
@@ -45,6 +51,9 @@ class GraphQLRoutesConfiguration(
 
         (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
             try {
+                if (isCacheControlEnabled) {
+                    serverRequest.attributes()[CACHE_CONTROL_POLICIES_ATTRIBUTE] = CacheControlPolicies()
+                }
                 val graphQLResponse = graphQLServer.execute(serverRequest)
                 val acceptMediaType = serverRequest
                     .headers()
@@ -53,7 +62,13 @@ class GraphQLRoutesConfiguration(
                     ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
                     ?: MediaType.APPLICATION_JSON
                 if (graphQLResponse != null) {
-                    ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
+                    ok().contentType(acceptMediaType)
+                        .also { builder ->
+                            if (isCacheControlEnabled) {
+                                builder.header(HttpHeaders.CACHE_CONTROL, cacheControlHeaderValue(serverRequest, graphQLResponse))
+                            }
+                        }
+                        .bodyValueAndAwait(graphQLResponse)
                 } else {
                     badRequest().buildAndAwait()
                 }
