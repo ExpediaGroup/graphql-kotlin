@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.apollographql.federation.graphqljava.caching.CacheControlInstrumentation
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
@@ -31,6 +32,7 @@ import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.server.spring.execution.SpringCacheControlInstrumentation
 import com.expediagroup.graphql.server.spring.extensions.toTopLevelObject
 import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
 import graphql.schema.GraphQLSchema
@@ -111,4 +113,13 @@ class FederatedSchemaAutoConfiguration(
     @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true", matchIfMissing = true)
     fun federatedTracing(): FederatedTracingInstrumentation =
         FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
+
+    /**
+     * Registers the federation-jvm cache control instrumentation that computes the overall cache policy of an operation
+     * from `@cacheControl` hints. The resulting policy is returned to the caller in the `Cache-Control` response header.
+     */
+    @Bean
+    @ConditionalOnProperty(value = ["graphql.federation.cacheControl.enabled"], havingValue = "true")
+    fun federatedCacheControl(): CacheControlInstrumentation =
+        SpringCacheControlInstrumentation(config.federation.cacheControl.defaultMaxAge)
 }

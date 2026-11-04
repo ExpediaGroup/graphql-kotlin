@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.federation.directives.AUTHENTICATED_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.CACHE_CONTROL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.CACHE_TAG_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COST_DIRECTIVE_NAME
@@ -52,6 +53,7 @@ import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_SCOPE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.cacheControlDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.fromContextDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.keyDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.linkDirectiveDefinition
@@ -61,6 +63,7 @@ import com.expediagroup.graphql.generator.federation.directives.policyDirectiveD
 import com.expediagroup.graphql.generator.federation.directives.providesDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresDirectiveDefinition
 import com.expediagroup.graphql.generator.federation.directives.requiresScopesDirectiveType
+import com.expediagroup.graphql.generator.federation.directives.toAppliedCacheControlDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedLinkDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedListSizeDirective
 import com.expediagroup.graphql.generator.federation.directives.toAppliedOverrideDirective
@@ -261,6 +264,7 @@ open class FederatedSchemaGeneratorHooks(
         }
 
         return when (directiveInfo.effectiveName) {
+            CACHE_CONTROL_DIRECTIVE_NAME -> cacheControlDirectiveDefinition()
             CONTACT_DIRECTIVE_NAME -> CONTACT_DIRECTIVE_TYPE
             EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE
             KEY_DIRECTIVE_NAME -> keyDirectiveDefinition(fieldSetScalar)
@@ -278,6 +282,10 @@ open class FederatedSchemaGeneratorHooks(
 
     override fun willApplyDirective(directiveInfo: DirectiveMetaInformation, directive: GraphQLDirective): GraphQLAppliedDirective? {
         return when (directiveInfo.effectiveName) {
+            CACHE_CONTROL_DIRECTIVE_NAME -> {
+                directive.toAppliedCacheControlDirective(directiveInfo)
+            }
+
             REQUIRES_SCOPE_DIRECTIVE_NAME -> {
                 directive.toAppliedRequiresScopesDirective(directiveInfo)
             }

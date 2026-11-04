@@ -62,7 +62,30 @@ data class GraphQLConfigurationProperties(
          * Federation tracing config
          */
         @NestedConfigurationProperty
-        val tracing: FederationTracingConfigurationProperties = FederationTracingConfigurationProperties()
+        val tracing: FederationTracingConfigurationProperties = FederationTracingConfigurationProperties(),
+
+        /**
+         * Federation cache control config
+         */
+        @NestedConfigurationProperty
+        val cacheControl: FederationCacheControlConfigurationProperties = FederationCacheControlConfigurationProperties()
+    )
+
+    /**
+     * Apollo cache control configuration properties
+     */
+    data class FederationCacheControlConfigurationProperties(
+        /**
+         * Flag to enable or disable calculating the `Cache-Control` response header from `@cacheControl` hints.
+         * Default is false. Only used if federation is enabled.
+         */
+        val enabled: Boolean = false,
+
+        /**
+         * Default max age, in seconds, applied to root fields and fields returning composite types that do not
+         * specify their own `@cacheControl(maxAge:)` hint. Default is 0, which means those fields are not cacheable.
+         */
+        val defaultMaxAge: Int = 0
     )
 
     /**

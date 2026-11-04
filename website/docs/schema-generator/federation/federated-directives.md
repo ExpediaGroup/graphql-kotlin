@@ -25,6 +25,62 @@ Directive that is used to indicate that the target element is accessible only to
 [`@requiresScopes`[#requirescope-directive] directive usage. Refer to the [Apollo Router documentation](https://www.apollographql.com/docs/router/configuration/authorization#authenticated)
 for additional details.
 
+## `@cacheControl` directive
+
+```graphql
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+```
+
+`@cacheControl` provides static cache hints for the [Apollo cache control](https://www.apollographql.com/docs/apollo-server/performance/caching)
+model. The hints of all the fields resolved by an operation are combined into a single policy: the lowest `maxAge` wins
+and a single `PRIVATE` hint makes the whole response private. Root fields and fields returning object, interface or union
+types that have no hint are not cacheable (unless a default max age is configured), while scalar fields inherit the
+policy of their parent. `inheritMaxAge = true` lets a field returning a composite type inherit the `maxAge` of its parent.
+
+The Apollo Router (and CDNs) cache subgraph responses based on the `Cache-Control` HTTP header returned by the
+subgraph. The policy is calculated by the `CacheControlInstrumentation` from `federation-jvm`. When using
+`graphql-kotlin-spring-server`, set `graphql.federation.cacheControl.enabled=true` to register the instrumentation and
+return the calculated `Cache-Control` header (`max-age=<seconds>, <public|private>`, or `no-store` when the response is not
+cacheable or contains errors). Batched requests get the most restrictive policy of their operations. Unlike the federation spec directives, `@cacheControl` does not need
+to be imported through `@link`.
+
+#### Example
+
+```kotlin
+@KeyDirective(fields = FieldSet("id"))
+@CacheControlDirective(maxAge = 240)
+data class Product(val id: ID, val name: String) {
+  @CacheControlDirective(maxAge = 30)
+  fun price(): Double = TODO()
+
+  @CacheControlDirective(scope = CacheControlScope.PRIVATE)
+  fun recommendedForYou(): List<Product> = TODO()
+}
+```
+
+will generate
+
+```graphql
+type Product @cacheControl(maxAge : 240) @key(fields : "id", resolvable : true) {
+  id: ID!
+  name: String!
+  price: Float! @cacheControl(maxAge : 30)
+  recommendedForYou: [Product!]! @cacheControl(scope : PRIVATE)
+}
+```
+
+A query for `product { name price }` returns `Cache-Control: max-age=30, public`. Adding `recommendedForYou` to the
+selection set makes the response `private`.
+
 ## `@cacheTag` directive
 
 :::info
