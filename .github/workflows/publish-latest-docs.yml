@@ -16,7 +16,7 @@ jobs:
     if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
