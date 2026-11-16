@@ -8,6 +8,9 @@ on:
     paths:
       - 'integration/graalvm/**'
 
+permissions:
+  contents: read
+
 jobs:
   graalvm-integration:
     timeout-minutes: 60
@@ -22,13 +25,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.7.0
+        with:
+          persist-credentials: false
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v3.5.0
 
       - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@v1.6.9
         with:
           java-version: '25'
           distribution: 'graalvm'
@@ -36,7 +41,7 @@ jobs:
           native-image-job-reports: 'true'
 
       - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v3.5.0
 
       - name: Build native image
         timeout-minutes: 20
