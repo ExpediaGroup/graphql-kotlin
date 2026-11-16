@@ -17,12 +17,12 @@ jobs:
     if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.7.0
         with:
           persist-credentials: false
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2.2.0
 
       - name: Build website
         run: |
