@@ -3,6 +3,9 @@ name: Build and Test Libraries
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     timeout-minutes: 30

@@ -3,6 +3,9 @@ name: Plugin Integration Tests
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   android-test:
     timeout-minutes: 30

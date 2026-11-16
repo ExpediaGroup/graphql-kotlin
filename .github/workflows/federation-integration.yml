@@ -10,6 +10,8 @@ jobs:
   composition:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: examples/federation
@@ -69,6 +71,8 @@ jobs:
         run: docker compose down --remove-orphans
 
   compatibility:
+    # no permissions block here: this job takes what its caller grants, since the pull request check
+    # lets the compatibility action comment its results and the push build does not
     timeout-minutes: 30
     runs-on: ubuntu-latest
     defaults:

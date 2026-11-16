@@ -8,6 +8,9 @@ on:
     paths:
       - 'integration/graalvm/**'
 
+permissions:
+  contents: read
+
 jobs:
   graalvm-integration:
     timeout-minutes: 60

@@ -9,6 +9,9 @@ on:
       - 'servers/**'
       - 'integration/graphql-http-spec/**'
 
+permissions:
+  contents: read
+
 jobs:
   http-spec-compliance:
     timeout-minutes: 20

@@ -8,6 +8,9 @@ on:
     paths-ignore:
       - 'website/**'
 
+permissions:
+  contents: read
+
 jobs:
   build-libraries:
     uses: ./.github/workflows/build-libraries.yml
