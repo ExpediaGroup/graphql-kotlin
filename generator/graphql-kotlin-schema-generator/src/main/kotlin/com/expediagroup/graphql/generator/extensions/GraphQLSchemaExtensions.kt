@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import com.expediagroup.graphql.generator.semantic.semanticIntrospectionFilter
 import graphql.Directives
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
@@ -31,6 +32,8 @@ import java.util.function.Predicate
  * @param includeDirectives boolean flag indicating whether SDL should include directive information
  * @param includeDirectivesFilter Predicate to filter out specific directives. Defaults to filter all directives by the value of [includeDirectives]
  * @param includeDirectiveDefinitions Include the definitions of directives at the top of the schema
+ *
+ * Semantic introspection's `_search` is left out unless [includeIntrospectionTypes] is set, like introspection itself.
  */
 fun GraphQLSchema.print(
     includeIntrospectionTypes: Boolean = false,
@@ -52,4 +55,8 @@ fun GraphQLSchema.print(
                 }
             )
             .includeDirectiveDefinitions(includeDirectiveDefinitions)
+            .let { options ->
+                val semanticIntrospection = semanticIntrospectionFilter(this)
+                if (includeIntrospectionTypes || semanticIntrospection == null) options else options.includeSchemaElement(semanticIntrospection)
+            }
     ).print(this)

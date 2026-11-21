@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Import
     SubscriptionAutoConfiguration::class,
     SdlRouteConfiguration::class,
     PlaygroundRouteConfiguration::class,
-    GraphiQLRouteConfiguration::class
+    GraphiQLRouteConfiguration::class,
+    SemanticIntrospectionConfiguration::class
 )
 class GraphQLAutoConfiguration
