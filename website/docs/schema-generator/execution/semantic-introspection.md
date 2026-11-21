@@ -17,7 +17,6 @@ match a natural language question, then read only those through standard introsp
     coordinate
     score
     pathsToRoot
-    cursor
   }
 }
 ```
@@ -29,8 +28,7 @@ match a natural language question, then read only those through standard introsp
       {
         "coordinate": "Repository.releases",
         "score": 0.92,
-        "pathsToRoot": [["Query.repository", "Repository.releases"]],
-        "cursor": "MA=="
+        "pathsToRoot": [["Query.repository", "Repository.releases"]]
       }
     ]
   }
@@ -51,21 +49,19 @@ class SchemaSearch : SemanticSearchResolver {
             SemanticSearchResult(
                 coordinate = "Repository.releases",
                 pathsToRoot = listOf(listOf("Query.repository", "Repository.releases")),
-                score = 0.92,
-                cursor = "0"
+                score = 0.92
             )
         )
     }
 }
 ```
 
-The resolver owns ranking and paging:
+The resolver owns ranking:
 
-- return at most `request.first` results starting after `request.after`, best match first, each scoring at least
-  `request.minScore` when it is set
+- return at most `request.first` results, best match first, each scoring at least `request.minScore` when it is set
 - return [schema coordinates](https://spec.graphql.org/draft/#sec-Schema-Coordinates) of visible schema members
   (`Type`, `Type.field`, `Input.field`, `Enum.VALUE`, `Type.field(arg:)`, `@directive`, `@directive(arg:)`), and
-  `pathsToRoot` as lists of `Type.field` coordinates from a root field. A page that breaks these rules fails the field rather than being trimmed, so paging stays consistent;
+  `pathsToRoot` as lists of `Type.field` coordinates from a root field. Results that break these rules fail the field rather than being trimmed;
   paths through fields hidden by field visibility are dropped
 - read the schema from `environment.graphQLSchema`, not by injecting it: the search is part of the schema it searches
 - throw a `GraphQLError` (for example `GraphqlErrorException`) for an error meant for the client; other exceptions go to
@@ -98,6 +94,7 @@ introspection disabled.
 - **Results are coordinates only**: there is no `definition` field and no `__definitions` lookup. The RFC's definition
   union of introspection types does not survive an introspection round trip in graphql-java tooling. Read definitions
   with standard introspection, for example `__type(name: "Repository") { fields { name description } }`.
+- **No pagination**: there is no `after` argument or `cursor` field; ask for more results with `first`.
 - **Nullable list**: `_search` returns `[_SearchResult!]`, so a failed search nulls only `_search`.
 
 ## Printed SDL and federation

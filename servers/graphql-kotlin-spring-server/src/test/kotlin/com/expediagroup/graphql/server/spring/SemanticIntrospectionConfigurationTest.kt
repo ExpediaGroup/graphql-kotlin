@@ -85,7 +85,7 @@ class SemanticIntrospectionConfigurationTest {
     @Configuration
     class ResolverConfiguration {
         @Bean
-        fun resolver() = SemanticSearchResolver { _, _ -> listOf(SemanticSearchResult("Query.hello", listOf(listOf("Query.hello")), 1.0, "0")) }
+        fun resolver() = SemanticSearchResolver { _, _ -> listOf(SemanticSearchResult("Query.hello", listOf(listOf("Query.hello")), 1.0)) }
     }
 
     class HelloQuery : Query {

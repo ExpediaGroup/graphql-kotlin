@@ -41,9 +41,9 @@ annotation class ExperimentalSemanticIntrospection
 @ExperimentalSemanticIntrospection
 fun interface SemanticSearchResolver {
     /**
-     * Returns at most [SemanticSearchRequest.first] results starting after [SemanticSearchRequest.after], best match
-     * first, each scoring at least [SemanticSearchRequest.minScore] when set. Only return coordinates of visible schema
-     * members: invalid pages fail the field instead of being trimmed, so paging stays consistent.
+     * Returns at most [SemanticSearchRequest.first] results, best match first, each scoring at least
+     * [SemanticSearchRequest.minScore] when set. Only return coordinates of visible schema members: invalid results fail
+     * the field instead of being trimmed.
      *
      * Throw a [graphql.GraphQLError] (for example [graphql.GraphqlErrorException]) for an error meant for the client;
      * any other exception goes to the application's [graphql.execution.DataFetcherExceptionHandler].
@@ -60,8 +60,6 @@ class SemanticSearchRequest(
     val query: String,
     /** Maximum number of results, at least 1. */
     val first: Int,
-    /** Cursor of the last result of the previous page. */
-    val after: String?,
     /** Minimum score of every returned result. */
     val minScore: Double?
 )
@@ -76,7 +74,5 @@ class SemanticSearchResult(
     /** Paths from a root field to the match, each a list of `Type.field` coordinates. */
     val pathsToRoot: List<List<String>>,
     /** Relevance from 0 to 1. */
-    val score: Double?,
-    /** Opaque cursor; passed back as `after` for the next page. */
-    val cursor: String
+    val score: Double?
 )

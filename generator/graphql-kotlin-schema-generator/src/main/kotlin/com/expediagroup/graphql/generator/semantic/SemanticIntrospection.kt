@@ -83,8 +83,8 @@ private fun GraphQLSchema.exposesIntrospection() = codeRegistry.fieldVisibility.
  * Adds `Query._search` from the Semantic Introspection RFC, resolved by [resolver]:
  *
  * ```graphql
- * type Query { _search(query: String!, first: Int! = 10, after: String, minScore: Float): [_SearchResult!] }
- * type _SearchResult { coordinate: String!, pathsToRoot: [[String!]!]!, score: Float, cursor: String! }
+ * type Query { _search(query: String!, first: Int! = 10, minScore: Float): [_SearchResult!] }
+ * type _SearchResult { coordinate: String!, pathsToRoot: [[String!]!]!, score: Float }
  * ```
  *
  * Results are coordinates only; clients read definitions through standard introspection. Apply it to the final
@@ -110,14 +110,12 @@ fun GraphQLSchema.withSemanticIntrospection(resolver: SemanticSearchResolver): G
         .field(newFieldDefinition().name("coordinate").description("Schema coordinate, for example `Type`, `Type.field`, `Type.field(arg:)` or `@directive`.").type(nonNull(GraphQLString)))
         .field(newFieldDefinition().name("pathsToRoot").description("Paths from a root field, as field coordinates.").type(nonNull(list(nonNull(list(nonNull(GraphQLString)))))))
         .field(newFieldDefinition().name("score").description("Relevance from 0 to 1.").type(GraphQLFloat))
-        .field(newFieldDefinition().name("cursor").description("Pass as `after` for the next page.").type(nonNull(GraphQLString)))
         .build()
     val search = newFieldDefinition()
         .name(SEMANTIC_SEARCH_FIELD)
         .description("Searches the schema for members matching a natural language query, best match first (Semantic Introspection RFC).")
         .argument(newArgument().name("query").type(nonNull(GraphQLString)))
         .argument(newArgument().name("first").type(nonNull(GraphQLInt)).defaultValueProgrammatic(DEFAULT_FIRST))
-        .argument(newArgument().name("after").type(GraphQLString))
         .argument(newArgument().name("minScore").type(GraphQLFloat))
         .type(list(nonNull(result)))
         .definition(
@@ -141,7 +139,6 @@ fun GraphQLSchema.withSemanticIntrospection(resolver: SemanticSearchResolver): G
                 registry.dataFetcher(coordinates(SEMANTIC_SEARCH_RESULT_TYPE, "coordinate"), DataFetcher { it.getSource<SemanticSearchResult>()!!.coordinate })
                 registry.dataFetcher(coordinates(SEMANTIC_SEARCH_RESULT_TYPE, "pathsToRoot"), DataFetcher { it.getSource<SemanticSearchResult>()!!.pathsToRoot })
                 registry.dataFetcher(coordinates(SEMANTIC_SEARCH_RESULT_TYPE, "score"), DataFetcher { it.getSource<SemanticSearchResult>()!!.score })
-                registry.dataFetcher(coordinates(SEMANTIC_SEARCH_RESULT_TYPE, "cursor"), DataFetcher { it.getSource<SemanticSearchResult>()!!.cursor })
                 return changeNode(context, node.transform { it.field(search) })
             }
         }
@@ -176,7 +173,6 @@ internal class SemanticSearchDataFetcher(private val resolver: SemanticSearchRes
             // Both non-null in the schema; first has a default.
             query = environment.getArgument<String>("query")!!,
             first = environment.getArgument<Int>("first")!!,
-            after = environment.getArgument<String>("after"),
             minScore = environment.getArgument<Double>("minScore")
         )
         if (request.first < 1) return fieldError(environment, "first must be at least 1", ErrorType.ValidationError)
@@ -203,7 +199,7 @@ internal class SemanticSearchDataFetcher(private val resolver: SemanticSearchRes
     }
 
     /**
-     * Fails an invalid page rather than trimming it, which would break paging; the messages never name a coordinate,
+     * Fails invalid results rather than trimming them; the messages never name a coordinate,
      * which may be hidden. Paths through hidden fields are dropped: the match is still reachable another way.
      */
     private fun checkPage(coordinates: SchemaCoordinates, request: SemanticSearchRequest, results: List<SemanticSearchResult>): List<SemanticSearchResult> {
@@ -213,7 +209,7 @@ internal class SemanticSearchDataFetcher(private val resolver: SemanticSearchRes
             val minScore = request.minScore
             check(minScore == null || (result.score != null && result.score >= minScore)) { "Semantic search resolver returned a score below minScore" }
             val paths = result.pathsToRoot.filter { path -> path.isNotEmpty() && path.all(coordinates::isField) }
-            if (paths.size == result.pathsToRoot.size) result else SemanticSearchResult(result.coordinate, paths, result.score, result.cursor)
+            if (paths.size == result.pathsToRoot.size) result else SemanticSearchResult(result.coordinate, paths, result.score)
         }
     }
 }

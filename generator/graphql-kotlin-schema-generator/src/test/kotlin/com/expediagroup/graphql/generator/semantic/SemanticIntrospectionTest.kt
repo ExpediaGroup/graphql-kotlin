@@ -72,7 +72,7 @@ class SemanticIntrospectionTest {
     private fun schema(config: SchemaGeneratorConfig = testSchemaConfig()): GraphQLSchema =
         toSchema(queries = listOf(TopLevelObject(Query())), config = config)
 
-    private val releases = SemanticSearchResult("Repository.releases", listOf(listOf("Query.repository", "Repository.releases")), 0.9, "c0")
+    private val releases = SemanticSearchResult("Repository.releases", listOf(listOf("Query.repository", "Repository.releases")), 0.9)
 
     private fun execute(schema: GraphQLSchema, query: String, context: Map<Any, Any> = emptyMap()): ExecutionResult =
         GraphQL.newGraphQL(schema).build().execute(ExecutionInput.newExecutionInput(query).graphQLContext(context))
@@ -84,8 +84,8 @@ class SemanticIntrospectionTest {
         val schema = schema().withSemanticIntrospection { _, _ -> emptyList() }
 
         val search = schema.queryType.getFieldDefinition(SEMANTIC_SEARCH_FIELD)
-        assertEquals(listOf("query", "first", "after", "minScore"), search.arguments.map { it.name })
-        assertEquals(listOf("coordinate", "pathsToRoot", "score", "cursor"), schema.getObjectType(SEMANTIC_SEARCH_RESULT_TYPE)!!.fieldDefinitions.map { it.name })
+        assertEquals(listOf("query", "first", "minScore"), search.arguments.map { it.name })
+        assertEquals(listOf("coordinate", "pathsToRoot", "score"), schema.getObjectType(SEMANTIC_SEARCH_RESULT_TYPE)!!.fieldDefinitions.map { it.name })
     }
 
     @Test
@@ -111,14 +111,14 @@ class SemanticIntrospectionTest {
         var request: SemanticSearchRequest? = null
         val schema = schema().withSemanticIntrospection { _, r -> request = r; listOf(releases) }
 
-        val result = execute(schema, """{ _search(query: "releases", first: 2, after: "c", minScore: 0.5) { coordinate pathsToRoot score cursor } }""")
+        val result = execute(schema, """{ _search(query: "releases", first: 2, minScore: 0.5) { coordinate pathsToRoot score } }""")
 
         assertEquals(emptyList(), result.errors)
         assertEquals(
-            listOf(mapOf("coordinate" to "Repository.releases", "pathsToRoot" to listOf(listOf("Query.repository", "Repository.releases")), "score" to 0.9, "cursor" to "c0")),
+            listOf(mapOf("coordinate" to "Repository.releases", "pathsToRoot" to listOf(listOf("Query.repository", "Repository.releases")), "score" to 0.9)),
             result.search()
         )
-        assertEquals(listOf("releases", 2, "c", 0.5), request!!.let { listOf(it.query, it.first, it.after, it.minScore) })
+        assertEquals(listOf("releases", 2, 0.5), request!!.let { listOf(it.query, it.first, it.minScore) })
     }
 
     @Test
@@ -139,14 +139,14 @@ class SemanticIntrospectionTest {
             execute(schema().withSemanticIntrospection { _, _ -> results }, query).also { assertNull(it.search()) }.errors
 
         assertEquals(1, errorsFor(listOf(releases, releases)).size)
-        assertEquals(1, errorsFor(listOf(SemanticSearchResult("Repository.releases", emptyList(), 0.1, "c"))).size)
-        assertEquals(1, errorsFor(listOf(SemanticSearchResult("Repository.releases", emptyList(), null, "c"))).size)
+        assertEquals(1, errorsFor(listOf(SemanticSearchResult("Repository.releases", emptyList(), 0.1))).size)
+        assertEquals(1, errorsFor(listOf(SemanticSearchResult("Repository.releases", emptyList(), null))).size)
         val invalid = listOf(
-            "Repository.nope", "Nope", "A.B.C", "String.length", "Query._search", "_SearchResult", "_SearchResult.cursor", "__Type", "__Type.name",
+            "Repository.nope", "Nope", "A.B.C", "String.length", "Query._search", "_SearchResult", "_SearchResult.score", "__Type", "__Type.name",
             "__TypeKind.OBJECT", "", "Query.repository(name:\t)", "Query.repository(nope:)", "Repository(name:)", "@nope", "@deprecated(nope:)", "@deprecated.reason", "OrderStatus.DONE"
         )
         for (coordinate in invalid) {
-            val errors = errorsFor(listOf(SemanticSearchResult(coordinate, emptyList(), 0.9, "c")))
+            val errors = errorsFor(listOf(SemanticSearchResult(coordinate, emptyList(), 0.9)))
             assertEquals(1, errors.size, coordinate)
             // never echoes the coordinate, which may be hidden
             assertFalse(coordinate.isNotEmpty() && coordinate in errors.single().message, coordinate)
@@ -160,7 +160,7 @@ class SemanticIntrospectionTest {
             "@deprecated", "@deprecated(reason:)"
         )
         for (coordinate in valid) {
-            val schema = schema().withSemanticIntrospection { _, _ -> listOf(SemanticSearchResult(coordinate, emptyList(), 0.9, "c")) }
+            val schema = schema().withSemanticIntrospection { _, _ -> listOf(SemanticSearchResult(coordinate, emptyList(), 0.9)) }
             assertEquals(listOf(mapOf("coordinate" to coordinate)), execute(schema, """{ _search(query: "x") { coordinate } }""").search(), coordinate)
         }
     }
@@ -168,7 +168,7 @@ class SemanticIntrospectionTest {
     @Test
     fun `accepts type coordinates and drops paths through unknown fields`() {
         val schema = schema().withSemanticIntrospection { _, _ ->
-            listOf(SemanticSearchResult("Repository", listOf(listOf("Query.repository"), listOf("Query.hidden", "Repository.releases"), emptyList()), 0.9, "c"))
+            listOf(SemanticSearchResult("Repository", listOf(listOf("Query.repository"), listOf("Query.hidden", "Repository.releases"), emptyList()), 0.9))
         }
         val result = execute(schema, """{ _search(query: "x") { coordinate pathsToRoot } }""")
         assertEquals(listOf(mapOf("coordinate" to "Repository", "pathsToRoot" to listOf(listOf("Query.repository")))), result.search())
