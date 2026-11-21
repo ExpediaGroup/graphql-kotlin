@@ -52,7 +52,8 @@ module.exports = {
           'schema-generator/execution/contextual-data',
           'schema-generator/execution/optional-undefined-arguments',
           'schema-generator/execution/subscriptions',
-          'schema-generator/execution/introspection'
+          'schema-generator/execution/introspection',
+          'schema-generator/execution/semantic-introspection'
         ]
       },
       {
