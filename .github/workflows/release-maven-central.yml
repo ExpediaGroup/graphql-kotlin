@@ -1,0 +1,48 @@
+name: Release Maven Central
+
+# Re-publishes an existing release tag to Maven Central only, without the Gradle Plugin Portal. For when
+# Release Code published the plugin but failed to release the Sonatype staging repository: re-running Release Code
+# would fail on publishPlugins, since the plugin version already exists.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Existing release tag to publish to Maven Central, e.g. 11.1.0'
+        required: true
+
+jobs:
+  release-maven-central:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: refs/tags/${{ inputs.version }}
+
+      - uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Publish library to Maven Central
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -Pversion="${VERSION}"
+        env:
+          VERSION: ${{ inputs.version }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_SECRET: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
+
+      - name: Archive failure build reports
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-reports
+          path: |
+            ./**/build/reports
+          retention-days: 7
