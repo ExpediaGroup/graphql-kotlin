@@ -38,6 +38,21 @@ jobs:
           GPG_SECRET: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
 
+      # Central Portal keeps the reason it rejected a deployment; Gradle only reports "Publish request failed".
+      - name: Print Central Portal deployment errors
+        if: failure()
+        run: |
+          AUTH=$(printf '%s:%s' "${SONATYPE_USERNAME}" "${SONATYPE_PASSWORD}" | base64 -w0)
+          curl -sS -H "Authorization: Bearer ${AUTH}" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?ip=any&profile_id=com.expediagroup" | tee repositories.json
+          for id in $(jq -r '.repositories[]?.portal_deployment_id // empty' repositories.json); do
+            echo "Deployment ${id}:"
+            curl -sS -X POST -H "Authorization: Bearer ${AUTH}" "https://central.sonatype.com/api/v1/publisher/status?id=${id}" | jq .
+          done
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
       - name: Archive failure build reports
         uses: actions/upload-artifact@v4
         if: failure()
