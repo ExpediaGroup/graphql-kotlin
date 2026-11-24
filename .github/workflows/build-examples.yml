@@ -3,6 +3,9 @@ name: Build and Test Examples
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     timeout-minutes: 30
@@ -12,22 +15,24 @@ jobs:
         working-directory: examples
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.7.0
+        with:
+          persist-credentials: false
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v3.5.0
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.9.1
         with:
           java-version: 17
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v3.5.0
 
       - name: Set up Maven cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.3.0
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -37,7 +42,7 @@ jobs:
         run: ./gradlew clean build
 
       - name: Archive examples failure build reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: build-examples-reports

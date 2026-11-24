@@ -9,6 +9,9 @@ on:
       - 'website/**'
       - '*.md'
 
+permissions:
+  contents: read
+
 jobs:
   build-libraries:
     uses: ./.github/workflows/build-libraries.yml
